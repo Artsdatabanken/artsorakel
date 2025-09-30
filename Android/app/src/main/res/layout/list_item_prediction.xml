@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/viewPrediction"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:background="?attr/surface_primary"
+    >
+
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/imageViewPrediction"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:scaleType="centerCrop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        tools:src="@drawable/placeholder_generic" />
+
+    <!-- Vernacular Name -->
+    <TextView
+        android:id="@+id/textViewVernacularName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:textSize="22sp"
+        android:fontFamily="@font/chivo_bold"
+        app:layout_constraintStart_toEndOf="@id/imageViewPrediction"
+        app:layout_constraintTop_toTopOf="@id/imageViewPrediction"
+        app:layout_constraintEnd_toStartOf="@id/imageViewArrow"
+        android:textColor="?attr/surface_accent"
+        android:layout_marginEnd="8dp"
+        tools:text="" />
+
+    <!-- Scientific Name -->
+    <TextView
+        android:id="@+id/textViewScientificName"
+        android:fontFamily="@font/chivo_italic"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:textSize="12sp"
+        app:layout_constraintStart_toEndOf="@id/imageViewPrediction"
+        app:layout_constraintTop_toBottomOf="@id/textViewVernacularName"
+        app:layout_constraintEnd_toStartOf="@id/imageViewArrow"
+        android:textColor="?attr/text_primary"
+        android:layout_marginEnd="8dp"
+        tools:text="" />
+
+    <!-- Group Name -->
+    <TextView
+        android:id="@+id/textViewGroupName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="4dp"
+        android:textSize="12sp"
+        android:textColor="?attr/text_primary"
+        app:layout_constraintStart_toEndOf="@id/imageViewPrediction"
+        app:layout_constraintTop_toBottomOf="@id/textViewScientificName"
+        app:layout_constraintEnd_toStartOf="@id/imageViewArrow"
+        android:layout_marginEnd="8dp"
+        tools:text="" />
+
+    <!-- Certainty Bar (Using NonLinearGaugeView) -->
+    <no.artsdatabanken.artsorakel.view.NonLinearGaugeView
+        android:id="@+id/gaugeCertainty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:gaugeCircleDiameter="18dp"
+        app:gaugeUnfilledColor="?attr/surface_subtle"
+        app:layout_constraintEnd_toStartOf="@id/imageViewArrow"
+        app:layout_constraintStart_toEndOf="@id/imageViewPrediction"
+        app:layout_constraintTop_toBottomOf="@id/textViewGroupName"
+        tools:gaugeProbability="0" />
+
+    
+    <!-- Arrow Icon -->
+    <ImageView
+        android:id="@+id/imageViewArrow"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:contentDescription="@string/details"
+        android:src="@drawable/ic_chevron_right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="?attr/surface_brand_1b" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Define a path for temporary images in the cache directory -->
+    <!-- path="." means the root of the directory specified by the tag -->
+    <cache-path name="my_images" path="." />
+    <!-- This path corresponds to getExternalFilesDir(null) -->
+    <external-files-path
+        name="my_images"
+        path="." />
+</paths> 

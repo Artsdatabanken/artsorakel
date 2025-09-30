@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Original padding values for window insets handling -->
+    <dimen name="header_original_padding_top">4dp</dimen>
+    <dimen name="bottom_bar_original_padding_bottom">16dp</dimen>
+    
+    <!-- Original height values for Android 15 edge-to-edge adjustments -->
+    <dimen name="header_original_height">64dp</dimen>
+    <dimen name="bottom_bar_original_height">148dp</dimen>
+    
+    <!-- Image cropper button container padding -->
+    <dimen name="cropper_button_padding">16dp</dimen>
+    
+    <!-- Results fragment reset button margin -->
+    <dimen name="results_button_margin">16dp</dimen>
+    
+    <!-- Species detail fragment button container margin -->
+    <dimen name="species_detail_button_margin">24dp</dimen>
+    
+    <!-- Navigation drawer bottom menu padding -->
+    <dimen name="drawer_menu_bottom_padding">16dp</dimen>
+</resources> 

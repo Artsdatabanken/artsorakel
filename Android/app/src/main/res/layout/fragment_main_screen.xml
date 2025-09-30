@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background_subtle"
+    android:orientation="vertical">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardRssFeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="0dp"
+            android:visibility="gone"
+            app:cardCornerRadius="0dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="1dp"
+            app:strokeColor="?attr/alert_info_border_primary"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <FrameLayout
+                android:id="@+id/rssContentFrame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <View
+                        android:id="@+id/rssLeftBorder"
+                        android:layout_width="6dp"
+                        android:layout_height="match_parent"
+                        android:background="?attr/alert_info_border_primary"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:paddingStart="10dp"
+                        android:paddingEnd="48dp"
+                        android:paddingTop="16dp"
+                        android:paddingBottom="16dp">
+
+                    <ImageView
+                        android:id="@+id/imageRssCategory"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginEnd="12dp"
+                        android:layout_gravity="top"
+                        android:src="@drawable/ic_alert_info"
+                        android:contentDescription="@string/separator"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textRssTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textStyle="bold"
+                            android:textSize="18sp"
+                            android:textColor="?attr/alert_info_text_primary"/>
+
+                        <TextView
+                            android:id="@+id/textRssDescription"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:textSize="14sp"
+                            android:textColor="?attr/alert_info_text_primary"/>
+
+                    </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/buttonDismissRss"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|end"
+                    android:layout_margin="8dp"
+                    android:backgroundTint="?attr/surface_subtle"
+                    android:contentDescription="@string/close"
+                    android:elevation="4dp"
+                    android:src="@drawable/ic_close"
+                    app:borderWidth="0dp"
+                    app:fabCustomSize="32dp"
+                    app:maxImageSize="16dp"
+                    app:tint="?attr/surface_accent" />
+
+            </FrameLayout>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+
+
+
+        <TextView
+            android:id="@+id/textViewTagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="100dp"
+            android:paddingVertical="16dp"
+            android:fontFamily="@font/chivo_bold"
+            android:text="@string/main_title"
+            android:textAlignment="center"
+            android:textColor="?attr/text_primary"
+            android:textSize="22sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/imageViewAvatarContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ImageView
+            android:id="@+id/imageViewAvatarPicture"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="32dp"
+            android:contentDescription="@string/avatar_description"
+            android:visibility="visible"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- History Stack Container -->
+    <include
+        android:id="@+id/includeHistoryStack"
+        layout="@layout/history_stack_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_weight="0"
+        android:layout_margin="16dp"
+        />
+
+</LinearLayout> 

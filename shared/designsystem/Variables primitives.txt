@@ -1,0 +1,232 @@
+:root {
+  /* =======================
+     Base colors
+  ======================= */
+  --ocean: #262F31;
+  --white: #FFFFFF;
+
+  /* =======================
+     Coral
+  ======================= */
+  --coral-base-positive: #FFE9E6;
+  --coral-10: #FBBF87;
+  --coral-20: #F8B0A3;
+  --coral-30: #F4A08F;
+  --coral-40: #F0907B;
+  --coral-50: #EA7C68;
+  --coral-60: #EF6A52;
+  --coral-70: #E55440;
+  --coral-80: #DB462C;
+  --coral-90: #CF3E1C;
+  --coral-100: #B83719;
+  --coral-base-negative: #381E19;
+
+  /* =======================
+     Evergreen
+  ======================= */
+  --evergreen-base-positive: #E4F6F2;
+  --evergreen-10: #8DE2CD;
+  --evergreen-20: #74D6BB;
+  --evergreen-30: #5AC9A9;
+  --evergreen-40: #3FBD96;
+  --evergreen-50: #25B688;
+  --evergreen-60: #16A979;
+  --evergreen-70: #0C936B;
+  --evergreen-80: #068562;
+  --evergreen-90: #007759;
+  --evergreen-100: #005C45;
+  --evergreen-base-negative: #133A30;
+
+  /* =======================
+     Sun
+  ======================= */
+  --sun-base-positive: #FFF1DB;
+  --sun-10: #F6DDB6;
+  --sun-20: #F9D59E;
+  --sun-30: #FBCD86;
+  --sun-40: #FBC56D;
+  --sun-50: #F8BD53;
+  --sun-60: #FAB636;
+  --sun-70: #F8AE00;
+  --sun-80: #D79211;
+  --sun-90: #B67717;
+  --sun-100: #9E6814;
+  --sun-base-negative: #392A13;
+
+  /* =======================
+     Summer Grass
+  ======================= */
+  --summer-grass-base-positive: #E6EEDD;
+  --summer-grass-10: #C9DAB4;
+  --summer-grass-20: #C3CF9D;
+  --summer-grass-30: #BCC485;
+  --summer-grass-40: #B5B96E;
+  --summer-grass-50: #ADAE56;
+  --summer-grass-60: #A4A33E;
+  --summer-grass-70: #9B9921;
+  --summer-grass-80: #727B2A;
+  --summer-grass-90: #495E2E;
+  --summer-grass-100: #3B4825;
+  --summer-grass-base-negative: #273B0D;
+
+  /* =======================
+     Freshwater Blue
+  ======================= */
+  --freshwater-blue-base-positive: #E6F1F4;
+  --freshwater-blue-10: #61D0EA;
+  --freshwater-blue-20: #52C0DA;
+  --freshwater-blue-30: #44AFCB;
+  --freshwater-blue-40: #379FBB;
+  --freshwater-blue-50: #298FAB;
+  --freshwater-blue-60: #0283A1;
+  --freshwater-blue-70: #11718A;
+  --freshwater-blue-80: #066279;
+  --freshwater-blue-90: #005A71;
+  --freshwater-blue-100: #004557;
+  --freshwater-blue-base-negative: #1C3840;
+
+
+  /* =======================
+     Neutrals / ocean
+  ======================= */
+  --ocean-100: #141D1F;
+  --ocean-90:  #262F31;
+  --ocean-80:  #394244;
+  --ocean-70:  #4C5658;
+  --ocean-60:  #616B6D;
+  --ocean-50:  #768083;
+  --ocean-40:  #8C9799;
+  --ocean-30:  #A3AEB0;
+  --ocean-20:  #BAC5C8;
+  --ocean-10:  #D2DDE0;
+  --ocean-base-positive: #F1F3F4;
+
+  /* =======================
+     Neutrals / grey
+  ======================= */
+  --grey-50: #E4E4E4;
+
+  /* =======================
+     Neutrals / sand
+  ======================= */
+  --sand-10:  #FFFCF7;
+  --sand-20:  #FEF9F1;
+  --sand-30:  #FFF7EB;
+  --sand-40:  #FAF1E4;
+  --sand-50:  #FAEFDF;
+  --sand-60:  #F8ECDA;
+  --sand-70:  #F7E9D5;
+  --sand-80:  #F5E7D3;
+  --sand-90:  #F3E2CB;
+  --sand-100: #F2DFC5;
+  --sand-120: #EFD7B7;
+  --sand-140: #EDD0AA;
+  --sand-160: #EAC99D;
+  --sand-180: #E6C18F;
+  --sand-200: #E3BA82;
+
+  /* =======================
+     Functional / red
+  ======================= */
+  --red-base: #FDEDEF;
+  --red-10:  #FFBAC3;
+  --red-20:  #FF9CA7;
+  --red-30:  #FF7C8A;
+  --red-40:  #F85C6E;
+  --red-50:  #E54359;
+  --red-60:  #CE2B49;
+  --red-70:  #B80338;
+  --red-80:  #9A0024;
+  --red-90:  #7C0010;
+  --red-100: #5E0000;
+
+  /* =======================
+     Functional / yellow
+  ======================= */
+  --yellow-10:  #FFDB4B;
+  --yellow-20:  #F8BB23;
+  --yellow-30:  #DDA300;
+  --yellow-40:  #C28C00;
+  --yellow-50:  #A77600;
+  --yellow-60:  #8D6000;
+  --yellow-70:  #744B00;
+  --yellow-80:  #5E3600;
+  --yellow-90:  #492100;
+  --yellow-100: #390700;
+  --yellow-base: #FFF9EA;
+
+  /* =======================
+     Functional / blue
+  ======================= */
+  --blue-10:  #6CFFFF;
+  --blue-20:  #38E5FB;
+  --blue-30:  #00CCE6;
+  --blue-40:  #00B2CC;
+  --blue-50:  #0099B2;
+  --blue-60:  #008199;
+  --blue-70:  #006982;
+  --blue-80:  #00536A;
+  --blue-90:  #003D54;
+  --blue-100: #00283E;
+  --blue-base: #E5FAFD;
+
+  /* =======================
+     Functional / green
+  ======================= */
+  --green-10:  #77FFD1;
+  --green-20:  #4FE7B0;
+  --green-30:  #2CCF99;
+  --green-40:  #00B682;
+  --green-50:  #009C6A;
+  --green-60:  #008454;
+  --green-70:  #006C3F;
+  --green-80:  #00552B;
+  --green-90:  #003F18;
+  --green-100: #002A00;
+  --green-base: #EBF8F5;
+
+  /* =======================
+     Functional / purple
+  ======================= */
+  --purple-10:  #FFCAFF;
+  --purple-20:  #E2AEFE;
+  --purple-30:  #C694F4;
+  --purple-40:  #AD7CDA;
+  --purple-50:  #9465C1;
+  --purple-60:  #7C4FA8;
+  --purple-70:  #64398F;
+  --purple-80:  #4C2378;
+  --purple-90:  #350D61;
+  --purple-100: #1A0047;
+  --purple-base: #FFEBFF;
+
+  /* =======================
+     Dimensions
+  ======================= */
+  --dimension-0: 0;
+  --dimension-half-base: 2;
+  --dimension-base: 4;
+  --dimension-1-5x: 6;
+  --dimension-2x: 8;
+  --dimension-3x: 12;
+  --dimension-4x: 16;
+  --dimension-5x: 20;
+  --dimension-6x: 24;
+  --dimension-7x: 28;
+  --dimension-8x: 32;
+  --dimension-9x: 36;
+  --dimension-10x: 40;
+  --dimension-11x: 44;
+  --dimension-12x: 48;
+  --dimension-13x: 52;
+  --dimension-14x: 56;
+  --dimension-16x: 64;
+  --dimension-18x: 72;
+  --dimension-20x: 80;
+  --dimension-22x: 88;
+  --dimension-24x: 96;
+  --dimension-26x: 104;
+  --dimension-30x: 120;
+  --dimension-32x: 128;
+  --dimension-90x: 360;
+}

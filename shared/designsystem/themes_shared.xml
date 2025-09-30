@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Artsorakel" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:windowBackground">?attr/background_default</item>
+        <item name="android:statusBarColor">?attr/background_default</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="colorSurfaceBright">?attr/background_default</item>
+
+        <item name="colorSurface">?attr/background_subtle</item>
+        <item name="colorOnSurface">?attr/text_primary</item>
+
+        <item name="colorSurfaceVariant">?attr/surface_subtle</item>
+        <item name="colorOnSurfaceVariant">?attr/surface_accent</item>
+
+        <item name="colorPrimary">?attr/surface_accent</item>
+        <item name="colorSecondaryContainer">?attr/background_subtle</item>
+        <item name="colorPrimarySurface">?attr/surface_primary</item>
+
+        <item name="alertDialogTheme">@style/CustomAlertDialogTheme</item>
+        <item name="materialAlertDialogTheme">@style/CustomAlertDialogTheme</item>
+
+    </style>
+    <!-- Custom Alert Dialog Theme with explicit colors -->
+    <style name="CustomAlertDialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="android:backgroundTint">?attr/background_default</item>
+        <item name="android:textColorPrimary">?attr/text_primary</item>
+        <item name="colorControlActivated">?attr/text_accent</item>
+        <item name="colorControlNormal">?attr/text_accent</item>
+        <item name="android:textColorSecondary">?attr/text_accent</item>
+        <item name="colorPrimary">?attr/text_accent</item>
+    </style>
+</resources>

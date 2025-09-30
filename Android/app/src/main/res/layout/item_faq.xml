@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_faq_item_stroke"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="16dp"
+    >
+
+    <ImageView
+        android:id="@+id/expandIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_arrow_drop_down"
+        app:tint="?attr/text_accent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/questionText"
+        app:layout_constraintBottom_toBottomOf="@+id/questionText" />
+
+    <TextView
+        android:id="@+id/questionText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/chivo_bold"
+        android:textColor="?attr/text_accent"
+        android:textSize="15sp"
+        android:lineSpacingExtra="4dp"
+        app:layout_constraintStart_toEndOf="@+id/expandIcon"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="What species can the app identify?" />
+
+
+
+    <TextView
+        android:id="@+id/answerText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/chivo_regular"
+        android:lineSpacingExtra="6dp"
+        android:textColor="?attr/text_primary"
+        android:textSize="14sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/questionText"
+        tools:text="The app can identify wild Norwegian species that have been reported with images on artsobservasjoner.no."
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

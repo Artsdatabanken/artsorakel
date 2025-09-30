@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <item
+        android:id="@+id/menu_reset_app"
+        android:title="@string/menu_reset"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/theme_menu_group_item"
+        android:title="@string/theme_theme">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_theme_system"
+                    android:title="@string/system_default" />
+                <item
+                    android:id="@+id/menu_theme_light"
+                    android:title="@string/theme_light" />
+                <item
+                    android:id="@+id/menu_theme_dark"
+                    android:title="@string/theme_dark" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/language_menu_group_item"
+        android:title="@string/language_language">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/menu_language_system"
+                    android:title="@string/system_default" />
+                <item
+                    android:id="@+id/menu_language_norwegian_bokmaal"
+                    android:title="@string/language_norwegian_bokmaal" />
+                <item
+                    android:id="@+id/menu_language_norwegian_nynorsk"
+                    android:title="@string/language_norwegian_nynorsk" />
+                <item
+                    android:id="@+id/menu_language_english"
+                    android:title="@string/language_english" />
+                <item
+                    android:id="@+id/menu_language_spanish"
+                    android:title="@string/language_spanish" />
+                <item
+                    android:id="@+id/menu_language_dutch"
+                    android:title="@string/language_dutch" />
+            </group>
+        </menu>
+    </item>
+
+</menu> 

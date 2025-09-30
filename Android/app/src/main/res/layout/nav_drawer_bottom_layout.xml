@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background_subtle"
+    android:fitsSystemWindows="false">
+
+    <LinearLayout
+        android:id="@+id/bottom_menu_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:clipToPadding="false">
+
+        <!-- Theme Item -->
+        <LinearLayout
+            android:id="@+id/nav_theme"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_theme"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/theme_theme"
+                app:tint="?attr/text_accent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/theme_theme"
+                android:textSize="14sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_regular" />
+
+        </LinearLayout>
+
+        <!-- Language Item -->
+        <LinearLayout
+            android:id="@+id/nav_language"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_language"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/language_language"
+                app:tint="?attr/text_accent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/language_language"
+                android:textSize="14sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_regular" />
+
+        </LinearLayout>
+
+        <!-- Divider -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="60dp"
+            android:layout_height="4dp"
+            android:layout_gravity="start"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="2dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="?attr/surface_brand_1a" />
+
+
+        <!-- Settings Item -->
+        <LinearLayout
+            android:id="@+id/nav_settings"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_settings"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/settings"
+                app:tint="?attr/text_accent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/settings"
+                android:textSize="14sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_regular" />
+
+        </LinearLayout>
+
+        <!-- About Item -->
+        <LinearLayout
+            android:id="@+id/nav_about"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_alert_info"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/about"
+                app:tint="?attr/text_accent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/about"
+                android:textSize="14sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_regular" />
+
+        </LinearLayout>
+
+        <!-- FAQ Item -->
+        <LinearLayout
+            android:id="@+id/nav_faq"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_help"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@string/faq"
+                app:tint="?attr/text_accent" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/faq"
+                android:textSize="14sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_regular" />
+
+        </LinearLayout>
+
+        <!-- Close Button -->
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/nav_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_margin="8dp"
+            android:contentDescription="@string/close"
+            android:src="@drawable/ic_close"
+            app:borderWidth="1.5dp"
+            app:fabCustomSize="40dp"
+            app:maxImageSize="20dp"
+            app:tint="?attr/text_accent"
+            app:backgroundTint="?attr/border_accent"
+            android:backgroundTint="?attr/surface_primary"
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+    </LinearLayout>
+
+</FrameLayout> 

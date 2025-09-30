@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background_default"
+    android:fitsSystemWindows="true">
+    
+    <!-- Full height container with header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/background_default"
+        android:orientation="vertical">
+        
+        <LinearLayout
+            android:id="@+id/headerRow"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:orientation="horizontal"
+            android:paddingTop="4dp">
+            
+            <ImageButton
+                android:id="@+id/backButton"
+                android:layout_width="20dp"
+                android:layout_height="48dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="6dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_arrow_back"
+                app:tint="?attr/text_accent"
+                android:contentDescription="@string/back" />
+                
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:layout_weight="1"
+                android:text="@string/settings"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_regular" />
+            
+            <ImageButton
+                android:id="@+id/menuButton"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="6dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_menu"
+                app:tint="?attr/text_accent"
+                android:contentDescription="@string/menu" />
+            
+        </LinearLayout>
+
+
+        <!-- Scrollable content -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="80dp"
+            android:background="?attr/background_subtle"
+
+            >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Appearance Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/appearance"
+                android:textSize="16sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Theme Radio Buttons -->
+            <RadioGroup
+                android:id="@+id/themeRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioThemeSystemDefault"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/system_default"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioThemeLight"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/theme_light"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioThemeDark"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/theme_dark"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+            </RadioGroup>
+
+
+            <!-- Divider -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:layout_gravity="start"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/surface_brand_1a" />
+
+            <!-- Language Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/language_language"
+                android:textSize="16sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Language Radio Buttons -->
+            <RadioGroup
+                android:id="@+id/languageRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                >
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioSystemDefault"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/system_default"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioNorwegianBokmaal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_norwegian_bokmaal"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioNorwegianNynorsk"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_norwegian_nynorsk"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioEnglish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_english"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioDutch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_dutch"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioSpanish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_spanish"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+                <com.google.android.material.radiobutton.MaterialRadioButton
+                    android:id="@+id/radioSwedish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/language_swedish"
+                    app:buttonTint="?attr/text_accent"
+                    android:textSize="14sp"
+                    android:textColor="?attr/text_accent"
+                    android:fontFamily="@font/chivo_regular"
+                    android:paddingVertical="8dp" />
+
+            </RadioGroup>
+
+            <!-- Divider -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:layout_gravity="start"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/surface_brand_1a" />
+
+            <!-- Location Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/location_settings_title"
+                android:textSize="16sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_bold"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Use Location for ID Toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="24dp">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/useLocationSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="10dp"
+                    app:thumbTint="@color/switch_thumb_selector"
+                    app:trackTint="@color/switch_track_selector"
+                    app:trackDecorationTint="@color/switch_track_decoration_selector"
+                    />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/use_location_for_id"
+                        android:textSize="14sp"
+                        android:textColor="?attr/text_primary"
+                        android:fontFamily="@font/chivo_regular" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/use_location_for_id_desc"
+                        android:textSize="12sp"
+                        android:textColor="?attr/text_secondary"
+                        android:fontFamily="@font/chivo_regular"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Divider -->
+            <androidx.cardview.widget.CardView
+                android:layout_width="60dp"
+                android:layout_height="4dp"
+                android:layout_gravity="start"
+                android:layout_marginBottom="32dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp"
+                app:cardBackgroundColor="?attr/surface_brand_1a" />
+
+            <!-- Advanced Section -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/identification_history"
+                android:textSize="16sp"
+                android:textColor="?attr/text_primary"
+                android:fontFamily="@font/chivo_bold"
+                android:layout_marginBottom="12dp" />
+
+
+            <!-- Save History Toggle -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/saveHistorySwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="0dp"
+                    android:paddingEnd="10dp"
+                    app:thumbTint="@color/switch_thumb_selector"
+                    app:trackTint="@color/switch_track_selector"
+                    app:trackDecorationTint="@color/switch_track_decoration_selector"
+                    />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/save_history"
+                        android:textSize="14sp"
+                        android:textColor="?attr/text_primary"
+                        android:fontFamily="@font/chivo_regular" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/save_history_desc"
+                        android:textSize="12sp"
+                        android:textColor="?attr/text_secondary"
+                        android:fontFamily="@font/chivo_regular"
+                        android:layout_marginTop="2dp" />
+
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+
+            <!-- Delete History -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                >
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/clearHistoryButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|center_horizontal"
+                    android:elevation="0dp"
+                    android:text="@string/clear_history"
+                    android:textColor="?attr/alert_danger_text_primary"
+                    app:backgroundTint="?attr/surface_primary"
+                    app:cornerRadius="28dp"
+                    app:icon="@drawable/ic_delete"
+                    app:iconTint="?attr/alert_danger_text_primary"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/inputImages"
+                    app:strokeColor="?attr/alert_danger_border_primary"
+                    app:strokeWidth="2dp"
+                    android:textAllCaps="false"
+                    android:layout_marginTop="12dp"
+                    />
+
+
+
+
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        </ScrollView>
+        
+    </LinearLayout>
+
+</FrameLayout>

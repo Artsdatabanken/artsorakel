@@ -1,0 +1,89 @@
+key,en,es,nb,sv,nl,nn
+abort_button,Abort,Cancelar,Avbryt,Avbryt,Afbreken,Avbryt
+about,About,Acerca de,Om,Om,Over,Om
+add_pictures_hint,More pictures give a more accurate result,Agrega más fotos de la especie para obtener un resultado más preciso,Flere bilder gir et mer nøyaktig resultat,Lägg till fler bilder av arten för ett mer noggrant resultat,Meer foto's geven een nauwkeuriger resultaat,Legg til fleire bilete av arten for eit meir nøyaktig resultat
+advanced,Advanced,Avanzado,Avansert,Avancerat,Geavanceerd,Avansert
+appearance,Appearance,Apariencia,Utseende,Utseende,Uiterlijk,Utsjånad
+avatar_description,Illustration of a man taking a picture,Ilustración de un hombre tomando una foto,Illustrasjon av en mann som tar et bilde,Illustration av en man som tar en bild,Illustratie van een man die een foto neemt,Illustrasjon av ein mann som tek eit bilete
+back,Back,Atrás,Tilbake,Tillbaka,Terug,Tilbake
+cancel,Cancel,Cancelar,Avbryt,Avbryt,Annuleren,Avbryt
+carousel_image,Carousel image,Imagen del carrusel,Karusellbilde,Karusellbild,Carrouselfoto,Karusellbilete
+certainty_percentage,%1$d%%,%1$d%%,%1$d%%,%1$d%%,%1$d%%,%1$d%%
+certainty_text,"Artsorakel found %1$d%% similarity with %2$s, based on what it has learned. The Artificial Intelligence can be wrong, so check for yourself if the identification is correct.","Artsorakel encontró %1$d%% de similitud con %2$s, basado en lo que ha aprendido. La Inteligencia Artificial puede estar equivocada, así que verifica por ti mismo si la identificación es correcta.","Artsorakelet fant %1$d%% likhet med %2$s basert på det den har lært. Den kunstige intelligensen  kan ta feil, så du må selv kontrollere at identifikasjonen stemmer.","Artsorakelet hittade %1$d%% likhet med %2$s baserat på vad det har lärt sig. Den artificiella intelligensen kan ha fel, så kontrollera själv om identifieringen stämmer.","Artsorakel vond %1$d%% gelijkenis met %2$s gebaseerd op wat het heeft geleerd. De kunstmatige intelligentie  kan het fout hebben, controleer dus zelfs of de identificatie klopt.","Artsorakelet fann %1$d%% likskap med %2$s basert på det ho har lært. Den kunstige intelligensen kan ta feil, så du må sjølv kontrollere at identifiseringa stemmer."
+clear,Clear,Limpiar,Slett,Rensa,Verwijder,Slett
+clear_history,Clear history,Limpiar historial,Fjern historikk,Rensa historik,Verwijder geschiedenis,Fjern historikk
+clear_history_confirmation_message,Are you sure you want to clear all identification history? This action cannot be undone.,¿Estás seguro de que quieres limpiar todo el historial de identificación? Esta acción no se puede deshacer.,Er du sikker på at du vil fjerne alle tidligere identifikasjoner? Dette kan ikke reverseres.,Är du säker på att du vill ta bort all identifieringshistorik? Detta kan inte ångras.,Weet je zeker dat je alle eerdere identificaties wilt verwijderen? Dit kan niet ongedaan gemaakt worden.,Er du sikker på at du vil fjerna alle tidlegare identifikasjonar? Dette kan ikkje reverserast.
+clear_history_desc,Delete all identification history,Eliminar todo el historial de identificación,Fjern alle tidligere identifikasjoner,Ta bort all identifieringshistorik,Verwijder alle eerdere identificaties,Fjern alle tidlegare identifikasjonar
+close,Close,Cerrar,Lukk,Stäng,Sluiten,Steng
+content_desc_continue_preview,Continue with image,Continuar con la imagen,Fortsett med bilde,Fortsätt med bild,Ga verder met foto,Hald fram med bilete
+content_desc_delete_image,Delete image,Eliminar imagen,Slett bilde,Ta bort bild,Verwijder foto,Slett bilete
+continue_button,Continue,Continuar,Fortsett,Fortsätt,Ga verder,Hald fram
+cropper_background_image,Background image context,Contexto de imagen de fondo,Bakgrunnsbilde kontekst,Bakgrundsbildkontext,Achtergrondafbeelding context,Bakgrunnsbilete kontekst
+delete,Delete,Eliminar,Slett,Ta bort,Verwijderen,Slett
+delete_item,Delete item,Eliminar elemento,Slett element,Ta bort objekt,Item verwijderen,Slett element
+details,Details,Detalles,Detaljer,Detaljer,Details,Detaljar
+disclaimer_title,Using the app,Uso de la aplicación,Bruk av appen,Användning av appen,Gebruik van de app,Bruk av appen
+distribution_map_description,Map showing where this species has been reported in Norway,Mapa que muestra dónde se ha reportado esta especie en Noruega,Kart som viser hvor denne arten er rapportert i Norge,Karta som visar var denna art har rapporterats i Norge,Kaart die toont waar deze soort is waargenomen in Noorwegen,Kart som viser kvar denne arten er rapportert i Noreg
+distribution_title,Observations in Norway,Observaciones en Noruega,Observasjoner i Norge,Observationer i Norge,Observaties in Noorwegen,Observasjonar i Noreg
+faq,FAQ,Preguntas frecuentes,Spørsmål & svar,Frågor & svar,Vraag & antwoord,Spørsmål & svar
+historical_result_from,Result from %1$s,Resultado del %1$s,Resultat fra %1$s,Resultat från %1$s,Resultaat van %1$s,Resultat frå %1$s
+identification_history,History,Historial,Historikk,Historik,Geschiedenis,Historikk
+identify,Identify,Identificar,Identifiser,Identifiera,Identificeer,Identifiser
+identify_description,Identify Species,Identificar especies,Identifiser art,Identifiera art,Identificeer soort,Identifiser art
+image_preview_description,Fullscreen preview of the selected image,Vista previa en pantalla completa de la imagen seleccionada,Fullskjerm forhåndsvisning av det valgte bildet,Fullskärmsförhandsvisning av den valda bilden,Preview van de geselecteerde foto in volledig scherm,Fullskjerm førehandsvisning av det valde biletet
+language_dutch,Dutch,Holandés,Nederlandsk,Nederländska,Nederlands,Nederlandsk
+language_english,English,Inglés,Engelsk,Engelska,Engels,Engelsk
+language_language,Language,Idioma,Språk,Språk,Taal,Språk
+language_norwegian_bokmaal,Norsk (Bokmål),Noruego (Bokmål),Norsk (Bokmål),Norska (Bokmål),Noors (Bokmål),Norsk (Bokmål)
+language_norwegian_nynorsk,Norwegian (Nynorsk),Noruego (Nynorsk),Norsk (Nynorsk),Norska (Nynorsk),Noors (Nynorsk),Norsk (Nynorsk)
+language_spanish,Spanish,Español,Spansk,Spanska,Spaans,Spansk
+language_swedish,Swedish,Sueco,Svensk,Svenska,Zweeds,Svensk
+logo_description,Artsdatabanken logo,Logo de Artsdatabanken,Artsdatabanken logo,Artsdatabanken logo,Artsdatabanken logo,Artsdatabanken logo
+main_title,Identifies species in nature,Identifica especies en la naturaleza,Identifiserer arter i naturen,Identifierar arter i naturen,Identificeert soorten in de natuur,Identifiserer artar i naturen
+match_label,Match:,Coincidencia:,Treffprosent:,Träffprocent:,Matchpercentage:,Treffprosent:
+menu,Menu,Menú,Meny,Meny,Menu,Meny
+menu_description,Open Settings Menu,Abrir menú de configuración,Åpne innstillingsmeny,Öppna inställningsmeny,Open instellingenmenu,Opne innstillingsmeny
+menu_reset,Reset,Reiniciar,Nullstill,Återställ,Reset,Nullstill
+pick_image_camera,Take photo,Tomar foto,Ta bilde,Ta foto,Foto nemen,Ta bilete
+pick_image_gallery,Choose from Gallery,Elegir de la galería,Velg fra galleri,Välj från galleri,Kies uit de gallerij,Vel frå galleri
+fungi_warning_text,Never eat anything based on the suggestions - they may be wrong!,Nunca comas nada basándote en las sugerencias - ¡pueden estar equivocadas!,Aldri spis noe basert på forslagene - de kan være feil!,Ät aldrig något baserat på förslagen - de kan vara fel!,Eet nooit iets op basis van de suggesties - ze kunnen fout zijn!,Aldri et noko basert på forslaga - dei kan vere feil!
+read_more,Read more,Leer más,Les mer,Läs mer,Lees meer,Les meir
+read_more_detailed,Read more about %1$s at Artsdatabanken (in Norwegian),Leer más sobre %1$s en Artsdatabanken (en noruego),Les mer om %1$s på Artsdatabanken,Läs mer om %1$s på Artsdatabanken (på norska),Lees meer over %1$s bij Artsdatabanken (in het Noors),Les meir om %1$s på Artsdatabanken
+report,Report on artsobservasjoner.no,Reportar en artsobservasjoner.no,Rapporter på artsobservasjoner.no,Rapportera på artsobservasjoner.no,Rapporteer op artsobservasjoner.no,Rapporter på artsobservasjoner.no
+report_dialog_continue,Continue,Continuar,Fortsett,Fortsätt,Ga verder,Hald fram
+report_dialog_message,Check the identification yourself before reporting. Artsorakel can be wrong also with a high similarity percentage. Do you want to continue?,Verifica la identificación por ti mismo antes de reportar. Artsorakel también puede estar equivocado con un alto porcentaje de similitud. ¿Deseas continuar?,Sjekk artsbestemmelsen selv før du rapporterer. Artsorakelet kan ta feil også ved høy treffprosent. Vil du fortsette?,Kontrollera artbestämningen själv innan du rapporterar. Artsorakelet kan ha fel även vid hög träffprocent. Vill du fortsätta?,Controleer de identificatie zelf voordat je rapporteert. Artsorakel kan fouten maken ook bij een hoog percentage. Wil je doorgaan?,Sjekk artsbestemming sjølv før du rapporterer. Artsorakelet kan ta feil også ved høg treffprosent. Vil du halde fram?
+report_dialog_title,Report species observation,Reportar observación de especie,Rapporter artsobservasjon,Rapportera artsobservation,Rapporteer soortobservatie,Rapporter artsobservasjon
+location_settings_title,Location,Ubicación,Posisjon,Position,Locatie,Posisjon
+use_location_for_id,Use location for identification,Usar ubicación para identificación,Bruk posisjon for identifikasjon,Använd position för identifiering,Gebruik locatie voor identificatie,Bruk posisjon for identifikasjon
+use_location_for_id_desc,"Sharing the approximate location of pictures can improve results by selecting the best model. If switched off, the location will not be shared.","Compartir la ubicación aproximada de las imágenes puede mejorar los resultados al seleccionar el mejor modelo. Si se desactiva, la ubicación no se compartirá.","Deling av omtrentlig posisjon for bilder kan forbedre resultatene ved å velge beste modell. Hvis slått av, vil ikke posisjonen deles.","Att dela den ungefärliga platsen för bilder kan förbättra resultaten genom att välja den bästa modellen. Om avstängd delas inte platsen.","Het delen van de geschatte locatie van foto's kan de resultaten verbeteren door het beste model te selecteren. Als uitgeschakeld wordt de locatie niet gedeeld.","Deling av omtrentleg posisjon for bilete kan forbetra resultata ved å velja beste modell. Viss slått av, vil ikkje posisjonen delast."
+reset,Identify new species,Identificar nueva especie,Identifiser ny art,Identifiera ny art,Identificeer nieuwe soort,Identifiser ny art
+results,Results,Resultados,Resultater,Resultat,Resultaten,Resultat
+save_history,Save history,Guardar historial,Lagre historikk,Spara historik,Bewaar geschiedenis,Lagra historikk
+save_history_desc,Keep identification results in device history,Mantener resultados de identificación en el historial del dispositivo,Lagre tidligere identifikasjoner på denne enheten,Spara identifieringsresultat i enhetens historik,Bewaar eerdere identificaties of deze eenheid,Lagra tidlegare identifikasjonar på denne eininga
+selected_image_thumbnail,Selected Image Thumbnail,Miniatura de imagen seleccionada,Valgt bilde miniatyr,Vald bildminiatyr,Miniatuur geselecteerde foto,Valt bilete miniatyr
+separator,Separator,Separador,Separator,Separator,Separator,Separator
+settings,Settings,Configuración,Innstillinger,Inställningar,Instellingen,Innstillinger
+species_profile_image,Species profile image,Imagen de perfil de la especie,Artens profilbilde,Artens profilbild,Soort profielfoto,Artens profilbilete
+sub_title,"The app only recognizes wild species (no humans, pets, etc).","La aplicación solo reconoce especies silvestres (no humanos, mascotas, etc).","Artsorakelet kjenner igjen viltlevende arter (ikke mennesker, husdyr, osv).","Appen känner bara igen vilda arter (inga människor, husdjur, osv.)","De app herkent alleen wilde soorten (geen mensen, huisdieren, etc.)","Artsorakelet kjenner att viltlevande artar (ikkje menneske, husdyr, osv)."
+system_default,Follow device setting,Seguir configuración del dispositivo,Følg enhetens innstilling,Följ enhetens inställning,Volg apparaatinstelling,Følg eininga si innstilling
+theme_dark,Dark,Oscuro,Mørk,Mörk,Donker,Mørk
+theme_light,Light,Claro,Lys,Ljus,Licht,Lys
+theme_theme,Theme,Tema,Utseende,Utseende,Thema,Utsjånad
+thumbnail_description,Identification thumbnail,Miniatura de identificación,Miniatyrbilde identifikasjon,Miniatyrbild identifiering,Thumbnail identificatie,Miniatyrbilete identifikasjon
+timeout_message,This is taking longer than usual…,Esto está tomando más tiempo de lo usual…,Dette tar lengre tid enn vanlig…,Detta tar längre tid än vanligt…,Dit duurt langer dan normaal…,Dette tek lengre tid enn vanleg…
+understood,I understand,Entiendo,Jeg forstår,Jag förstår,Ik begrijp het,Eg forstår
+view_results,View Results,Ver resultados,Vis resultater,Visa resultat,Toon resultaten,Vis resultat
+in_norwegian_format,(%s in Norwegian),(%s en noruego),(%s på norsk),(%s på norska),(%s in het Noors),(%s på norsk)
+redlist_cr,Critically Endangered,En peligro crítico,Kritisk truet,Akut hotad,Ernstig bedreigd,Kritisk truga
+redlist_en,Endangered,En peligro,Sterkt truet,Starkt hotad,Bedreigd,Sterkt truga
+redlist_vu,Vulnerable,Vulnerable,Sårbar,Sårbar,Kwetsbaar,Sårbar
+redlist_nt,Near Threatened,Casi amenazado,Nær truet,Nära hotad,Gevoelig,Nær truga
+redlist_dd,Data Deficient,Datos insuficientes,Datamangel,Kunskapsbrist,Onzeker,Datamangel
+redlist_lc,Least Concern,Preocupación menor,Livskraftig,Livskraftig,Niet bedreigd,Livskraftig
+invasive_nk,No known risk,No conocido,Ingen kjent risiko,Ingen känd risk,Geen risico bekend,Ingen kjent risiko
+invasive_lo,Low risk,Bajo riesgo,Lav risiko,Låg risk,Laag risico,Låg risiko
+invasive_ph,Potentially high risk,Potencialmente alto riesgo,Potensielt høy risiko,Potentiellt hög risk,Mogelijk hoog risico,Potensielt høg risiko
+invasive_hi,High risk,Alto riesgo,Høy risiko,Hög risk,Hoog risico,Høg risiko
+invasive_se,Severe risk,Riesgo severo,Svært høy risiko,Mycket hög risk,Zeer hoog risico,Svært høg risiko
+unknown_species,this species,esta especie,denne arten,denna art,deze soort,denne arten
+crop_hint,Drag and zoom until the species fills the square,Arrastra y haz zoom hasta que la especie llene el cuadrado,Dra og zoom til arten fyller ruten,Dra och zooma tills arten fyller rutan,Sleep en zoom totdat de soort het vierkant vult,Dra og zoom til arten fyller ruta

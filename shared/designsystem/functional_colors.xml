@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Functional colors that are missing from Variables primitives -->
+
+    <!-- Green -->
+    <color name="green_base">#E6F4EA</color>
+    <color name="green_10">#C8E6C9</color>
+    <color name="green_50">#4CAF50</color>
+    <color name="green_90">#1B5E20</color>
+    <color name="green_100">#0D3E10</color>
+
+    <!-- Blue -->
+    <color name="blue_base">#E3F2FD</color>
+    <color name="blue_20">#90CAF9</color>
+    <color name="blue_50">#2196F3</color>
+    <color name="blue_80">#1565C0</color>
+    <color name="blue_90">#0D47A1</color>
+
+    <!-- Additional yellows -->
+    <color name="yellow_base">#FFF9EA</color>
+    <color name="yellow_20">#FFD54F</color>
+    <color name="yellow_80">#F57C00</color>
+    <color name="yellow_90">#E65100</color>
+</resources>

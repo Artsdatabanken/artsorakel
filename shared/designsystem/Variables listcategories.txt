@@ -1,0 +1,18 @@
+:root {
+  /* =======================
+     Category colors
+  ======================= */
+  --invasive-nk: #94a461;
+  --invasive-lo: #5c9d94;
+  --invasive-ph: #296472;
+  --invasive-hi: #2d4072;
+  --invasive-se: #4f0f52;
+  
+  --redlist-cr: #981919;
+  --redlist-en: #d90f28;
+  --redlist-vu: #ea4f34;
+  --redlist-nt: #ee6c26;
+  --redlist-dd: #f6a61f;
+  --redlist-lc: #61beb3;
+
+}

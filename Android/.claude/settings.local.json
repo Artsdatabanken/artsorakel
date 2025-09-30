@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(./gradlew:*)",
+      "Bash(./sync_resources.sh:*)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/shared/content/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/shared/content/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/shared/content/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/shared/content/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/shared/content/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/shared/content/**)",
+      "Read(/home/wouter/Projects/Artsdatabanken/Orakel/Native/**)",
+      "WebSearch",
+      "WebFetch(domain:www.swift.org)",
+      "Read(//home/wouter/Nextcloud/Artsdatabanken/Artsorakel/**)",
+      "Bash(../sync_resources.sh)",
+      "Read(//home/wouter/Nextcloud/Artsdatabanken/Artsorakel/Native/**)",
+      "Read(//home/wouter/Nextcloud/Artsdatabanken/Artsorakel/Native/**)",
+      "Read(//home/wouter/Nextcloud/Artsdatabanken/Artsorakel/Native/**)",
+      "Read(//home/wouter/Nextcloud/Artsdatabanken/Artsorakel/Native/**)",
+      "Bash(s2v:*)",
+      "Read(//usr/local/**)",
+      "Read(//tmp/**)",
+      "Bash(pip3 install:*)",
+      "Bash(svgo:*)",
+      "Bash(vd-tool:*)",
+      "Bash(inkscape:*)",
+      "Bash(timeout 5 svgo:*)",
+      "Bash(chmod:*)",
+      "Bash(python3:*)",
+      "Read(//usr/lib/**)",
+      "Read(//var/home/wouter/Nextcloud/Artsdatabanken/Artsorakel/Native/**)"
+    ],
+    "deny": [],
+    "defaultMode": "acceptEdits"
+  }
+}

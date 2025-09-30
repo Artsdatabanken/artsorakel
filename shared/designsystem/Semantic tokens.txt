@@ -1,0 +1,368 @@
+/* =======================
+   Light Mode
+======================= */
+:root {
+  /* Background */
+  --background-default: var(--sand-10);
+  --background-subtle: var(--sand-30);
+  --background-secondary: var(--surface-brand-4-base);
+  --background-strong: var(--sand-90);
+
+  /* Surface / Base */
+  --surface-primary: var(--white);
+  --surface-secondary: var(--sand-50);
+  --surface-tertiary: var(--ocean-base-positive);
+  --surface-subtle: var(--ocean-10);
+  --surface-subtle-hover: var(--ocean-20);
+  --surface-subtle-active: var(--ocean-30);
+  --surface-invert: var(--hav);
+
+  /* Surface / Accent */
+  --surface-accent: var(--freshwater-blue-90);
+  --surface-hover: var(--freshwater-blue-100);
+
+  /* Surface / Brand */
+  --surface-brand-1-base: var(--coral-base-positive);
+  --surface-brand-1a: var(--coral-90);
+  --surface-brand-1b: var(--coral-70);
+  --surface-brand-1c: var(--coral-10);
+
+  --surface-brand-2-base: var(--evergreen-base-positive);
+  --surface-brand-2a: var(--evergreen-90);
+  --surface-brand-2b: var(--evergreen-60);
+  --surface-brand-2c: var(--evergreen-10);
+
+  --surface-brand-3-base: var(--summer-grass-base-positive);
+  --surface-brand-3a: var(--summer-grass-90);
+  --surface-brand-3b: var(--summer-grass-70);
+  --surface-brand-3c: var(--summer-grass-10);
+
+  --surface-brand-4-base: var(--sun-base-positive);
+  --surface-brand-4a: var(--sun-90);
+  --surface-brand-4b: var(--sun-70);
+  --surface-brand-4c: var(--sun-10);
+
+  --surface-brand-5-base: var(--freshwater-blue-base-positive);
+  --surface-brand-5a: var(--freshwater-blue-90);
+  --surface-brand-5b: var(--freshwater-blue-60);
+  --surface-brand-5c: var(--freshwater-blue-10);
+
+  /* Surface / Visited */
+  --surface-visited: var(--ocean-60);
+
+  /* Text / Base */
+  --text-primary: var(--hav);
+  --text-secondary: var(--ocean-60);
+  --text-invert: var(--white);
+
+  /* Text / Accent */
+  --text-accent: var(--freshwater-blue-90);
+  --text-hover: var(--freshwater-blue-100);
+
+  /* Text / Brand */
+  --text-brand-1: var(--coral-90);
+  --text-brand-2: var(--evergreen-90);
+  --text-brand-3: var(--summer-grass-90);
+  --text-brand-4: var(--sun-90);
+
+  /* Text / Visited */
+  --text-visited: var(--ocean-60);
+  --text-visited-hover: var(--ocean-70);
+
+  /* Border / Base */
+  --border-default: var(--sand-100);
+  --border-subtle: var(--ocean-10);
+  --border-strong: var(--ocean-50);
+
+  /* Border / Brand */
+  --border-brand-1: var(--coral-70);
+  --border-brand-2: var(--evergreen-60);
+  --border-brand-3: var(--summer-grass-70);
+  --border-brand-4: var(--sun-70);
+
+  /* Border / Accent */
+  --border-accent: var(--freshwater-blue-90);
+  --border-hover: var(--freshwater-blue-100);
+
+  /* Opacity */
+  --opacity: 0.3;
+
+  /* Alert / Danger */
+  --alert-danger-surface-default: var(--red-70);
+  --alert-danger-surface-hover: var(--red-80);
+  --alert-danger-surface-active: var(--red-90);
+  --alert-danger-surface-base: var(--red-100);
+  --alert-danger-surface-subtle: var(--red-base);
+  --alert-danger-text-primary: var(--red-80);
+  --alert-danger-text-invert: var(--red-base);
+  --alert-danger-border-primary: var(--red-70);
+
+  /* Alert / Success */
+  --alert-success-text-primary: var(--green-90);
+  --alert-success-surface-subtle: var(--green-base);
+  --alert-success-border-primary: var(--green-50);
+
+  /* Alert / Info */
+  --alert-info-text-primary: var(--blue-80);
+  --alert-info-surface-subtle: var(--blue-base);
+  --alert-info-border-primary: var(--blue-50);
+
+  /* Alert / Warning */
+  --alert-warning-text-primary: var(--yellow-80);
+  --alert-warning-surface-subtle: var(--yellow-base);
+  --alert-warning-border-primary: var(--yellow-30);
+
+  /* Inner / Outer */
+  --inner: var(--surface-primary);
+  --outer: var(--surface-invert);
+}
+
+
+/* =======================
+   Dark Mode
+======================= */
+[data-theme="dark"] {
+  /* Background */
+  --background-default: var(--ocean-90);
+  --background-subtle: var(--ocean-80);
+  --background-secondary: var(--ocean-60);
+  --background-strong: var(--ocean-50);
+
+  /* Surface / Base */
+  --surface-primary: var(--ocean-100);
+  --surface-secondary: var(--ocean-70);
+  --surface-tertiary: var(--ocean-100);
+  --surface-subtle: var(--ocean-80);
+  --surface-subtle-hover: var(--ocean-70);
+  --surface-subtle-active: var(--ocean-90);
+  --surface-invert: var(--white);
+
+  /* Surface / Accent */
+  --surface-accent: var(--freshwater-blue-30);
+  --surface-hover: var(--freshwater-blue-10);
+
+  /* Surface / Brand */
+  --surface-brand-1-base: var(--coral-base-negative);
+  --surface-brand-1a: var(--coral-30);
+  --surface-brand-1b: var(--coral-50);
+  --surface-brand-1c: var(--coral-90);
+
+  --surface-brand-2-base: var(--evergreen-base-negative);
+  --surface-brand-2a: var(--evergreen-30);
+  --surface-brand-2b: var(--evergreen-50);
+  --surface-brand-2c: var(--evergreen-90);
+
+  --surface-brand-3-base: var(--summer-grass-base-negative);
+  --surface-brand-3a: var(--summer-grass-30);
+  --surface-brand-3b: var(--summer-grass-50);
+  --surface-brand-3c: var(--summer-grass-90);
+
+  --surface-brand-4-base: var(--sun-base-negative);
+  --surface-brand-4a: var(--sun-30);
+  --surface-brand-4b: var(--sun-50);
+  --surface-brand-4c: var(--sun-90);
+
+  --surface-brand-5-base: var(--freshwater-blue-base-negative);
+  --surface-brand-5a: var(--freshwater-blue-30);
+  --surface-brand-5b: var(--freshwater-blue-50);
+  --surface-brand-5c: var(--freshwater-blue-90);
+
+  /* Surface / Visited */
+  --surface-visited: var(--ocean-30);
+
+  /* Text / Base */
+  --text-primary: var(--white);
+  --text-secondary: var(--ocean-10);
+  --text-invert: var(--hav);
+
+  /* Text / Accent */
+  --text-accent: var(--freshwater-blue-30);
+  --text-hover: var(--freshwater-blue-10);
+
+  /* Text / Brand */
+  --text-brand-1: var(--coral-30);
+  --text-brand-2: var(--evergreen-30);
+  --text-brand-3: var(--summer-grass-30);
+  --text-brand-4: var(--sun-30);
+
+  /* Text / Visited */
+  --text-visited: var(--ocean-30);
+  --text-visited-hover: var(--ocean-20);
+
+  /* Border / Base */
+  --border-default: var(--ocean-100);
+  --border-subtle: var(--ocean-80);
+  --border-strong: var(--ocean-40);
+
+  /* Border / Brand */
+  --border-brand-1: var(--coral-50);
+  --border-brand-2: var(--evergreen-50);
+  --border-brand-3: var(--summer-grass-50);
+  --border-brand-4: var(--sun-50);
+
+  /* Border / Accent */
+  --border-accent: var(--freshwater-blue-30);
+  --border-hover: var(--freshwater-blue-10);
+
+  /* Opacity */
+  --opacity: 0.3;
+
+  /* Alert / Danger */
+  --alert-danger-surface-default: var(--red-30);
+  --alert-danger-surface-hover: var(--red-20);
+  --alert-danger-surface-active: var(--red-10);
+  --alert-danger-surface-base: var(--red-10);
+  --alert-danger-surface-subtle: var(--red-100);
+  --alert-danger-text-primary: var(--red-base);
+  --alert-danger-text-invert: var(--red-100);
+  --alert-danger-border-primary: var(--red-30);
+
+  /* Alert / Success */
+  --alert-success-text-primary: var(--green-10);
+  --alert-success-surface-subtle: var(--green-100);
+  --alert-success-border-primary: var(--green-50);
+
+  /* Alert / Info */
+  --alert-info-text-primary: var(--blue-base);
+  --alert-info-surface-subtle: var(--blue-90);
+  --alert-info-border-primary: var(--blue-20);
+
+  /* Alert / Warning */
+  --alert-warning-text-primary: var(--yellow-base);
+  --alert-warning-surface-subtle: var(--yellow-90);
+  --alert-warning-border-primary: var(--yellow-20);
+
+  /* Inner / Outer */
+  --inner: var(--surface-primary);
+  --outer: var(--surface-invert);
+}
+
+/* =========================================
+   Density tokens — Comfortable
+========================================= */
+:root {
+  /* Font family */
+  --font-family-primary: "Chivo", system-ui, -apple-system, sans-serif;
+  --font-family-secondary: "Space Mono", ui-monospace, monospace;
+
+  /* Font weight & style */
+  --font-weight-default: 400; /* regular */
+  --font-weight-medium: 500;  /* medium */
+  --font-weight-heavy: 700;   /* bold   */
+  --font-style-emphasis: italic;
+
+  /* Font sizes (px) */
+  --font-size-1: 12px;
+  --font-size-2: 13px;
+  --font-size-3: 14px;
+  --font-size-4: 16px;
+  --font-size-5: 18px;
+  --font-size-6: 20px;
+  --font-size-7: 22px;
+  --font-size-8: 26px;
+  --font-size-9: 32px;
+  --font-size-10: 36px;
+  --font-size-11: 40px;
+  --font-size-12: 48px;
+
+  /* Radius (via dimensions) */
+  --radius-none: 0;
+  --radius-sm:  var(--dimension-base);  /* 4  */
+  --radius-md:  var(--dimension-2x);    /* 8  */
+  --radius-lg:  var(--dimension-4x);    /* 16 */
+  --radius-xl:  var(--dimension-8x);    /* 32 */
+  --radius-2xl: var(--dimension-32x);   /* 128 */
+  --radius-3xl: var(--dimension-90x);   /* 360 */
+
+  /* Spacing (via dimensions) */
+  --spacing-none: 0;
+  --spacing-3xsm:  var(--dimension-half-base); /* 2  */
+  --spacing-2xsm:  var(--dimension-base);      /* 4  */
+  --spacing-1_5sm: var(--dimension-1-5x);      /* 6  */
+  --spacing-xsm:   var(--dimension-2x);        /* 8  */
+  --spacing-sm:    var(--dimension-4x);        /* 16 */
+  --spacing-md:    var(--dimension-5x);        /* 20 */
+  --spacing-lg:    var(--dimension-7x);        /* 28 */
+  --spacing-xl:    var(--dimension-10x);       /* 40 */
+  --spacing-2xl:   var(--dimension-20x);       /* 80 */
+}
+
+/* =========================================
+   Density tokens — Spacious
+========================================= */
+[data-density="spacious"] {
+  /* Font sizes (px) */
+  --font-size-1: 12px;
+  --font-size-2: 13px;
+  --font-size-3: 14px;
+  --font-size-4: 16px;
+  --font-size-5: 18px;
+  --font-size-6: 21px;
+  --font-size-7: 24px;
+  --font-size-8: 30px;
+  --font-size-9: 36px;
+  --font-size-10: 40px;
+  --font-size-11: 48px;
+  --font-size-12: 56px;
+
+  /* Radius (samme for alle tre) */
+  --radius-none: 0;
+  --radius-sm:  var(--dimension-base);
+  --radius-md:  var(--dimension-2x);
+  --radius-lg:  var(--dimension-4x);
+  --radius-xl:  var(--dimension-8x);
+  --radius-2xl: var(--dimension-32x);
+  --radius-3xl: var(--dimension-90x);
+
+  /* Spacing (via dimensions) */
+  --spacing-none: 0;
+  --spacing-3xsm:  var(--dimension-half-base); /* 2  */
+  --spacing-2xsm:  var(--dimension-base);      /* 4  */
+  --spacing-1_5sm: var(--dimension-1-5x);      /* 6  */
+  --spacing-xsm:   var(--dimension-2x);        /* 8  */
+  --spacing-sm:    var(--dimension-4x);        /* 16 */
+  --spacing-md:    var(--dimension-6x);        /* 24 */
+  --spacing-lg:    var(--dimension-8x);        /* 32 */
+  --spacing-xl:    var(--dimension-12x);       /* 48 */
+  --spacing-2xl:   var(--dimension-26x);       /* 104 */
+}
+
+/* =========================================
+   Density tokens — Compact
+========================================= */
+[data-density="compact"] {
+  /* Font sizes (px) */
+  --font-size-1: 11px;
+  --font-size-2: 12px;
+  --font-size-3: 13px;
+  --font-size-4: 14px;
+  --font-size-5: 16px;
+  --font-size-6: 18px;
+  --font-size-7: 21px;
+  --font-size-8: 24px;
+  --font-size-9: 28px;
+  --font-size-10: 32px;
+  --font-size-11: 36px;
+  --font-size-12: 40px;
+
+  /* Radius (samme) */
+  --radius-none: 0;
+  --radius-sm:  var(--dimension-base);
+  --radius-md:  var(--dimension-2x);
+  --radius-lg:  var(--dimension-4x);
+  --radius-xl:  var(--dimension-8x);
+  --radius-2xl: var(--dimension-32x);
+  --radius-3xl: var(--dimension-90x);
+
+  /* Spacing (via dimensions) */
+  --spacing-none: 0;
+  --spacing-3xsm:  var(--dimension-half-base); /* 2  */
+  --spacing-2xsm:  var(--dimension-base);      /* 4  */
+  --spacing-1_5sm: var(--dimension-1-5x);      /* 6  */
+  --spacing-xsm:   var(--dimension-2x);        /* 8  */
+  --spacing-sm:    var(--dimension-3x);        /* 12 */
+  --spacing-md:    var(--dimension-4x);        /* 16 */
+  --spacing-lg:    var(--dimension-6x);        /* 24 */
+  --spacing-xl:    var(--dimension-8x);        /* 32 */
+  --spacing-2xl:   var(--dimension-16x);       /* 64 */
+}

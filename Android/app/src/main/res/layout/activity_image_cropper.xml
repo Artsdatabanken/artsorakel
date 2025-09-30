@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".activities.ImageCropperActivity">
+
+    <!-- Zoomable image view for cropping with pan and zoom capabilities -->
+    <no.artsdatabanken.artsorakel.views.ZoomableCropImageView
+        android:id="@+id/imageViewMain"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="matrix"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/textViewCropHint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:contentDescription="@string/image_preview_description" />
+
+    <!-- Custom overlay view with square cutout -->
+    <no.artsdatabanken.artsorakel.views.CropOverlayView
+        android:id="@+id/cropOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clickable="false"
+        android:focusable="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/textViewCropHint"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Hint text above buttons -->
+    <TextView
+        android:id="@+id/textViewCropHint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/crop_hint"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:textColor="?attr/text_primary"
+        android:padding="12dp"
+        android:background="?attr/background_subtle"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayoutButtons"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Bottom Action Bar -->
+    <LinearLayout
+        android:id="@+id/linearLayoutButtons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="?attr/surface_accent">
+
+        <ImageView
+            android:id="@+id/imageViewCancel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_arrow_back"
+            app:tint="?attr/surface_primary"
+            android:contentDescription="@string/cancel"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp" 
+            android:layout_marginEnd="8dp" />
+
+        <ImageView
+            android:id="@+id/imageViewDelete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_delete"
+            app:tint="?attr/surface_primary"
+            android:contentDescription="@string/content_desc_delete_image"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imageViewContinue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:src="@drawable/ic_check"
+            app:tint="?attr/surface_primary"
+            android:contentDescription="@string/content_desc_continue_preview"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="12dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

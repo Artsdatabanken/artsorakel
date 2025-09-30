@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/identification_history"
+            android:textSize="18sp"
+            android:textColor="?attr/text_primary"
+            android:fontFamily="@font/chivo_bold" />
+    </LinearLayout>
+
+    <!-- Two dummies and a real card -->
+
+    <FrameLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/main"
+        android:layout_gravity="start|top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="8dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        >
+
+        <include
+            android:id="@+id/includeHistoryCardDummy1"
+            layout="@layout/item_history_stack_card_dummy1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginHorizontal="16dp"
+
+            />
+
+        <include
+            android:id="@+id/includeHistoryCardDummy2"
+            layout="@layout/item_history_stack_card_dummy2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:layout_marginTop="8dp"
+            />
+
+        <include
+            android:id="@+id/includeHistoryCard"
+            layout="@layout/item_history_stack_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </FrameLayout>
+
+
+</LinearLayout> 

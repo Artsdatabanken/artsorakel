@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Gauge attributes for NonLinearGaugeView -->
+    <declare-styleable name="NonLinearGaugeView">
+        <attr name="gaugeCircleDiameter" format="dimension" />
+        <attr name="gaugeUnfilledColor" format="color|reference" />
+        <attr name="gaugeProbability" format="float" />
+        <attr name="gaugeBarHeight" format="dimension" />
+        <attr name="gaugeOutlineColor" format="color|reference" />
+        <attr name="gaugeTickColor" format="color|reference" />
+        <attr name="gaugeBackgroundColor" format="color|reference" />
+    </declare-styleable>
+</resources>

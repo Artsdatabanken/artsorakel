@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background_subtle"
+    android:fitsSystemWindows="true">
+
+    <LinearLayout
+        android:id="@+id/resultInputsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="vertical"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="?attr/surface_secondary"
+        tools:visibility="visible">
+
+        <TextView
+            android:id="@+id/textViewHistoricalDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="?attr/text_primary"
+            android:textSize="14sp"
+            tools:text="Historical result from 15. Jan 2024" />
+
+        <LinearLayout
+            android:id="@+id/inputImagesUsed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewHistoricalDate">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerViewResultInput"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:backgroundTint="?attr/background_subtle"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:padding="16dp"
+                android:paddingBottom="8dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:listitem="@layout/item_image_thumbnail"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/cardFungiWarning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
+        android:visibility="gone"
+        app:cardBackgroundColor="?attr/alert_info_surface_subtle"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="0dp"
+        app:strokeWidth="1dp"
+        app:strokeColor="?attr/alert_info_border_primary"
+        app:layout_constraintTop_toBottomOf="@id/resultInputsContainer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <View
+                android:id="@+id/fungiWarningLeftBorder"
+                android:layout_width="6dp"
+                android:layout_height="match_parent"
+                android:background="?attr/alert_info_border_primary"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+
+                <ImageView
+                    android:id="@+id/imageFungiWarning"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_alert_info"
+                    app:tint="?attr/alert_info_text_primary"
+                    android:contentDescription="@string/separator"/>
+
+                <TextView
+                    android:id="@+id/textFungiWarning"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/fungi_warning_text"
+                    android:textSize="14sp"
+                    android:textColor="?attr/alert_info_text_primary"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewResults"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingBottom="80dp"
+        android:visibility="visible"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@id/buttonReset"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cardFungiWarning"
+        tools:listitem="@layout/list_item_prediction" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonReset"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:layout_gravity="top|center_horizontal"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="24dp"
+        android:elevation="16dp"
+        android:text="@string/reset"
+        android:textColor="?attr/text_accent"
+        android:translationZ="16dp"
+        app:backgroundTint="?attr/surface_primary"
+        app:cornerRadius="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:strokeColor="?attr/border_accent"
+        app:strokeWidth="2dp"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

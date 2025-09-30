@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Top dark area -->
+    <item android:gravity="top">
+        <shape android:shape="rectangle">
+            <solid android:color="#CC000000" />
+            <size android:height="10dp" />
+        </shape>
+    </item>
+    
+    <!-- Bottom dark area -->
+    <item android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <solid android:color="#CC000000" />
+            <size android:height="10dp" />
+        </shape>
+    </item>
+</layer-list> 

@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/background_subtle"
+    android:fillViewport="true">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/background_subtle">
+
+    <!-- Image Carousel Container -->
+    <FrameLayout
+        android:id="@+id/carouselContainer"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="H,2:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- ViewPager2 for Image Carousel -->
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerImageCarousel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <!-- Indicator Dots Container -->
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/indicatorCard"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"
+            >
+        <LinearLayout
+            android:id="@+id/indicatorContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="center_vertical"
+            android:padding="3dp"
+             />
+        </com.google.android.material.card.MaterialCardView>
+
+    </FrameLayout>
+
+
+
+
+            <!-- Species Profile Section with circular image -->
+            <LinearLayout
+                android:id="@+id/taxonInfo"
+                app:layout_constraintTop_toBottomOf="@id/carouselContainer"
+                app:layout_constraintStart_toStartOf="parent"
+
+                android:padding="24dp"
+                android:background="?attr/background_subtle"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Circular Profile Image -->
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/imageViewSpeciesProfile"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/species_profile_image"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginEnd="16dp"
+                    app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+                    tools:src="@drawable/placeholder_generic" />
+
+
+                <!-- Names Container -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- Vernacular Name -->
+                    <TextView
+                        android:id="@+id/textViewVernacularName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/chivo_bold"
+                        android:textColor="?attr/text_primary"
+                        android:textSize="24sp"
+                        android:enabled="true"
+                        android:textIsSelectable="true"
+                        android:focusable="true"
+                        android:longClickable="true"
+                        tools:text="" />
+
+                    <!-- Scientific Name -->
+                    <TextView
+                        android:id="@+id/textViewScientificName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/chivo_italic"
+                        android:textColor="?attr/text_primary"
+                        android:textSize="16sp"
+                        android:enabled="true"
+                        android:textIsSelectable="true"
+                        android:focusable="true"
+                        android:longClickable="true"
+                        tools:text="" />
+
+                    <TextView
+                        android:id="@+id/textViewGroupName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/chivo_regular"
+                        android:textSize="12sp"
+                        android:textColor="?attr/text_primary"
+                        tools:text="" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Category Badges -->
+            <LinearLayout
+                android:id="@+id/categoryBadgesContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="16dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/taxonInfo"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Certainty -->
+            <TextView
+                android:id="@+id/textViewCertainty"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/chivo_regular"
+                android:textColor="?attr/text_primary"
+                android:background="?attr/surface_primary"
+                app:layout_constraintTop_toBottomOf="@id/categoryBadgesContainer"
+                android:textSize="14sp"
+                android:padding="16dp"
+                tools:text="" />
+
+            <!-- Read More Link -->
+            <TextView
+                android:id="@+id/textViewReadMore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/read_more"
+                android:textColor="?attr/text_accent"
+                android:textSize="16sp"
+                android:fontFamily="@font/chivo_regular"
+                android:padding="16dp"
+                android:gravity="start"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                app:drawableEndCompat="@drawable/ic_external_link"
+                app:drawableTint="?attr/text_accent"
+                android:drawablePadding="8dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/textViewCertainty"
+                app:layout_constraintStart_toStartOf="parent"
+                 />
+
+            <!-- Distribution Map Section -->
+            <LinearLayout
+                android:id="@+id/distributionSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical"
+                app:layout_constraintTop_toBottomOf="@id/textViewReadMore">
+
+
+                <TextView
+                    android:id="@+id/textViewDistributionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/distribution_title"
+                    android:fontFamily="@font/chivo_bold"
+                    android:textSize="16sp"
+                    android:textColor="?attr/text_primary"
+                    android:layout_marginBottom="12dp"
+                    android:visibility="gone" />
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/distributionMapCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/imageViewDistributionMap"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:adjustViewBounds="true"
+                            android:scaleType="fitCenter"
+                            android:contentDescription="@string/distribution_map_description"
+                            android:background="?attr/surface_primary"
+                            />
+
+                        <ProgressBar
+                            android:id="@+id/progressBarDistributionMap"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_margin="32dp"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <!-- Button Container -->
+            <!-- Report Link -->
+            <TextView
+                android:id="@+id/textViewReport"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/report"
+                android:textColor="?attr/text_accent"
+                android:textSize="16sp"
+                android:fontFamily="@font/chivo_regular"
+                android:padding="16dp"
+                android:layout_marginTop="16dp"
+                android:gravity="start"
+                android:clickable="true"
+                android:focusable="true"
+                android:background="?attr/selectableItemBackground"
+                app:drawableEndCompat="@drawable/ic_external_link"
+                app:drawableTint="?attr/text_accent"
+                android:drawablePadding="8dp"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/distributionSection"
+                app:layout_constraintStart_toStartOf="parent"
+                />
+
+            <!-- Bottom spacing for edge-to-edge -->
+            <View
+                android:id="@+id/buttonContainer"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                app:layout_constraintTop_toBottomOf="@id/textViewReport"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView> 

@@ -1,0 +1,27 @@
+{
+  "version": "4.0.0",
+  "versionCode": 1,
+  "bundleId": "no.artsdatabanken.artsorakel",
+  "appName": "Artsorakel",
+  "api": {
+    "baseUrl": "https://ai.test.artsdatabanken.no/",
+    "timeout": 60,
+    "maxRetries": 3,
+    "requiresAuth": true
+  },
+  "features": {
+    "maxImagesPerRequest": 10,
+    "maxImageDimension": 1024,
+    "thumbnailSize": 150,
+    "maxHistoryItems": 100,
+    "supportedLanguages": ["nb", "nn", "en", "nl", "es"]
+  },
+  "urls": {
+    "privacy": "https://artsdatabanken.no/privacy",
+    "terms": "https://artsdatabanken.no/terms",
+    "support": "https://artsdatabanken.no/support"
+  },
+  "rssFeed": {
+    "url": "https://ai.test.artsdatabanken.no/rss"
+  }
+}

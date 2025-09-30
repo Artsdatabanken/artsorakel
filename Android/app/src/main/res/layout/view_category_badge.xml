@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:layout_margin="4dp"
+    android:gravity="center_vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/categoryBadge"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="?attr/background_default"
+        >
+
+        <TextView
+            android:id="@+id/categoryCode"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="?attr/background_default"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/chivo_bold"
+            tools:text="" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <TextView
+        android:id="@+id/categoryName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:textSize="14sp"
+        android:fontFamily="@font/chivo_regular"
+        tools:text="" />
+
+</LinearLayout>
