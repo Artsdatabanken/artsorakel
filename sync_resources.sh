@@ -263,7 +263,10 @@ PYTHON_EOF
 # Function to sync images
 sync_images() {
     echo -e "${YELLOW}🖼️  Syncing images...${NC}"
-    
+
+    # Ensure Android assets directory exists
+    mkdir -p "$ANDROID_DIR/app/src/main/assets"
+
     # Copy SVG logos to Android assets (exclude .inkscape.svg source files)
     if [ -d "$SHARED_DIR/images" ]; then
         for svg in "$SHARED_DIR/images"/*.svg; do
@@ -485,7 +488,10 @@ sync_vectors() {
 # Function to sync fonts
 sync_fonts() {
     echo -e "${YELLOW}🔤 Syncing fonts...${NC}"
-    
+
+    # Ensure Android font directory exists
+    mkdir -p "$ANDROID_DIR/app/src/main/res/font"
+
     if [ -d "$SHARED_DIR/fonts" ]; then
         # Copy fonts to Android
         for font in "$SHARED_DIR/fonts"/*.ttf; do
@@ -510,7 +516,10 @@ sync_fonts() {
 # Function to sync HTML content
 sync_content() {
     echo -e "${YELLOW}📄 Syncing HTML content...${NC}"
-    
+
+    # Ensure Android assets directory exists
+    mkdir -p "$ANDROID_DIR/app/src/main/assets"
+
     if [ -d "$SHARED_DIR/content" ]; then
         # Copy FAQ JSON files directly to Android assets
         for json in "$SHARED_DIR/content"/faq_*.json; do
