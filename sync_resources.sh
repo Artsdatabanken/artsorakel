@@ -1091,15 +1091,159 @@ EOF
 
 # Function to sync app icons
 sync_app_icons() {
-    echo -e "${YELLOW}🎨 Syncing app icons...${NC}"
+    echo -e "${YELLOW}🎨 Generating app icons...${NC}"
 
-    # This would require icon generation from a base icon
-    # For now, just create placeholder
-    if [ -f "$SHARED_DIR/images/app_icon.svg" ] || [ -f "$SHARED_DIR/images/app_icon.png" ]; then
-        echo -e "  ℹ️  App icon sync would be implemented here"
-        echo -e "  ℹ️  Use tools like ImageMagick to generate required sizes"
+    # Check if launcher icons were generated for Android
+    if [ -f "$ANDROID_DIR/app/src/main/res/drawable/ic_launcher_foreground.xml" ] &&
+       [ -f "$ANDROID_DIR/app/src/main/res/drawable/ic_launcher_background.xml" ]; then
+        echo -e "  ✅ Android launcher icons already generated from logo SVG"
     else
-        echo -e "  ⚠️  No app icon found in shared/images/"
+        echo -e "  ⚠️  Android launcher icons not found - check sync_vectors function"
+    fi
+
+    # Generate iOS app icons from SVG
+    echo -e "  🔄 Generating iOS app icons..."
+
+    IOS_ICON_DIR="$IOS_DIR/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset"
+    mkdir -p "$IOS_ICON_DIR"
+
+    # Use the dark logo as the source for iOS icons
+    SOURCE_SVG="$SHARED_DIR/images/ic_logo_color_dark.svg"
+
+    if [ ! -f "$SOURCE_SVG" ]; then
+        echo -e "  ${RED}❌ Logo SVG not found at $SOURCE_SVG${NC}"
+        return 1
+    fi
+
+    # Check if ImageMagick is available
+    if command -v convert &> /dev/null; then
+        echo -e "  🎨 Using ImageMagick to generate iOS app icons..."
+
+        # iOS requires a 1024x1024 icon for App Store
+        # The icon should be without transparency for iOS
+
+        # Generate light appearance icon (using light logo)
+        if [ -f "$SHARED_DIR/images/ic_logo_color_light.svg" ]; then
+            # Create a 1024x1024 icon with a light background
+            convert -background "#FFFFFF" "$SHARED_DIR/images/ic_logo_color_light.svg" \
+                -gravity center -resize 800x800 -extent 1024x1024 \
+                "$IOS_ICON_DIR/AppIcon.png"
+            echo -e "    ✅ Generated AppIcon.png (light appearance)"
+        fi
+
+        # Generate dark appearance icon (using dark logo)
+        # Create a 1024x1024 icon with a dark background (#394244 from Android)
+        convert -background "#394244" "$SOURCE_SVG" \
+            -gravity center -resize 800x800 -extent 1024x1024 \
+            "$IOS_ICON_DIR/AppIcon~dark.png"
+        echo -e "    ✅ Generated AppIcon~dark.png (dark appearance)"
+
+        # Generate tinted appearance icon (monochrome version for focus mode)
+        # Create a white version for tinted mode
+        convert "$SOURCE_SVG" -colorspace Gray -negate \
+            -background "#FFFFFF" -gravity center -resize 800x800 -extent 1024x1024 \
+            "$IOS_ICON_DIR/AppIcon~tinted.png"
+        echo -e "    ✅ Generated AppIcon~tinted.png (tinted appearance)"
+
+        # Update Contents.json to reference the generated files
+        cat > "$IOS_ICON_DIR/Contents.json" << 'EOF'
+{
+  "images" : [
+    {
+      "filename" : "AppIcon.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "AppIcon~dark.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "tinted"
+        }
+      ],
+      "filename" : "AppIcon~tinted.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+EOF
+        echo -e "    ✅ Updated Contents.json with icon filenames"
+        echo -e "  ${GREEN}✅ iOS app icons generated successfully${NC}"
+    elif command -v rsvg-convert &> /dev/null; then
+        echo -e "  🎨 Using rsvg-convert to generate iOS app icons..."
+
+        # Generate icons using rsvg-convert
+        # Light appearance
+        if [ -f "$SHARED_DIR/images/ic_logo_color_light.svg" ]; then
+            rsvg-convert -w 1024 -h 1024 --background-color="#FFFFFF" \
+                "$SHARED_DIR/images/ic_logo_color_light.svg" \
+                -o "$IOS_ICON_DIR/AppIcon.png"
+            echo -e "    ✅ Generated AppIcon.png (light appearance)"
+        fi
+
+        # Dark appearance
+        rsvg-convert -w 1024 -h 1024 --background-color="#394244" \
+            "$SOURCE_SVG" \
+            -o "$IOS_ICON_DIR/AppIcon~dark.png"
+        echo -e "    ✅ Generated AppIcon~dark.png (dark appearance)"
+
+        # Note: rsvg-convert doesn't easily support grayscale conversion
+        # So we'll skip the tinted version if only rsvg-convert is available
+        echo -e "    ⚠️  Tinted icon generation requires ImageMagick"
+
+        # Update Contents.json
+        cat > "$IOS_ICON_DIR/Contents.json" << 'EOF'
+{
+  "images" : [
+    {
+      "filename" : "AppIcon.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "filename" : "AppIcon~dark.png",
+      "idiom" : "universal",
+      "platform" : "ios",
+      "size" : "1024x1024"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
+EOF
+        echo -e "    ✅ Updated Contents.json with icon filenames"
+        echo -e "  ${GREEN}✅ iOS app icons generated (without tinted variant)${NC}"
+    else
+        echo -e "  ${YELLOW}⚠️  No SVG to PNG converter found. Install ImageMagick or rsvg-convert to generate iOS icons${NC}"
+        echo -e "  ${YELLOW}   Install with: apt-get install imagemagick (Linux) or brew install imagemagick (macOS)${NC}"
     fi
 }
 
@@ -1119,7 +1263,7 @@ validate_sync() {
     fi
     
     # Check iOS - look for modern project structure
-    if [ ! -f "$IOS_DIR/Artsorakel.xcodeproj/project.pbxproj" ]; then
+    if [ ! -f "$IOS_DIR/Artsorakel/Artsorakel.xcodeproj/project.pbxproj" ]; then
         echo -e "  ${RED}❌ iOS project.pbxproj not found${NC}"
         ((errors++))
     elif [ ! -d "$IOS_DIR/Artsorakel" ]; then

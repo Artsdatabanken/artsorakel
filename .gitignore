@@ -87,3 +87,6 @@ iOS/Artsorakel/*.lproj/
 
 CLAUDE.md
 iOS/Artsorakel/Assets.xcassets/*.colorset/*
+iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon~dark.png
+iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon~tinted.png
