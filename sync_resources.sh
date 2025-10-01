@@ -334,28 +334,28 @@ sync_vectors() {
         local input_file="$1"
         local output_file="$2"
         local basename_file=$(basename "$input_file")
-        
+
         if [ ! -f "$input_file" ]; then
             echo -e "    ⚠️  File not found: $basename_file"
             return 1
         fi
-        
+
         echo -e "  🔄 Processing $basename_file..."
-        
+
         # Check for transforms first
         if ! check_svg_for_transforms "$input_file"; then
             echo -e "${RED}   ⛔ Aborting conversion of $basename_file${NC}"
             return 1
         fi
-        
+
         if command -v vd-tool &> /dev/null; then
             # Convert with vd-tool
             vd-tool -c -in "$input_file" -out "$(dirname "$output_file")" 2>/dev/null
-            
+
             # vd-tool creates file with same base name but .xml extension
             local expected_output="$(dirname "$output_file")/$(basename "$input_file" .svg).xml"
             local optimized_output="$(dirname "$output_file")/$(basename "$input_file" .optimized.svg).xml"
-            
+
             # Check for both possible output names
             if [ -f "$optimized_output" ]; then
                 mv "$optimized_output" "$output_file"
@@ -375,6 +375,61 @@ sync_vectors() {
         fi
     }
     
+    # Generate launcher icon drawables first
+    echo -e "  🚀 Generating launcher icon drawables..."
+
+    # Create launcher background ("dark subtle")
+    cat > "$ANDROID_DIR/app/src/main/res/drawable/ic_launcher_background.xml" << 'EOF'
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#394244"
+        android:pathData="M0,0h108v108h-108z" />
+</vector>
+EOF
+    echo -e "    ✅ Generated ic_launcher_background.xml"
+
+    # Generate launcher foreground from logo
+    if [ ! -f "$SHARED_DIR/images/ic_logo_color_dark.svg" ]; then
+        echo -e "    ${RED}❌ ERROR: Logo SVG not found at $SHARED_DIR/images/ic_logo_color_dark.svg${NC}"
+        echo -e "    ${RED}   Cannot generate launcher foreground without logo SVG${NC}"
+        exit 1
+    fi
+
+    # Check if vd-tool is available
+    if ! command -v vd-tool &> /dev/null; then
+        echo -e "    ${RED}❌ ERROR: vd-tool not found but required for launcher icon conversion${NC}"
+        echo -e "    ${RED}   Install with: npm install -g vd-tool${NC}"
+        exit 1
+    fi
+
+    echo -e "    🔄 Converting logo to launcher foreground..."
+    vd-tool -c -in "$SHARED_DIR/images/ic_logo_color_dark.svg" -out "$ANDROID_DIR/app/src/main/res/drawable/" 2>/dev/null
+
+    # Check if conversion succeeded
+    if [ ! -f "$ANDROID_DIR/app/src/main/res/drawable/ic_logo_color_dark.xml" ]; then
+        echo -e "    ${RED}❌ ERROR: vd-tool conversion failed for launcher foreground${NC}"
+        echo -e "    ${RED}   Unable to convert $SHARED_DIR/images/ic_logo_color_dark.svg${NC}"
+        exit 1
+    fi
+
+    # Rename and adjust the generated file
+    mv "$ANDROID_DIR/app/src/main/res/drawable/ic_logo_color_dark.xml" "$ANDROID_DIR/app/src/main/res/drawable/ic_launcher_foreground.xml"
+
+    # Adjust the vector drawable to work as adaptive icon foreground
+    sed -i '/<vector/,/<\/vector>/{
+        s/android:width="[^"]*"/android:width="108dp"/
+        s/android:height="[^"]*"/android:height="108dp"/
+        s/android:viewportWidth="[^"]*"/android:viewportWidth="108"/
+        s/android:viewportHeight="[^"]*"/android:viewportHeight="108"/
+    }' "$ANDROID_DIR/app/src/main/res/drawable/ic_launcher_foreground.xml"
+
+    echo -e "    ✅ Generated ic_launcher_foreground.xml from logo"
+
     # Process light/dark SVG pairs from images folder
     converted_any=false
     conversion_failed=false

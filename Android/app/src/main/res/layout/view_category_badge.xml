@@ -22,7 +22,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:textColor="?attr/background_default"
+            android:textColor="@color/white"
             android:textSize="12sp"
             android:textStyle="bold"
             android:fontFamily="@font/chivo_bold"
