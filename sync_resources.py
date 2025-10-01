@@ -820,6 +820,49 @@ def sync_design_system():
     if semantic_file.exists() and vars_file.exists():
         print("  🔄 Generating iOS color assets...")
 
+        # First, read all primitive colors from Variables primitives.txt
+        primitives = {}
+        content = vars_file.read_text()
+        pattern = r'--([a-z-]+(?:-\d+|-base-positive|-base-negative|-base)?)\s*:\s*(#[A-F0-9]{6})'
+        for match in re.findall(pattern, content, re.IGNORECASE):
+            name = match[0].replace('-', '_')
+            primitives[name] = match[1].upper()
+
+        # Read the Semantic tokens file
+        content = semantic_file.read_text()
+
+        # Extract semantic tokens for light and dark modes
+        light_tokens = {}
+        dark_tokens = {}
+
+        # Parse light mode tokens
+        light_section = re.search(r':root\s*{([^}]+)}', content, re.DOTALL)
+        if light_section:
+            # Match both var() references and direct primitives - include numbers in pattern
+            token_pattern = r'--([a-z0-9-]+)\s*:\s*(?:var\(--([a-z0-9-]+)\)|([^;]+))'
+            for match in re.findall(token_pattern, light_section.group(1)):
+                token_name = match[0].replace('-', '_')
+                if match[1]:  # var() reference
+                    ref_name = match[1].replace('-', '_')
+                    light_tokens[token_name] = ref_name
+                elif match[2]:  # direct value
+                    light_tokens[token_name] = match[2].strip()
+
+        # Parse dark mode tokens
+        dark_section = re.search(r'\[data-theme="dark"\]\s*{([^}]+)}', content, re.DOTALL)
+        if dark_section:
+            token_pattern = r'--([a-z0-9-]+)\s*:\s*(?:var\(--([a-z0-9-]+)\)|([^;]+))'
+            for match in re.findall(token_pattern, dark_section.group(1)):
+                token_name = match[0].replace('-', '_')
+                if match[1]:  # var() reference
+                    ref_name = match[1].replace('-', '_')
+                    dark_tokens[token_name] = ref_name
+                elif match[2]:  # direct value
+                    dark_tokens[token_name] = match[2].strip()
+
+        # Get all unique token names
+        all_token_names = set(list(light_tokens.keys()) + list(dark_tokens.keys()))
+
         # Helper function to resolve iOS color values
         def resolve_ios_color(token_value, primitives, tokens):
             # Direct hex value
@@ -848,18 +891,15 @@ def sync_design_system():
 
             return None
 
-        # Key semantic tokens for iOS - prefixed with Color_ to avoid conflicts
-        ios_colors = {
-            'Color_backgroundDefault': ('background_default', 'background_default'),
-            'Color_backgroundSubtle': ('background_subtle', 'background_subtle'),
-            'Color_surfacePrimary': ('surface_primary', 'surface_primary'),
-            'Color_surfaceAccent': ('surface_accent', 'surface_accent'),
-            'Color_surfaceSubtle': ('surface_subtle', 'surface_subtle'),
-            'Color_textPrimary': ('text_primary', 'text_primary'),
-            'Color_textSecondary': ('text_secondary', 'text_secondary'),
-            'Color_textAccent': ('text_accent', 'text_accent'),
-            'Color_textSubtle': ('text_subtle', 'text_subtle')
-        }
+        # Generate iOS colors from ALL semantic tokens - prefixed with Color_ to avoid conflicts
+        ios_colors = {}
+        for token_name in all_token_names:
+            # Convert token name to iOS color name (e.g., background_default -> Color_backgroundDefault)
+            # Use camelCase for the color name part
+            parts = token_name.split('_')
+            camel_case = parts[0] + ''.join(word.capitalize() for word in parts[1:])
+            ios_name = f'Color_{camel_case}'
+            ios_colors[ios_name] = (token_name, token_name)
 
         assets_dir = IOS_DIR / 'Artsorakel' / 'Assets.xcassets'
         assets_dir.mkdir(parents=True, exist_ok=True)
