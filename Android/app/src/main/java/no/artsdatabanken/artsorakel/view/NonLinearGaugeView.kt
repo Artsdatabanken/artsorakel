@@ -8,8 +8,6 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
-import no.artsdatabanken.artsorakel.R // Import your R class
-import androidx.core.content.withStyledAttributes
 
 class NonLinearGaugeView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -17,7 +15,7 @@ class NonLinearGaugeView @JvmOverloads constructor(
 
     // --- Configurable properties ---
     private var probability: Double = 0.0 // Value between 0.0 and 1.0
-    private var circleDiameter: Float = 8f.dpToPx()
+    private var circleDiameter: Float = 16f.dpToPx()
     private var outlineColor: Int = Color.GRAY
     private var unfilledColor: Int = Color.LTGRAY
 
@@ -43,26 +41,6 @@ class NonLinearGaugeView @JvmOverloads constructor(
 	private val fillThresholdPercents: List<Int> = listOf(35, 65, 85, 95)
 
     init {
-        // Read custom attributes
-        attrs?.let {
-            context.withStyledAttributes(it, R.styleable.NonLinearGaugeView, defStyleAttr, 0) {
-                probability = getFloat(R.styleable.NonLinearGaugeView_gaugeProbability, 0.0f).toDouble()
-                // New circle attrs with fallback to legacy names
-                circleDiameter = getDimension(
-                    R.styleable.NonLinearGaugeView_gaugeCircleDiameter,
-                    getDimension(R.styleable.NonLinearGaugeView_gaugeBarHeight, 8f.dpToPx())
-                )
-                outlineColor = getColor(
-                    R.styleable.NonLinearGaugeView_gaugeOutlineColor,
-                    getColor(R.styleable.NonLinearGaugeView_gaugeTickColor, Color.GRAY)
-                )
-                unfilledColor = getColor(
-                    R.styleable.NonLinearGaugeView_gaugeUnfilledColor,
-                    getColor(R.styleable.NonLinearGaugeView_gaugeBackgroundColor, Color.LTGRAY)
-                )
-            }
-        }
-
         // Configure paints
         backgroundPaint.style = Paint.Style.FILL
         foregroundPaint.style = Paint.Style.FILL
@@ -75,6 +53,23 @@ class NonLinearGaugeView @JvmOverloads constructor(
         // Clamp probability between 0.0 and 1.0
         this.probability = prob.coerceIn(0.0, 1.0)
         // Request a redraw
+        invalidate()
+    }
+
+    fun setCircleDiameter(diameter: Float) {
+        this.circleDiameter = diameter
+        requestLayout() // Request layout since size may change
+        invalidate()
+    }
+
+    fun setOutlineColor(color: Int) {
+        this.outlineColor = color
+        outlinePaint.color = color
+        invalidate()
+    }
+
+    fun setUnfilledColor(color: Int) {
+        this.unfilledColor = color
         invalidate()
     }
 

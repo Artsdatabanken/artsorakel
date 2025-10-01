@@ -15,7 +15,7 @@
   --surface-subtle: var(--ocean-10);
   --surface-subtle-hover: var(--ocean-20);
   --surface-subtle-active: var(--ocean-30);
-  --surface-invert: var(--hav);
+  --surface-invert: var(--ocean);
 
   /* Surface / Accent */
   --surface-accent: var(--freshwater-blue-90);
@@ -51,7 +51,7 @@
   --surface-visited: var(--ocean-60);
 
   /* Text / Base */
-  --text-primary: var(--hav);
+  --text-primary: var(--ocean);
   --text-secondary: var(--ocean-60);
   --text-invert: var(--white);
 
@@ -173,7 +173,7 @@
   /* Text / Base */
   --text-primary: var(--white);
   --text-secondary: var(--ocean-10);
-  --text-invert: var(--hav);
+  --text-invert: var(--ocean);
 
   /* Text / Accent */
   --text-accent: var(--freshwater-blue-30);
