@@ -188,24 +188,19 @@ def sync_strings():
 
             print_success(f"Generated Android strings for {lang}")
 
-            # Generate iOS Localizable.strings
-            ios_strings_dir = IOS_DIR / 'Artsorakel' / f'{lang}.lproj'
+            # Generate iOS Localizable.strings in app target directory
+            ios_strings_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / f'{lang}.lproj'
             ios_strings_dir.mkdir(parents=True, exist_ok=True)
 
-            ios_resources_strings_dir = IOS_DIR / 'Artsorakel' / 'Resources' / 'Localizations' / f'{lang}.lproj'
-            ios_resources_strings_dir.mkdir(parents=True, exist_ok=True)
+            with open(ios_strings_dir / 'Localizable.strings', 'w', encoding='utf-8') as f:
+                f.write('/* Auto-generated from shared CSV. Do not edit directly. */\n')
 
-            # Write to both locations
-            for dir_path in [ios_strings_dir, ios_resources_strings_dir]:
-                with open(dir_path / 'Localizable.strings', 'w', encoding='utf-8') as f:
-                    f.write('/* Auto-generated from shared CSV. Do not edit directly. */\n')
-
-                    for row in rows:
-                        key = row['key']
-                        value = row[lang]
-                        if value:
-                            escaped_value = value.replace('"', '\\"').replace('\n', '\\n')
-                            f.write(f'"{key}" = "{escaped_value}";\n')
+                for row in rows:
+                    key = row['key']
+                    value = row[lang]
+                    if value:
+                        escaped_value = value.replace('"', '\\"').replace('\n', '\\n')
+                        f.write(f'"{key}" = "{escaped_value}";\n')
 
             print_success(f"Generated iOS strings for {lang}")
 
@@ -534,7 +529,7 @@ def sync_content():
             print_success(f"Copied {html_file.name} to Android assets")
 
     # Copy HTML files to iOS (non-FAQ)
-    ios_content = IOS_DIR / 'Artsorakel' / 'Resources' / 'Content'
+    ios_content = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Resources' / 'Content'
     ios_content.mkdir(parents=True, exist_ok=True)
 
     for html_file in content_dir.glob('*.html'):
@@ -901,7 +896,7 @@ def sync_design_system():
             ios_name = f'Color_{camel_case}'
             ios_colors[ios_name] = (token_name, token_name)
 
-        assets_dir = IOS_DIR / 'Artsorakel' / 'Assets.xcassets'
+        assets_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Assets.xcassets'
         assets_dir.mkdir(parents=True, exist_ok=True)
 
         for ios_name, (light_token, dark_token) in ios_colors.items():

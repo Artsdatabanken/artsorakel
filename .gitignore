@@ -84,6 +84,10 @@ Android/app/src/main/res/values-night/themes.xml
 # iOS localization folders
 iOS/Artsorakel/*.lproj/
 
+# iOS Xcode user-specific files
+**/xcuserdata/
+**/*.xcuserstate
+iOS/Artsorakel/Artsorakel.xcodeproj/project.xcworkspace/xcuserdata/
 
 CLAUDE.md
 iOS/Artsorakel/Assets.xcassets/*.colorset/*
