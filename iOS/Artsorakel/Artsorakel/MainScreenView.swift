@@ -6,6 +6,7 @@ struct MainScreenView: View {
     @State private var showCamera = false
     @State private var showGallery = false
     @State private var isMenuOpen = false
+    @State private var showSettings = false
 
     var body: some View {
         ZStack {
@@ -42,7 +43,13 @@ struct MainScreenView: View {
             }
             .ignoresSafeArea(edges: .bottom)
 
-            MenuDrawerView(isOpen: $isMenuOpen)
+            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings)
+
+            if showSettings {
+                SettingsView(isPresented: $showSettings, showMenuDrawer: $isMenuOpen)
+                    .transition(.move(edge: .trailing))
+                    .zIndex(1)
+            }
         }
     }
 }
@@ -106,12 +113,6 @@ struct AvatarView: View {
             }
         }
     }
-}
-
-func resourceExists(_ name: String) -> Bool {
-    return Bundle.main.path(forResource: name, ofType: "svg") != nil ||
-           Bundle.main.path(forResource: "Resources/Images/\(name)", ofType: "svg") != nil ||
-           Bundle.main.path(forResource: "Resources/Vectors/\(name)", ofType: "svg") != nil
 }
 
 struct CameraButtonsView: View {

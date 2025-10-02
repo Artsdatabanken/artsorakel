@@ -51,6 +51,25 @@ def print_info(message: str):
     print(f"  ℹ️  {message}")
 
 
+def cleanup_build_artifacts():
+    """Remove iOS build artifacts that should not be in source tree"""
+    print_section("🧹 Cleaning up build artifacts...")
+
+    ios_artsorakel_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel'
+
+    # Remove .xctestproducts directories
+    for item in ios_artsorakel_dir.glob('*.xctestproducts'):
+        if item.is_dir():
+            shutil.rmtree(item, ignore_errors=True)
+            print_success(f"Removed {item.name}")
+
+    # Remove archive directories (timestamp directories)
+    for item in ios_artsorakel_dir.glob('Artsorakel 20*'):
+        if item.is_dir():
+            shutil.rmtree(item, ignore_errors=True)
+            print_success(f"Removed {item.name}")
+
+
 def sync_config():
     """Sync configuration files and update version info"""
     print_section("📋 Syncing configuration...")
@@ -1167,6 +1186,9 @@ def main():
     if shutil.which('jq') is None:
         print_error("jq is required but not installed. Install it with: apt-get install jq (Linux) or brew install jq (macOS)")
         sys.exit(1)
+
+    # Clean up build artifacts first
+    cleanup_build_artifacts()
 
     # Run sync functions
     sync_config()

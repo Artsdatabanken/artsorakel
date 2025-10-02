@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MenuDrawerView: View {
     @Binding var isOpen: Bool
+    @Binding var showSettings: Bool
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var localizationManager: LocalizationManager
     @AppStorage("selectedTheme") private var selectedTheme: String = "system"
@@ -47,6 +48,10 @@ struct MenuDrawerView: View {
                             iconName: "ic_settings",
                             title: localizationManager.localize("settings", comment: "Settings")
                         ) {
+                            withAnimation {
+                                isOpen = false
+                                showSettings = true
+                            }
                         }
 
                         MenuItemView(
