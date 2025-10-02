@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Artsorakel
-//
-//  Created by Wouter Koch on 04/09/2025.
-//
-
 import SwiftUI
 import WebKit
 
@@ -93,7 +86,7 @@ struct SVGView: View {
     let svgName: String
     let width: CGFloat
     let height: CGFloat
-    
+
     var body: some View {
         if Bundle.main.url(forResource: svgName, withExtension: "svg") != nil {
             SVGWebView(svgName: svgName, width: width, height: height)
@@ -114,14 +107,4 @@ struct SVGView: View {
                 )
         }
     }
-}
-
-struct ContentView: View {
-    var body: some View {
-        MainScreenView()
-    }
-}
-
-#Preview {
-    ContentView()
 }
