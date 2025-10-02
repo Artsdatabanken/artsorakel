@@ -14,15 +14,15 @@ struct MainScreenView: View {
                 HeaderView(isMenuOpen: $isMenuOpen)
 
                 Divider()
-                    .frame(height: 1)
+                    .frame(height: DesignSystem.ComponentSize.dividerHeight)
                     .background(Color.borderDefault)
 
                 VStack(spacing: 0) {
                     Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
-                        .font(.custom("Chivo", size: 22).weight(.bold))
+                        .font(DesignSystem.Typography.titleLarge())
                         .foregroundColor(Color.textPrimary)
-                        .padding(.horizontal, 100)
-                        .padding(.vertical, 16)
+                        .padding(.horizontal, DesignSystem.Spacing.extraHuge)
+                        .padding(.vertical, DesignSystem.Spacing.standard)
                         .multilineTextAlignment(.center)
 
                     ZStack {
@@ -30,14 +30,14 @@ struct MainScreenView: View {
                             .ignoresSafeArea()
 
                         AvatarView()
-                            .padding(32)
+                            .padding(DesignSystem.Spacing.xxLarge)
                     }
 
                     CameraButtonsView(
                         onCameraTap: { showCamera = true },
                         onGalleryTap: { showGallery = true }
                     )
-                    .padding(.bottom, 16)
+                    .padding(.bottom, DesignSystem.Spacing.standard)
                 }
                 .background(Color.backgroundSubtle)
             }
@@ -61,16 +61,16 @@ struct HeaderView: View {
     var body: some View {
         HStack(spacing: 0) {
             if Bundle.main.url(forResource: colorScheme == .dark ? "ic_logo_color_dark" : "ic_logo_color_light", withExtension: "svg") != nil {
-                SVGWebView(svgName: colorScheme == .dark ? "ic_logo_color_dark" : "ic_logo_color_light", width: 20, height: 60)
-                    .frame(width: 20, height: 60)
-                    .padding(.leading, 16)
+                SVGWebView(svgName: colorScheme == .dark ? "ic_logo_color_dark" : "ic_logo_color_light", width: DesignSystem.IconSize.medium, height: 60)
+                    .frame(width: DesignSystem.IconSize.medium, height: 60)
+                    .padding(.leading, DesignSystem.Spacing.standard)
             }
 
-            SVGWebView(svgName: "chevron_separator", width: 48, height: 64, tintColor: .borderDefault)
-                .frame(width: 48, height: 64)
+            SVGWebView(svgName: "chevron_separator", width: DesignSystem.ButtonSize.standard, height: DesignSystem.ComponentSize.headerHeight, tintColor: .borderDefault)
+                .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ComponentSize.headerHeight)
 
             Text("Artsorakel")
-                .font(.custom("Chivo", size: 18).weight(.bold))
+                .font(DesignSystem.Typography.title())
                 .foregroundColor(Color.textPrimary)
                 .padding(.leading, 0)
 
@@ -82,13 +82,13 @@ struct HeaderView: View {
                 }
             }) {
                 Image(systemName: "line.3.horizontal")
-                    .font(.system(size: 20))
+                    .font(.system(size: DesignSystem.IconSize.medium))
                     .foregroundColor(Color.textAccent)
-                    .frame(width: 48, height: 60)
+                    .frame(width: DesignSystem.ButtonSize.standard, height: 60)
             }
-            .padding(.trailing, 16)
+            .padding(.trailing, DesignSystem.Spacing.standard)
         }
-        .frame(height: 64)
+        .frame(height: DesignSystem.ComponentSize.headerHeight)
         .background(Color.surfacePrimary)
     }
 }
@@ -107,8 +107,8 @@ struct AvatarView: View {
                     .frame(width: geometry.size.width, height: geometry.size.height)
             } else {
                 Image(systemName: "photo")
-                    .font(.system(size: 80))
-                    .foregroundColor(Color.gray.opacity(0.3))
+                    .font(.system(size: DesignSystem.Spacing.huge))
+                    .foregroundColor(Color.gray.opacity(DesignSystem.Opacity.overlay))
                     .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
@@ -128,33 +128,33 @@ struct CameraButtonsView: View {
                 ZStack {
                     Circle()
                         .fill(Color.surfaceAccent)
-                        .frame(width: 56, height: 56)
-                        .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                        .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+                        .applyShadow(DesignSystem.Shadow.small)
 
-                    SVGWebView(svgName: "ic_gallery", width: 24, height: 24, tintColor: .surfacePrimary)
-                        .frame(width: 24, height: 24)
+                    SVGWebView(svgName: "ic_gallery", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .surfacePrimary)
+                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                 }
-                .frame(width: 56, height: 56)
+                .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
             }
-            .padding(.trailing, 16)
-            .padding(.top, 36)
+            .padding(.trailing, DesignSystem.Spacing.standard)
+            .padding(.top, DesignSystem.Spacing.xxxLarge)
 
             Button(action: onCameraTap) {
                 ZStack {
                     Circle()
                         .fill(Color.surfaceAccent)
-                        .frame(width: 97, height: 97)
-                        .shadow(color: Color.black.opacity(0.3), radius: 10, x: 0, y: 6)
+                        .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
+                        .applyShadow(DesignSystem.Shadow.medium)
 
-                    SVGWebView(svgName: "ic_camera", width: 47, height: 47, tintColor: .surfacePrimary)
-                        .frame(width: 47, height: 47)
+                    SVGWebView(svgName: "ic_camera", width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large, tintColor: .surfacePrimary)
+                        .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
                 }
-                .frame(width: 97, height: 97)
+                .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
             }
 
             Spacer()
         }
-        .padding(.vertical, 16)
+        .padding(.vertical, DesignSystem.Spacing.standard)
     }
 }
 

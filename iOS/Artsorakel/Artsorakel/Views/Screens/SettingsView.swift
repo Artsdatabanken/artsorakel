@@ -25,20 +25,20 @@ struct SettingsView: View {
                         }
                     }) {
                         if resourceExists("ic_arrow_back") {
-                            SVGWebView(svgName: "ic_arrow_back", width: 20, height: 20, tintColor: .textAccent)
-                                .frame(width: 20, height: 20)
+                            SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium, tintColor: .textAccent)
+                                .frame(width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium)
                         } else {
                             Image(systemName: "chevron.left")
-                                .font(.system(size: 20))
+                                .font(.system(size: DesignSystem.IconSize.medium))
                                 .foregroundColor(Color.textAccent)
                         }
                     }
-                    .frame(width: 48, height: 48)
-                    .padding(.leading, 8)
+                    .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
+                    .padding(.leading, DesignSystem.Spacing.small)
 
                     // Title
                     Text(localizationManager.localize("settings", comment: "Settings"))
-                        .font(.custom("Chivo", size: 18))
+                        .font(DesignSystem.Typography.title())
                         .foregroundColor(Color.textPrimary)
                         .frame(maxWidth: .infinity)
 
@@ -49,18 +49,18 @@ struct SettingsView: View {
                         }
                     }) {
                         if resourceExists("ic_menu") {
-                            SVGWebView(svgName: "ic_menu", width: 24, height: 24, tintColor: .textAccent)
-                                .frame(width: 24, height: 24)
+                            SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                                .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                         } else {
                             Image(systemName: "line.3.horizontal")
-                                .font(.system(size: 24))
+                                .font(.system(size: DesignSystem.IconSize.standard))
                                 .foregroundColor(Color.textAccent)
                         }
                     }
-                    .frame(width: 48, height: 48)
-                    .padding(.trailing, 8)
+                    .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
+                    .padding(.trailing, DesignSystem.Spacing.small)
                 }
-                .frame(height: 64)
+                .frame(height: DesignSystem.ComponentSize.headerHeight)
                 .background(Color.backgroundDefault)
 
                 // Scrollable content
@@ -68,11 +68,11 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         // Appearance Section
                         Text(localizationManager.localize("appearance", comment: "Appearance"))
-                            .font(.custom("Chivo-Bold", size: 16))
+                            .font(DesignSystem.Typography.subheadlineBold())
                             .foregroundColor(Color.textPrimary)
-                            .padding(.bottom, 12)
+                            .padding(.bottom, DesignSystem.Spacing.medium)
 
-                        VStack(spacing: 8) {
+                        VStack(spacing: DesignSystem.Spacing.small) {
                             ThemeOptionView(
                                 label: localizationManager.localize("system_default", comment: "System default"),
                                 isSelected: selectedTheme == "system"
@@ -94,18 +94,18 @@ struct SettingsView: View {
                                 selectedTheme = "dark"
                             }
                         }
-                        .padding(.bottom, 24)
+                        .padding(.bottom, DesignSystem.Spacing.xLarge)
 
                         // Divider
                         SectionDivider()
 
                         // Language Section
                         Text(localizationManager.localize("language_language", comment: "Language"))
-                            .font(.custom("Chivo-Bold", size: 16))
+                            .font(DesignSystem.Typography.subheadlineBold())
                             .foregroundColor(Color.textPrimary)
-                            .padding(.bottom, 12)
+                            .padding(.bottom, DesignSystem.Spacing.medium)
 
-                        VStack(spacing: 8) {
+                        VStack(spacing: DesignSystem.Spacing.small) {
                             LanguageOptionView(
                                 label: localizationManager.localize("system_default", comment: "System default"),
                                 isSelected: localizationManager.currentLanguage == "system"
@@ -155,16 +155,16 @@ struct SettingsView: View {
                                 localizationManager.setLanguage("sv")
                             }
                         }
-                        .padding(.bottom, 24)
+                        .padding(.bottom, DesignSystem.Spacing.xLarge)
 
                         // Divider
                         SectionDivider()
 
                         // Location Section
                         Text(localizationManager.localize("location_settings_title", comment: "Location"))
-                            .font(.custom("Chivo-Bold", size: 16))
+                            .font(DesignSystem.Typography.subheadlineBold())
                             .foregroundColor(Color.textPrimary)
-                            .padding(.bottom, 12)
+                            .padding(.bottom, DesignSystem.Spacing.medium)
 
                         SettingsToggleView(
                             title: localizationManager.localize("use_location_for_id", comment: "Use location for identification"),
@@ -172,16 +172,16 @@ struct SettingsView: View {
                             isOn: $useLocation,
                             isDisabled: true
                         )
-                        .padding(.bottom, 24)
+                        .padding(.bottom, DesignSystem.Spacing.xLarge)
 
                         // Divider
                         SectionDivider()
 
                         // History Section
                         Text(localizationManager.localize("identification_history", comment: "History"))
-                            .font(.custom("Chivo-Bold", size: 16))
+                            .font(DesignSystem.Typography.subheadlineBold())
                             .foregroundColor(Color.textPrimary)
-                            .padding(.bottom, 12)
+                            .padding(.bottom, DesignSystem.Spacing.medium)
 
                         SettingsToggleView(
                             title: localizationManager.localize("save_history", comment: "Save history"),
@@ -196,28 +196,28 @@ struct SettingsView: View {
                             HStack(spacing: 8) {
                                 if resourceExists("ic_delete") {
                                     SVGWebView(svgName: "ic_delete", width: 20, height: 20, tintColor: Color(red: 0.8, green: 0.2, blue: 0.2))
-                                        .frame(width: 20, height: 20)
+                                        .frame(width: DesignSystem.ComponentSize.radioButtonSize, height: DesignSystem.ComponentSize.radioButtonSize)
                                 }
 
                                 Text(localizationManager.localize("clear_history", comment: "Clear history"))
-                                    .font(.custom("Chivo", size: 14))
+                                    .font(DesignSystem.Typography.body())
                                     .foregroundColor(Color(red: 0.8, green: 0.2, blue: 0.2))
                             }
                             .frame(maxWidth: .infinity)
-                            .frame(height: 48)
+                            .frame(height: DesignSystem.ButtonSize.standard)
                             .background(Color.surfacePrimary)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 24)
                                     .stroke(Color(red: 0.8, green: 0.2, blue: 0.2), lineWidth: 2)
                             )
-                            .cornerRadius(24)
+                            .cornerRadius(DesignSystem.CornerRadius.large)
                         }
                         .disabled(true)
-                        .opacity(0.5)
-                        .padding(.top, 12)
+                        .opacity(DesignSystem.Opacity.disabled)
+                        .padding(.top, DesignSystem.Spacing.medium)
                     }
-                    .padding(20)
-                    .padding(.bottom, 80)
+                    .padding(DesignSystem.Spacing.large)
+                    .padding(.bottom, DesignSystem.Spacing.huge)
                 }
                 .background(Color.backgroundSubtle)
             }
@@ -236,22 +236,22 @@ struct ThemeOptionView: View {
                 ZStack {
                     Circle()
                         .stroke(Color.textAccent, lineWidth: 2)
-                        .frame(width: 20, height: 20)
+                        .frame(width: DesignSystem.ComponentSize.radioButtonSize, height: DesignSystem.ComponentSize.radioButtonSize)
 
                     if isSelected {
                         Circle()
                             .fill(Color.textAccent)
-                            .frame(width: 10, height: 10)
+                            .frame(width: DesignSystem.ComponentSize.radioButtonDot, height: DesignSystem.ComponentSize.radioButtonDot)
                     }
                 }
 
                 Text(label)
-                    .font(.custom("Chivo", size: 14))
+                    .font(DesignSystem.Typography.body())
                     .foregroundColor(Color.textAccent)
 
                 Spacer()
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, DesignSystem.Spacing.small)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -269,22 +269,22 @@ struct LanguageOptionView: View {
                 ZStack {
                     Circle()
                         .stroke(Color.textAccent, lineWidth: 2)
-                        .frame(width: 20, height: 20)
+                        .frame(width: DesignSystem.ComponentSize.radioButtonSize, height: DesignSystem.ComponentSize.radioButtonSize)
 
                     if isSelected {
                         Circle()
                             .fill(Color.textAccent)
-                            .frame(width: 10, height: 10)
+                            .frame(width: DesignSystem.ComponentSize.radioButtonDot, height: DesignSystem.ComponentSize.radioButtonDot)
                     }
                 }
 
                 Text(label)
-                    .font(.custom("Chivo", size: 14))
+                    .font(DesignSystem.Typography.body())
                     .foregroundColor(Color.textAccent)
 
                 Spacer()
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, DesignSystem.Spacing.small)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -302,16 +302,16 @@ struct SettingsToggleView: View {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
                 .disabled(isDisabled)
-                .opacity(isDisabled ? 0.5 : 1.0)
+                .opacity(isDisabled ? DesignSystem.Opacity.disabled : 1.0)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.custom("Chivo", size: 14))
+                    .font(DesignSystem.Typography.body())
                     .foregroundColor(Color.textPrimary)
 
                 Text(description)
-                    .font(.custom("Chivo", size: 12))
-                    .foregroundColor(Color.textPrimary.opacity(0.7))
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundColor(Color.textPrimary.opacity(DesignSystem.Opacity.subtle))
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -322,7 +322,7 @@ struct SectionDivider: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 2)
             .fill(Color.surfaceBrand1a)
-            .frame(width: 60, height: 4)
-            .padding(.bottom, 32)
+            .frame(width: DesignSystem.ComponentSize.dividerWidth, height: DesignSystem.ComponentSize.dividerThickness)
+            .padding(.bottom, DesignSystem.Spacing.xxLarge)
     }
 }

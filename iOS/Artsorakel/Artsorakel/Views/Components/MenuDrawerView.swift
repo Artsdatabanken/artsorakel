@@ -67,7 +67,7 @@ struct MenuDrawerView: View {
                         }
 
                         Spacer()
-                            .frame(height: 16)
+                            .frame(height: DesignSystem.Spacing.standard)
 
                         HStack {
                             Spacer()
@@ -80,24 +80,24 @@ struct MenuDrawerView: View {
                                 ZStack {
                                     Circle()
                                         .fill(Color.surfacePrimary)
-                                        .frame(width: 40, height: 40)
+                                        .frame(width: DesignSystem.ComponentSize.closeButtonSize, height: DesignSystem.ComponentSize.closeButtonSize)
                                         .overlay(
                                             Circle()
                                                 .stroke(Color.textAccent, lineWidth: 1.5)
                                         )
-                                        .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 4)
+                                        .applyShadow(DesignSystem.Shadow.small)
 
                                     Image(systemName: "xmark")
-                                        .font(.system(size: 16))
+                                        .font(.system(size: DesignSystem.Typography.FontSize.subheadline))
                                         .foregroundColor(Color.textAccent)
                                 }
                             }
-                            .padding(8)
+                            .padding(DesignSystem.Spacing.small)
                         }
                     }
-                    .padding(.bottom, 16)
+                    .padding(.bottom, DesignSystem.Spacing.standard)
                 }
-                .frame(width: 280)
+                .frame(width: DesignSystem.ComponentSize.menuWidth)
                 .background(Color.backgroundSubtle)
                 .transition(.move(edge: .trailing))
             }
@@ -154,22 +154,22 @@ struct MenuItemView: View {
             HStack(spacing: 16) {
                 if resourceExists(iconName) {
                     SVGWebView(svgName: iconName, width: 24, height: 24, tintColor: .textAccent)
-                        .frame(width: 24, height: 24)
+                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                 } else {
                     Image(systemName: "questionmark.circle")
-                        .font(.system(size: 24))
+                        .font(.system(size: DesignSystem.IconSize.standard))
                         .foregroundColor(Color.textAccent)
-                        .frame(width: 24, height: 24)
+                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                 }
 
                 Text(title)
-                    .font(.custom("Chivo", size: 14))
+                    .font(DesignSystem.Typography.body())
                     .foregroundColor(Color.textPrimary)
 
                 Spacer()
             }
-            .padding(.horizontal, 16)
-            .frame(height: 48)
+            .padding(.horizontal, DesignSystem.Spacing.standard)
+            .frame(height: DesignSystem.ButtonSize.standard)
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
@@ -180,9 +180,9 @@ struct DividerView: View {
     var body: some View {
         RoundedRectangle(cornerRadius: 2)
             .fill(Color.surfaceBrand1a)
-            .frame(width: 60, height: 4)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 16)
+            .frame(width: DesignSystem.ComponentSize.dividerWidth, height: DesignSystem.ComponentSize.dividerThickness)
+            .padding(.horizontal, DesignSystem.Spacing.standard)
+            .padding(.vertical, DesignSystem.Spacing.standard)
             .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
