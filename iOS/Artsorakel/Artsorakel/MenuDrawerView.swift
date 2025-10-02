@@ -3,11 +3,14 @@ import SwiftUI
 struct MenuDrawerView: View {
     @Binding var isOpen: Bool
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var localizationManager: LocalizationManager
     @AppStorage("selectedTheme") private var selectedTheme: String = "system"
-    @AppStorage("selectedLanguage") private var selectedLanguage: String = "system"
 
     @State private var showThemeDialog = false
     @State private var showLanguageDialog = false
+
+    func applyTheme(_ theme: String) {
+    }
 
     var body: some View {
         ZStack(alignment: .trailing) {
@@ -26,14 +29,14 @@ struct MenuDrawerView: View {
                     VStack(spacing: 0) {
                         MenuItemView(
                             iconName: "ic_theme",
-                            title: NSLocalizedString("theme_theme", comment: "Theme")
+                            title: localizationManager.localize("theme_theme", comment: "Theme")
                         ) {
                             showThemeDialog = true
                         }
 
                         MenuItemView(
                             iconName: "ic_language",
-                            title: NSLocalizedString("language_language", comment: "Language")
+                            title: localizationManager.localize("language_language", comment: "Language")
                         ) {
                             showLanguageDialog = true
                         }
@@ -42,19 +45,19 @@ struct MenuDrawerView: View {
 
                         MenuItemView(
                             iconName: "ic_settings",
-                            title: NSLocalizedString("settings", comment: "Settings")
+                            title: localizationManager.localize("settings", comment: "Settings")
                         ) {
                         }
 
                         MenuItemView(
                             iconName: "ic_alert_info",
-                            title: NSLocalizedString("about", comment: "About")
+                            title: localizationManager.localize("about", comment: "About")
                         ) {
                         }
 
                         MenuItemView(
                             iconName: "ic_help",
-                            title: NSLocalizedString("faq", comment: "FAQ")
+                            title: localizationManager.localize("faq", comment: "FAQ")
                         ) {
                         }
 
@@ -94,13 +97,44 @@ struct MenuDrawerView: View {
                 .transition(.move(edge: .trailing))
             }
         }
-        .sheet(isPresented: $showThemeDialog) {
-            ThemeSelectionView(selectedTheme: $selectedTheme, isPresented: $showThemeDialog)
-                .presentationDetents([.height(280)])
+        .alert(localizationManager.localize("theme_theme", comment: "Theme"), isPresented: $showThemeDialog) {
+            Button(localizationManager.localize("system_default", comment: "System default")) {
+                selectedTheme = "system"
+                applyTheme("system")
+            }
+            Button(localizationManager.localize("theme_light", comment: "Light")) {
+                selectedTheme = "light"
+                applyTheme("light")
+            }
+            Button(localizationManager.localize("theme_dark", comment: "Dark")) {
+                selectedTheme = "dark"
+                applyTheme("dark")
+            }
+            Button(localizationManager.localize("cancel", comment: "Cancel"), role: .cancel) { }
         }
-        .sheet(isPresented: $showLanguageDialog) {
-            LanguageSelectionView(selectedLanguage: $selectedLanguage, isPresented: $showLanguageDialog)
-                .presentationDetents([.height(450)])
+        .alert(localizationManager.localize("language_language", comment: "Language"), isPresented: $showLanguageDialog) {
+            Button(localizationManager.localize("system_default", comment: "System default")) {
+                localizationManager.setLanguage("system")
+            }
+            Button(localizationManager.localize("language_norwegian_bokmaal", comment: "Norwegian Bokmål")) {
+                localizationManager.setLanguage("nb")
+            }
+            Button(localizationManager.localize("language_norwegian_nynorsk", comment: "Norwegian Nynorsk")) {
+                localizationManager.setLanguage("nn")
+            }
+            Button(localizationManager.localize("language_english", comment: "English")) {
+                localizationManager.setLanguage("en")
+            }
+            Button(localizationManager.localize("language_spanish", comment: "Spanish")) {
+                localizationManager.setLanguage("es")
+            }
+            Button(localizationManager.localize("language_dutch", comment: "Dutch")) {
+                localizationManager.setLanguage("nl")
+            }
+            Button(localizationManager.localize("language_swedish", comment: "Swedish")) {
+                localizationManager.setLanguage("sv")
+            }
+            Button(localizationManager.localize("cancel", comment: "Cancel"), role: .cancel) { }
         }
     }
 }
@@ -145,111 +179,5 @@ struct DividerView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-struct ThemeSelectionView: View {
-    @Binding var selectedTheme: String
-    @Binding var isPresented: Bool
-
-    let themes = [
-        ("system", NSLocalizedString("system_default", comment: "System default")),
-        ("light", NSLocalizedString("theme_light", comment: "Light")),
-        ("dark", NSLocalizedString("theme_dark", comment: "Dark"))
-    ]
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text(NSLocalizedString("theme_theme", comment: "Theme"))
-                .font(.custom("Chivo", size: 18).weight(.bold))
-                .foregroundColor(Color.textPrimary)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-
-            ForEach(themes, id: \.0) { theme in
-                Button(action: {
-                    selectedTheme = theme.0
-                    applyTheme(theme.0)
-                    isPresented = false
-                }) {
-                    HStack {
-                        Text(theme.1)
-                            .font(.custom("Chivo", size: 16))
-                            .foregroundColor(Color.textPrimary)
-
-                        Spacer()
-
-                        if selectedTheme == theme.0 {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(Color.textAccent)
-                        }
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-
-            Spacer()
-        }
-        .background(Color.backgroundSubtle)
-    }
-
-    func applyTheme(_ theme: String) {
-    }
-}
-
-struct LanguageSelectionView: View {
-    @Binding var selectedLanguage: String
-    @Binding var isPresented: Bool
-
-    let languages = [
-        ("system", NSLocalizedString("system_default", comment: "System default")),
-        ("nb", NSLocalizedString("language_norwegian_bokmaal", comment: "Norwegian Bokmål")),
-        ("nn", NSLocalizedString("language_norwegian_nynorsk", comment: "Norwegian Nynorsk")),
-        ("en", NSLocalizedString("language_english", comment: "English")),
-        ("es", NSLocalizedString("language_spanish", comment: "Spanish")),
-        ("nl", NSLocalizedString("language_dutch", comment: "Dutch")),
-        ("sv", NSLocalizedString("language_swedish", comment: "Swedish"))
-    ]
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text(NSLocalizedString("language_language", comment: "Language"))
-                .font(.custom("Chivo", size: 18).weight(.bold))
-                .foregroundColor(Color.textPrimary)
-                .padding(.top, 20)
-                .padding(.bottom, 16)
-
-            ScrollView {
-                ForEach(languages, id: \.0) { language in
-                    Button(action: {
-                        selectedLanguage = language.0
-                        isPresented = false
-                    }) {
-                        HStack {
-                            Text(language.1)
-                                .font(.custom("Chivo", size: 16))
-                                .foregroundColor(Color.textPrimary)
-
-                            Spacer()
-
-                            if selectedLanguage == language.0 {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(Color.textAccent)
-                            }
-                        }
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 12)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                }
-            }
-
-            Spacer()
-        }
-        .background(Color.backgroundSubtle)
     }
 }

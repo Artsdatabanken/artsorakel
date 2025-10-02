@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainScreenView: View {
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var localizationManager: LocalizationManager
     @State private var showCamera = false
     @State private var showGallery = false
     @State private var isMenuOpen = false
@@ -16,7 +17,7 @@ struct MainScreenView: View {
                     .background(Color.borderDefault)
 
                 VStack(spacing: 0) {
-                    Text(NSLocalizedString("main_title", comment: "Main screen tagline"))
+                    Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
                         .font(.custom("Chivo", size: 22).weight(.bold))
                         .foregroundColor(Color.textPrimary)
                         .padding(.horizontal, 100)
