@@ -7,6 +7,8 @@ struct MainScreenView: View {
     @State private var showGallery = false
     @State private var isMenuOpen = false
     @State private var showSettings = false
+    @State private var showAbout = false
+    @State private var showFAQ = false
 
     var body: some View {
         ZStack {
@@ -43,10 +45,22 @@ struct MainScreenView: View {
             }
             .ignoresSafeArea(edges: .bottom)
 
-            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings)
+            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
 
             if showSettings {
                 SettingsView(isPresented: $showSettings, showMenuDrawer: $isMenuOpen)
+                    .transition(.move(edge: .trailing))
+                    .zIndex(1)
+            }
+
+            if showAbout {
+                AboutView(isPresented: $showAbout, showMenuDrawer: $isMenuOpen)
+                    .transition(.move(edge: .trailing))
+                    .zIndex(1)
+            }
+
+            if showFAQ {
+                FAQView(isPresented: $showFAQ, showMenuDrawer: $isMenuOpen)
                     .transition(.move(edge: .trailing))
                     .zIndex(1)
             }
