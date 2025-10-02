@@ -10,11 +10,13 @@ import SwiftUI
 @main
 struct ArtsorakelApp: App {
     @AppStorage("selectedTheme") private var selectedTheme: String = "system"
+    @StateObject private var localizationManager = LocalizationManager()
 
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .preferredColorScheme(colorScheme(for: selectedTheme))
+                .environmentObject(localizationManager)
         }
     }
 

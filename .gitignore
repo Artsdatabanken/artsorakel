@@ -89,6 +89,11 @@ iOS/Artsorakel/*.lproj/
 **/*.xcuserstate
 iOS/Artsorakel/Artsorakel.xcodeproj/project.xcworkspace/xcuserdata/
 
+# iOS build artifacts and test products
+**/*.xctestproducts/
+**/xcshareddata/
+iOS/Artsorakel/Artsorakel\ */
+
 CLAUDE.md
 iOS/Artsorakel/Assets.xcassets/*.colorset/*
 iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon.png
