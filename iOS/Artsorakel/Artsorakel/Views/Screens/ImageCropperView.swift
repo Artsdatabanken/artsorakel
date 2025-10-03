@@ -166,6 +166,15 @@ struct ImageCropperView: View {
         let imageSize = image.size
         let screenCropSize = cropSize
 
+        // Validate crop size is initialized
+        guard screenCropSize > 0 && screenCropSize.isFinite else {
+            debugMessage = "ERROR: Invalid crop size\nSize: \(screenCropSize)"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                isPresented = false
+            }
+            return
+        }
+
         // Calculate display dimensions
         let imageAspect = imageSize.width / imageSize.height
         let screenImageWidth: CGFloat
@@ -189,6 +198,15 @@ struct ImageCropperView: View {
         let cropX = screenCropX * pixelRatio / scale
         let cropY = screenCropY * pixelRatio / scale
         let cropSizeInPixels = screenCropSize * pixelRatio / scale
+
+        // Validate calculations
+        guard cropX.isFinite && cropY.isFinite && cropSizeInPixels.isFinite && cropSizeInPixels > 0 else {
+            debugMessage = "ERROR: Invalid crop calculations\nX:\(cropX) Y:\(cropY) Size:\(cropSizeInPixels)"
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                isPresented = false
+            }
+            return
+        }
 
         // Clamp to image bounds
         let clampedX = max(0, min(cropX, imageSize.width - cropSizeInPixels))
@@ -214,7 +232,14 @@ struct ImageCropperView: View {
             isPresented = false
             onCropComplete(finalImage, location)
         } else {
-            debugMessage = "CROP FAILED!\nRect: \(Int(cropRect.origin.x)),\(Int(cropRect.origin.y)) \(Int(cropRect.width))x\(Int(cropRect.height))\nImage: \(Int(imageSize.width))x\(Int(imageSize.height))"
+            let rectXInt = cropRect.origin.x.isFinite ? Int(cropRect.origin.x) : -1
+            let rectYInt = cropRect.origin.y.isFinite ? Int(cropRect.origin.y) : -1
+            let rectWInt = cropRect.width.isFinite ? Int(cropRect.width) : -1
+            let rectHInt = cropRect.height.isFinite ? Int(cropRect.height) : -1
+            let imgWInt = imageSize.width.isFinite ? Int(imageSize.width) : -1
+            let imgHInt = imageSize.height.isFinite ? Int(imageSize.height) : -1
+
+            debugMessage = "CROP FAILED!\nRect: \(rectXInt),\(rectYInt) \(rectWInt)x\(rectHInt)\nImage: \(imgWInt)x\(imgHInt)"
             DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
                 isPresented = false
             }

@@ -11,17 +11,7 @@ struct ImagePickerManager: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
 
-        // Check if the source type is available
-        if UIImagePickerController.isSourceTypeAvailable(sourceType) {
-            picker.sourceType = sourceType
-        } else {
-            // Source not available - notify parent and dismiss
-            DispatchQueue.main.async {
-                onUnavailable?()
-                isPresented = false
-            }
-        }
-
+        picker.sourceType = sourceType
         picker.delegate = context.coordinator
         return picker
     }

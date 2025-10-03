@@ -61,12 +61,10 @@ struct MainScreenView: View {
 
                     CameraButtonsView(
                         onCameraTap: {
-                            imagePickerSourceType = .camera
-                            showImagePicker = true
+                            print("Camera button tapped")
                         },
                         onGalleryTap: {
-                            imagePickerSourceType = .photoLibrary
-                            showImagePicker = true
+                            showGallery = true
                         }
                     )
                     .padding(.bottom, DesignSystem.Spacing.standard)
@@ -96,19 +94,6 @@ struct MainScreenView: View {
             MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
                 .zIndex(2)
         }
-        .sheet(isPresented: $showImagePicker) {
-            ImagePickerManager(
-                isPresented: $showImagePicker,
-                sourceType: imagePickerSourceType,
-                onImagePicked: { image, location in
-                    imageToCrop = IdentifiableImage(image: image, location: location)
-                },
-                onUnavailable: {
-                    // Source type not available (e.g., no camera on simulator)
-                    print("Image picker source type \(imagePickerSourceType.rawValue) not available")
-                }
-            )
-        }
         .fullScreenCover(item: $imageToCrop) { identifiableImage in
             ImageCropperView(
                 isPresented: Binding(
@@ -122,6 +107,16 @@ struct MainScreenView: View {
                     imageLocation = loc
                     imageToCrop = nil
                 }
+            )
+        }
+        .sheet(isPresented: $showGallery) {
+            ImagePickerManager(
+                isPresented: $showGallery,
+                sourceType: .photoLibrary,
+                onImagePicked: { image, location in
+                    imageToCrop = IdentifiableImage(image: image, location: location)
+                },
+                onUnavailable: nil
             )
         }
     }
