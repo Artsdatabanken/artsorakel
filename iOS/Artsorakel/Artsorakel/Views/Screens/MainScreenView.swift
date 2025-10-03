@@ -61,7 +61,7 @@ struct MainScreenView: View {
 
                     CameraButtonsView(
                         onCameraTap: {
-                            print("Camera button tapped")
+                            showCamera = true
                         },
                         onGalleryTap: {
                             showGallery = true
@@ -113,6 +113,16 @@ struct MainScreenView: View {
             ImagePickerManager(
                 isPresented: $showGallery,
                 sourceType: .photoLibrary,
+                onImagePicked: { image, location in
+                    imageToCrop = IdentifiableImage(image: image, location: location)
+                },
+                onUnavailable: nil
+            )
+        }
+        .sheet(isPresented: $showCamera) {
+            ImagePickerManager(
+                isPresented: $showCamera,
+                sourceType: .camera,
                 onImagePicked: { image, location in
                     imageToCrop = IdentifiableImage(image: image, location: location)
                 },
