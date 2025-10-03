@@ -1,4 +1,12 @@
 import SwiftUI
+import CoreLocation
+
+// Wrapper to make UIImage identifiable for sheet presentation
+struct IdentifiableImage: Identifiable {
+    let id = UUID()
+    let image: UIImage
+    let location: CLLocation?
+}
 
 struct MainScreenView: View {
     @Environment(\.colorScheme) var colorScheme
@@ -9,6 +17,11 @@ struct MainScreenView: View {
     @State private var showSettings = false
     @State private var showAbout = false
     @State private var showFAQ = false
+    @State private var showImagePicker = false
+    @State private var imagePickerSourceType: UIImagePickerController.SourceType = .camera
+    @State private var imageToCrop: IdentifiableImage?
+    @State private var croppedImage: UIImage?
+    @State private var imageLocation: CLLocation?
 
     var body: some View {
         ZStack {
@@ -31,21 +44,36 @@ struct MainScreenView: View {
                         Color.backgroundSubtle
                             .ignoresSafeArea()
 
-                        AvatarView()
-                            .padding(DesignSystem.Spacing.xxLarge)
+                        if let image = croppedImage {
+                            ImageManagementContent(
+                                image: image,
+                                onReset: {
+                                    croppedImage = nil
+                                    imageLocation = nil
+                                }
+                            )
+                            .padding(DesignSystem.Spacing.standard)
+                        } else {
+                            AvatarView()
+                                .padding(DesignSystem.Spacing.xxLarge)
+                        }
                     }
 
                     CameraButtonsView(
-                        onCameraTap: { showCamera = true },
-                        onGalleryTap: { showGallery = true }
+                        onCameraTap: {
+                            imagePickerSourceType = .camera
+                            showImagePicker = true
+                        },
+                        onGalleryTap: {
+                            imagePickerSourceType = .photoLibrary
+                            showImagePicker = true
+                        }
                     )
                     .padding(.bottom, DesignSystem.Spacing.standard)
                 }
                 .background(Color.backgroundSubtle)
             }
             .ignoresSafeArea(edges: .bottom)
-
-            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
 
             if showSettings {
                 SettingsView(isPresented: $showSettings, showMenuDrawer: $isMenuOpen)
@@ -64,6 +92,37 @@ struct MainScreenView: View {
                     .transition(.move(edge: .trailing))
                     .zIndex(1)
             }
+
+            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
+                .zIndex(2)
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePickerManager(
+                isPresented: $showImagePicker,
+                sourceType: imagePickerSourceType,
+                onImagePicked: { image, location in
+                    imageToCrop = IdentifiableImage(image: image, location: location)
+                },
+                onUnavailable: {
+                    // Source type not available (e.g., no camera on simulator)
+                    print("Image picker source type \(imagePickerSourceType.rawValue) not available")
+                }
+            )
+        }
+        .fullScreenCover(item: $imageToCrop) { identifiableImage in
+            ImageCropperView(
+                isPresented: Binding(
+                    get: { imageToCrop != nil },
+                    set: { if !$0 { imageToCrop = nil } }
+                ),
+                image: identifiableImage.image,
+                location: identifiableImage.location,
+                onCropComplete: { croppedImg, loc in
+                    croppedImage = croppedImg
+                    imageLocation = loc
+                    imageToCrop = nil
+                }
+            )
         }
     }
 }

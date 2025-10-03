@@ -36,7 +36,10 @@ def print_section(message: str):
 
 
 def print_success(message: str):
-    print(f"  ✅ {message}")
+    # Success messages are suppressed to reduce verbosity
+    # Uncomment to see all operations:
+    # print(f"  ✅ {message}")
+    pass
 
 
 def print_error(message: str):
@@ -138,10 +141,14 @@ def sync_config():
             plist_data['CFBundleShortVersionString'] = version
             plist_data['CFBundleVersion'] = str(version_code)
 
+            # Always set encryption export compliance to false (app doesn't use encryption)
+            plist_data['ITSAppUsesNonExemptEncryption'] = False
+
             with open(ios_plist, 'wb') as f:
                 plistlib.dump(plist_data, f)
 
             print_success(f"Updated iOS version to {version} ({version_code})")
+            print_success("Set ITSAppUsesNonExemptEncryption to false")
         except Exception as e:
             print_warning(f"Could not update iOS plist: {e}")
     else:
@@ -171,7 +178,6 @@ def sync_strings():
 
         # Process each language
         for lang in languages:
-            print(f"  Processing language: {lang}")
 
             # Android language mapping
             android_lang_map = {
@@ -292,11 +298,20 @@ def check_svg_for_transforms(svg_file: Path) -> bool:
 def run_vdtool(input_file: Path, output_dir: Path) -> Optional[Path]:
     """Run vd-tool to convert SVG to Android VectorDrawable XML"""
     try:
+        # Set up environment with JAVA_HOME for macOS
+        env = os.environ.copy()
+        if shutil.which('brew'):
+            java_home = subprocess.run(['brew', '--prefix', 'openjdk'], capture_output=True, text=True)
+            if java_home.returncode == 0:
+                env['JAVA_HOME'] = java_home.stdout.strip()
+                env['PATH'] = f"{java_home.stdout.strip()}/bin:{env.get('PATH', '')}"
+
         result = subprocess.run(
             ['vd-tool', '-c', '-in', str(input_file), '-out', str(output_dir)],
             check=True,
             capture_output=True,
-            text=True
+            text=True,
+            env=env
         )
 
         # vd-tool creates file with same base name but .xml extension
@@ -360,7 +375,6 @@ def sync_vectors():
         print(f"  {Colors.YELLOW}   Install with: npm install -g vd-tool{Colors.NC}")
         return True
 
-    print("    🔄 Converting logo to launcher foreground...")
     result = run_vdtool(logo_svg, drawable_dir)
 
     if result == 'java_missing':
@@ -409,8 +423,6 @@ def sync_vectors():
             # Convert to Android resource name
             base_name_lower = base_name.lower().replace('-', '_')
             android_name = base_name_lower if base_name_lower.startswith('ic_') else f'ic_{base_name_lower}'
-
-            print(f"  🔄 Processing {light_svg.name}...")
 
             # Check and convert light version
             if not check_svg_for_transforms(light_svg):
@@ -477,8 +489,6 @@ def sync_vectors():
 
             out = drawable_dir / f'{name}.xml'
 
-            print(f"  🔄 Converting {svg.name} → {out.name}")
-
             if not check_svg_for_transforms(svg):
                 print_error(f"   ⛔ Skipping conversion of {svg.name}")
                 continue
@@ -536,30 +546,20 @@ def sync_content():
     android_assets = ANDROID_DIR / 'app' / 'src' / 'main' / 'assets'
     android_assets.mkdir(parents=True, exist_ok=True)
 
-    # Copy FAQ JSON files to Android
-    for json_file in content_dir.glob('faq_*.json'):
-        shutil.copy(json_file, android_assets)
-        print_success(f"Copied {json_file.name} to Android assets")
+    # Copy all content files (HTML, JSON, SVG) to Android assets
+    for content_file in content_dir.glob('*'):
+        if content_file.is_file() and content_file.suffix in ['.html', '.json', '.svg']:
+            shutil.copy(content_file, android_assets)
+            print_success(f"Copied {content_file.name} to Android assets")
 
-    # Copy other HTML files to Android (non-FAQ)
-    for html_file in content_dir.glob('*.html'):
-        if not html_file.name.startswith('faq_'):
-            shutil.copy(html_file, android_assets)
-            print_success(f"Copied {html_file.name} to Android assets")
-
-    # Copy HTML files to iOS (non-FAQ)
+    # Copy all content files (HTML, JSON, SVG) to iOS resources
     ios_content = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Resources' / 'Content'
     ios_content.mkdir(parents=True, exist_ok=True)
 
-    for html_file in content_dir.glob('*.html'):
-        if not html_file.name.startswith('faq_'):
-            shutil.copy(html_file, ios_content)
-            print_success(f"Copied {html_file.name} to iOS resources")
-
-    # Copy FAQ JSON files to iOS
-    for json_file in content_dir.glob('faq_*.json'):
-        shutil.copy(json_file, ios_content)
-        print_success(f"Copied {json_file.name} to iOS resources")
+    for content_file in content_dir.glob('*'):
+        if content_file.is_file() and content_file.suffix in ['.html', '.json', '.svg']:
+            shutil.copy(content_file, ios_content)
+            print_success(f"Copied {content_file.name} to iOS resources")
 
 
 def sync_design_system():
@@ -574,8 +574,6 @@ def sync_design_system():
     # Process Variables primitives.txt to generate colors.xml
     vars_file = design_dir / 'Variables primitives.txt'
     if vars_file.exists():
-        print("  🔄 Processing Variables primitives.txt...")
-
         content = vars_file.read_text()
 
         # Extract color variables
@@ -653,8 +651,6 @@ def sync_design_system():
     # Process Semantic tokens.txt to add semantic color references and generate themes
     semantic_file = design_dir / 'Semantic tokens.txt'
     if semantic_file.exists() and vars_file.exists():
-        print("  🔄 Processing Semantic tokens and generating themes...")
-
         # First, read all primitive colors from Variables primitives.txt
         primitives = {}
         content = vars_file.read_text()
@@ -832,8 +828,6 @@ def sync_design_system():
 
     # Generate iOS color assets from design system
     if semantic_file.exists() and vars_file.exists():
-        print("  🔄 Generating iOS color assets...")
-
         # First, read all primitive colors from Variables primitives.txt
         primitives = {}
         content = vars_file.read_text()
@@ -982,6 +976,32 @@ def sync_design_system():
                 print_success(f"Generated {ios_name}.colorset")
 
         print_success("Generated iOS color assets from design system")
+
+        # Generate ColorExtensions.swift from the color assets
+        # Collect all color names
+        color_extensions = []
+        for ios_name in sorted(ios_colors.keys()):
+            # Extract the camelCase part (e.g., Color_backgroundDefault -> backgroundDefault)
+            swift_name = ios_name[len('Color_'):]
+            color_extensions.append(f'    static let {swift_name} = Color("{ios_name}")')
+
+        # Generate the Swift file
+        swift_content = """import SwiftUI
+
+extension Color {
+"""
+        swift_content += '\n'.join(color_extensions)
+        swift_content += """
+}
+"""
+
+        # Write to ColorExtensions.swift
+        extensions_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Views' / 'Extensions'
+        extensions_dir.mkdir(parents=True, exist_ok=True)
+        extensions_file = extensions_dir / 'ColorExtensions.swift'
+        extensions_file.write_text(swift_content)
+
+        print_success(f"Generated ColorExtensions.swift with {len(color_extensions)} colors")
 
 
 def sync_app_icons():

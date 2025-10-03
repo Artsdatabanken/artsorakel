@@ -73,7 +73,7 @@ class AboutFragment : Fragment() {
         webView.setBackgroundColor(Color.TRANSPARENT)
 
         val htmlContent = HtmlLoader.loadHtml(requireContext(), "about", languageManager)
-        val processedContent = processContent(htmlContent)
+        val processedContent = processContent(htmlContent, themeColors)
         val styledHtmlContent = injectAppStyling(processedContent, themeColors)
 
         webView.loadDataWithBaseURL(
@@ -85,10 +85,50 @@ class AboutFragment : Fragment() {
         )
     }
 
-    private fun processContent(htmlContent: String): String {
+    private fun processContent(htmlContent: String, themeColors: ThemeColors): String {
         val packageInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
         val versionName = packageInfo.versionName ?: "Unknown"
-        return htmlContent.replace("[Version number]", versionName)
+        var processed = htmlContent.replace("[Version number]", versionName)
+
+        // Inline SVG content so it can inherit CSS color
+        processed = inlineSvgImages(processed, themeColors)
+
+        return processed
+    }
+
+    private fun inlineSvgImages(htmlContent: String, themeColors: ThemeColors): String {
+        val textColorHex = String.format("#%06X", (0xFFFFFF and themeColors.textColor))
+        var result = htmlContent
+
+        // Find all <img src="...Logo_*.svg"> tags and replace with inline SVG
+        val imgPattern = """<img\s+src="file:///android_asset/(Logo_[^"]+\.svg)"([^>]*)>""".toRegex()
+
+        imgPattern.findAll(htmlContent).forEach { match ->
+            val svgFileName = match.groupValues[1]
+            val imgAttributes = match.groupValues[2]
+
+            try {
+                val svgContent = requireContext().assets.open(svgFileName).bufferedReader().use { it.readText() }
+
+                // Extract width from img tag if present
+                val widthMatch = """width:\s*(\d+)%""".toRegex().find(imgAttributes)
+                val width = widthMatch?.groupValues?.get(1) ?: "80"
+
+                // Remove XML declaration and add color style to SVG tag
+                val cleanedSvg = svgContent
+                    .replace("""<\?xml[^>]+\?>""".toRegex(), "")
+                    .replace("""<svg""".toRegex(), """<svg style="color: $textColorHex;" """)
+                    .trim()
+
+                val inlinedSvg = """<div style="width: ${width}%; margin-top: 20px; margin-left: auto; margin-right: auto;">$cleanedSvg</div>"""
+
+                result = result.replace(match.value, inlinedSvg)
+            } catch (e: Exception) {
+                // If we can't load the SVG, keep the original img tag
+            }
+        }
+
+        return result
     }
 
     data class ThemeColors(
@@ -214,6 +254,18 @@ class AboutFragment : Fragment() {
                     width: 100%;
                     height: auto;
                     max-width: 200px;
+                }
+
+                img {
+                    display: block;
+                    margin: 20px auto 0 auto;
+                    max-width: 200px;
+                }
+
+                svg {
+                    color: $textColorHex;
+                    max-width: 100%;
+                    height: auto;
                 }
             </style>
         """.trimIndent()
