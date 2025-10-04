@@ -6,6 +6,7 @@ struct ResultsView: View {
     let results: [PredictionResult]
     let images: [CroppedImageData]
     let onReset: () -> Void
+    let onAddImage: () -> Void
     @Binding var isMenuOpen: Bool
 
     var body: some View {
@@ -69,22 +70,24 @@ struct ResultsView: View {
                                         .clipped()
                                 }
 
-                                // Add button placeholder
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
-                                        .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                                        .frame(width: 90, height: 90)
+                                // Add button
+                                Button(action: onAddImage) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                            .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                                            .frame(width: 90, height: 90)
 
-                                    if resourceExists("ic_add") {
-                                        SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
-                                            .frame(width: 24, height: 24)
-                                    } else {
-                                        Image(systemName: "plus")
-                                            .font(.system(size: 24))
-                                            .foregroundColor(Color.textAccent)
+                                        if resourceExists("ic_add") {
+                                            SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
+                                                .frame(width: 24, height: 24)
+                                        } else {
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 24))
+                                                .foregroundColor(Color.textAccent)
+                                        }
                                     }
+                                    .frame(width: 90, height: 90)
                                 }
-                                .frame(width: 90, height: 90)
                                 .id("addButton")
                             }
                             .padding(.horizontal, max(DesignSystem.Spacing.small, (geometry.size.width - DesignSystem.Spacing.small * 2 - CGFloat(images.count + 1) * 90 - CGFloat(images.count) * DesignSystem.Spacing.small) / 2))
@@ -149,19 +152,26 @@ struct ResultRow: View {
                 .frame(width: 64, height: 64)
 
             VStack(alignment: .leading, spacing: 4) {
-                // Vernacular name (if available)
+                // Vernacular name or scientific name as header
                 if let vernacularName = result.getVernacularName(for: languageCode), !vernacularName.isEmpty {
+                    // Show vernacular name as header
                     Text(vernacularName.prefix(1).capitalized + vernacularName.dropFirst())
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(Color.surfaceAccent)
-                }
 
-                // Scientific name
-                if let scientificName = result.scientificName {
+                    // Show scientific name below only if different from vernacular
+                    if let scientificName = result.scientificName, scientificName != vernacularName {
+                        Text(scientificName)
+                            .font(DesignSystem.Typography.caption())
+                            .italic()
+                            .foregroundColor(Color.textPrimary)
+                    }
+                } else if let scientificName = result.scientificName {
+                    // No vernacular name - show scientific name as header in italic
                     Text(scientificName)
-                        .font(DesignSystem.Typography.caption())
+                        .font(DesignSystem.Typography.title())
                         .italic()
-                        .foregroundColor(Color.textPrimary)
+                        .foregroundColor(Color.surfaceAccent)
                 }
 
                 // Group name (if available)

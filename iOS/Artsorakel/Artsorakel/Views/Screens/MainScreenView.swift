@@ -141,6 +141,15 @@ struct MainScreenView: View {
                         identificationResults = nil
                         croppedImages = []
                     },
+                    onAddImage: {
+                        // Dismiss results and show image picker based on last method used
+                        identificationResults = nil
+                        if lastInputMethodIsCamera {
+                            showCamera = true
+                        } else {
+                            showGallery = true
+                        }
+                    },
                     isMenuOpen: $isMenuOpen
                 )
                 .transition(.move(edge: .trailing))
