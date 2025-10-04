@@ -8,11 +8,19 @@ struct IdentifiableImage: Identifiable {
     let location: CLLocation?
 }
 
-// Wrapper for cropped images with locations
+// Wrapper for cropped images with locations and original images
 struct CroppedImageData: Identifiable {
-    let id = UUID()
+    let id: UUID
     let image: UIImage
+    let originalImage: UIImage
     let location: CLLocation?
+
+    init(id: UUID = UUID(), image: UIImage, originalImage: UIImage, location: CLLocation?) {
+        self.id = id
+        self.image = image
+        self.originalImage = originalImage
+        self.location = location
+    }
 }
 
 struct MainScreenView: View {
@@ -29,6 +37,7 @@ struct MainScreenView: View {
     @State private var imageToCrop: IdentifiableImage?
     @State private var croppedImages: [CroppedImageData] = []
     @State private var lastInputMethodIsCamera = true
+    @State private var recropContext: (imageData: CroppedImageData, index: Int)?
 
     var body: some View {
         ZStack {
@@ -65,7 +74,10 @@ struct MainScreenView: View {
                                     }
                                 },
                                 onImageTap: { imageData in
-                                    // TODO: Allow re-cropping
+                                    if let index = croppedImages.firstIndex(where: { $0.id == imageData.id }) {
+                                        recropContext = (imageData, index)
+                                        imageToCrop = IdentifiableImage(image: imageData.originalImage, location: imageData.location)
+                                    }
                                 }
                             )
                             .padding(DesignSystem.Spacing.standard)
@@ -113,16 +125,44 @@ struct MainScreenView: View {
                 .zIndex(2)
         }
         .fullScreenCover(item: $imageToCrop) { identifiableImage in
+            let capturedRecropContext = recropContext
             ImageCropperView(
                 isPresented: Binding(
                     get: { imageToCrop != nil },
-                    set: { if !$0 { imageToCrop = nil } }
+                    set: { if !$0 {
+                        imageToCrop = nil
+                        recropContext = nil
+                    } }
                 ),
                 image: identifiableImage.image,
                 location: identifiableImage.location,
+                isRecropping: capturedRecropContext != nil,
                 onCropComplete: { croppedImg, loc in
-                    croppedImages.append(CroppedImageData(image: croppedImg, location: loc))
+                    if let context = capturedRecropContext {
+                        // Replace existing image - preserve the ID
+                        croppedImages[context.index] = CroppedImageData(
+                            id: context.imageData.id,
+                            image: croppedImg,
+                            originalImage: identifiableImage.image,
+                            location: loc
+                        )
+                    } else {
+                        // Add new image
+                        croppedImages.append(CroppedImageData(
+                            image: croppedImg,
+                            originalImage: identifiableImage.image,
+                            location: loc
+                        ))
+                    }
                     imageToCrop = nil
+                    recropContext = nil
+                },
+                onDelete: {
+                    if let context = capturedRecropContext {
+                        croppedImages.remove(at: context.index)
+                    }
+                    imageToCrop = nil
+                    recropContext = nil
                 }
             )
         }

@@ -5,7 +5,9 @@ struct ImageCropperView: View {
     @Binding var isPresented: Bool
     let image: UIImage
     let location: CLLocation?
+    let isRecropping: Bool
     let onCropComplete: (UIImage, CLLocation?) -> Void
+    let onDelete: () -> Void
 
     @State private var scale: CGFloat = 1.0
     @State private var lastScale: CGFloat = 1.0
@@ -146,6 +148,23 @@ struct ImageCropperView: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
+
+                // Delete button (only shown when recropping)
+                if isRecropping {
+                    Button(action: {
+                        onDelete()
+                    }) {
+                        if resourceExists("ic_delete") {
+                            SVGWebView(svgName: "ic_delete", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .surfacePrimary)
+                        } else {
+                            Image(systemName: "trash")
+                                .font(.system(size: DesignSystem.IconSize.standard))
+                                .foregroundColor(Color.surfacePrimary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                }
 
                 // Continue button
                 Button(action: {
