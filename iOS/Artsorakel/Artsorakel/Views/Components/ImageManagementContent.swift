@@ -5,6 +5,7 @@ struct ImageManagementContent: View {
     let onReset: () -> Void
     let onAddImage: () -> Void
     let onImageTap: (CroppedImageData) -> Void
+    let onIdentify: () -> Void
     @EnvironmentObject var localizationManager: LocalizationManager
 
     var body: some View {
@@ -94,9 +95,7 @@ struct ImageManagementContent: View {
                 .padding(.top, DesignSystem.Spacing.medium)
 
                 // Identify button
-                Button(action: {
-                    // TODO: Trigger identification
-                }) {
+                Button(action: onIdentify) {
                     Text(localizationManager.localize("identify", comment: "Identify"))
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(Color.textAccent)

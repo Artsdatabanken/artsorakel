@@ -61,6 +61,8 @@ iOS/Artsorakel/Artsorakel/Assets.xcassets/Color_*.colorset/
 shared/config/secrets.json
 Android/app/local.properties
 iOS/Artsorakel/Config/Secrets.xcconfig
+iOS/Artsorakel/Config/*.json
+iOS/Artsorakel/Artsorakel/Config/*.json
 
 # Auto-generated vector drawables from sync script (shared/vectors/*.svg)
 # Pattern covers all SVG files in shared/vectors/ converted to XML

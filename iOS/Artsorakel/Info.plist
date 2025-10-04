@@ -22,6 +22,14 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to let you take photos for species analysis.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to tag photos with GPS coordinates for species analysis.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save photos you take with the camera to your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to let you select images for species analysis.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>chivo_regular.ttf</string>
@@ -55,13 +63,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to let you select images for species analysis.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to let you take photos for species analysis.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need your location to tag photos with GPS coordinates for species analysis.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>We need permission to save photos you take with the camera to your photo library.</string>
 </dict>
 </plist>

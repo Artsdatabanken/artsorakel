@@ -154,6 +154,23 @@ def sync_config():
     else:
         print_info("iOS uses modern project configuration (no Info.plist) - version managed in Xcode")
 
+    # Copy config files to iOS Config directory
+    ios_config_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Config'
+    ios_config_dir.mkdir(parents=True, exist_ok=True)
+
+    # Copy app_config.json
+    ios_config_file = ios_config_dir / 'app_config.json'
+    shutil.copy2(config_file, ios_config_file)
+    print_success(f"Copied app_config.json to iOS")
+
+    # Copy secrets.json if it exists
+    if secrets_file.exists():
+        ios_secrets_file = ios_config_dir / 'secrets.json'
+        shutil.copy2(secrets_file, ios_secrets_file)
+        print_success(f"Copied secrets.json to iOS")
+    else:
+        print_warning("Skipped copying secrets.json (file not found)")
+
 
 def sync_strings():
     """Sync localization strings from shared CSV to platform-specific formats"""

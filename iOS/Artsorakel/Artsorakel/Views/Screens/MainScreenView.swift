@@ -38,6 +38,9 @@ struct MainScreenView: View {
     @State private var croppedImages: [CroppedImageData] = []
     @State private var lastInputMethodIsCamera = true
     @State private var recropContext: (imageData: CroppedImageData, index: Int)?
+    @State private var isIdentifying = false
+    @State private var identificationResults: [PredictionResult]?
+    @State private var identificationTask: Task<Void, Never>?
 
     var body: some View {
         ZStack {
@@ -60,7 +63,12 @@ struct MainScreenView: View {
                         Color.backgroundSubtle
                             .ignoresSafeArea()
 
-                        if !croppedImages.isEmpty {
+                        if isIdentifying {
+                            LoadingView(onAbort: {
+                                identificationTask?.cancel()
+                                isIdentifying = false
+                            })
+                        } else if !croppedImages.isEmpty {
                             ImageManagementContent(
                                 images: croppedImages,
                                 onReset: {
@@ -78,6 +86,9 @@ struct MainScreenView: View {
                                         recropContext = (imageData, index)
                                         imageToCrop = IdentifiableImage(image: imageData.originalImage, location: imageData.location)
                                     }
+                                },
+                                onIdentify: {
+                                    identifySpecies()
                                 }
                             )
                             .padding(DesignSystem.Spacing.standard)
@@ -121,8 +132,23 @@ struct MainScreenView: View {
                     .zIndex(1)
             }
 
-            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
+            // Results overlay (like settings/about/faq)
+            if let results = identificationResults {
+                ResultsView(
+                    results: results,
+                    images: croppedImages,
+                    onReset: {
+                        identificationResults = nil
+                        croppedImages = []
+                    },
+                    isMenuOpen: $isMenuOpen
+                )
+                .transition(.move(edge: .trailing))
                 .zIndex(2)
+            }
+
+            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
+                .zIndex(3)
         }
         .fullScreenCover(item: $imageToCrop) { identifiableImage in
             let capturedRecropContext = recropContext
@@ -185,6 +211,30 @@ struct MainScreenView: View {
                 },
                 onUnavailable: nil
             )
+        }
+    }
+
+    private func identifySpecies() {
+        isIdentifying = true
+
+        identificationTask = Task {
+            do {
+                let images = croppedImages.map { $0.image }
+                let location = croppedImages.first?.location
+
+                let results = try await SpeciesAPIService.shared.identifySpecies(images: images, location: location)
+
+                await MainActor.run {
+                    isIdentifying = false
+                    identificationResults = results
+                }
+            } catch {
+                await MainActor.run {
+                    isIdentifying = false
+                    // TODO: Show error message
+                    print("Identification error: \(error)")
+                }
+            }
         }
     }
 }
