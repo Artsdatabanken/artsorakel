@@ -220,7 +220,8 @@ struct MainScreenView: View {
         identificationTask = Task {
             do {
                 let images = croppedImages.map { $0.image }
-                let location = croppedImages.first?.location
+                // Use the most recent image that has coordinates
+                let location = croppedImages.last(where: { $0.location != nil })?.location
 
                 let results = try await SpeciesAPIService.shared.identifySpecies(images: images, location: location)
 
