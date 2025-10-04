@@ -42,54 +42,71 @@ struct ImageCropperView: View {
                         .scaleEffect(scale)
                         .offset(offset)
                         .clipped()
-                        .gesture(
-                            SimultaneousGesture(
-                                MagnificationGesture()
-                                    .onChanged { value in
-                                        let newScale = max(lastScale * value, 1.0)
+                        .simultaneousGesture(
+                            MagnificationGesture()
+                                .onChanged { value in
+                                    let newScale = max(lastScale * value, 1.0)
 
-                                        // Adjust offset to zoom towards current center
-                                        // When we zoom, the offset needs to scale proportionally
-                                        let scaleDelta = newScale / scale
+                                    // Adjust offset to zoom towards current center
+                                    // When we zoom, the offset needs to scale proportionally
+                                    let scaleDelta = newScale / scale
 
-                                        scale = newScale
-                                        offset = CGSize(
-                                            width: offset.width * scaleDelta,
-                                            height: offset.height * scaleDelta
-                                        )
-                                    }
-                                    .onEnded { _ in
-                                        lastScale = scale
-                                        lastOffset = offset
-                                    },
-                                DragGesture(minimumDistance: 0)
-                                    .onChanged { value in
-                                        let newOffset = CGSize(
-                                            width: lastOffset.width + value.translation.width,
-                                            height: lastOffset.height + value.translation.height
-                                        )
+                                    let newOffset = CGSize(
+                                        width: offset.width * scaleDelta,
+                                        height: offset.height * scaleDelta
+                                    )
 
-                                        // Calculate bounds
-                                        let imageWidth = image.size.width
-                                        let imageHeight = image.size.height
-                                        let smallerDimension = min(imageWidth, imageHeight)
-                                        let displayScale = squareSize / smallerDimension
+                                    // Calculate bounds and constrain
+                                    let imageWidth = image.size.width
+                                    let imageHeight = image.size.height
+                                    let smallerDimension = min(imageWidth, imageHeight)
+                                    let displayScale = squareSize / smallerDimension
 
-                                        let scaledWidth = imageWidth * displayScale * scale
-                                        let scaledHeight = imageHeight * displayScale * scale
+                                    let scaledWidth = imageWidth * displayScale * newScale
+                                    let scaledHeight = imageHeight * displayScale * newScale
 
-                                        let maxOffsetX = (scaledWidth - squareSize) / 2
-                                        let maxOffsetY = (scaledHeight - squareSize) / 2
+                                    let maxOffsetX = (scaledWidth - squareSize) / 2
+                                    let maxOffsetY = (scaledHeight - squareSize) / 2
 
-                                        offset = CGSize(
-                                            width: min(maxOffsetX, max(-maxOffsetX, newOffset.width)),
-                                            height: min(maxOffsetY, max(-maxOffsetY, newOffset.height))
-                                        )
-                                    }
-                                    .onEnded { _ in
-                                        lastOffset = offset
-                                    }
-                            )
+                                    scale = newScale
+                                    offset = CGSize(
+                                        width: min(maxOffsetX, max(-maxOffsetX, newOffset.width)),
+                                        height: min(maxOffsetY, max(-maxOffsetY, newOffset.height))
+                                    )
+                                }
+                                .onEnded { _ in
+                                    lastScale = scale
+                                    lastOffset = offset
+                                }
+                        )
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let newOffset = CGSize(
+                                        width: lastOffset.width + value.translation.width,
+                                        height: lastOffset.height + value.translation.height
+                                    )
+
+                                    // Calculate bounds
+                                    let imageWidth = image.size.width
+                                    let imageHeight = image.size.height
+                                    let smallerDimension = min(imageWidth, imageHeight)
+                                    let displayScale = squareSize / smallerDimension
+
+                                    let scaledWidth = imageWidth * displayScale * scale
+                                    let scaledHeight = imageHeight * displayScale * scale
+
+                                    let maxOffsetX = (scaledWidth - squareSize) / 2
+                                    let maxOffsetY = (scaledHeight - squareSize) / 2
+
+                                    offset = CGSize(
+                                        width: min(maxOffsetX, max(-maxOffsetX, newOffset.width)),
+                                        height: min(maxOffsetY, max(-maxOffsetY, newOffset.height))
+                                    )
+                                }
+                                .onEnded { _ in
+                                    lastOffset = offset
+                                }
                         )
 
                     // Crop overlay
