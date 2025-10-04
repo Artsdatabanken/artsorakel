@@ -25,7 +25,16 @@ struct ImageCropperView: View {
                 ZStack {
                     Color.black
 
-                    // Image with gestures
+                    // Background image - matches foreground transformations, dimmed
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: squareSize, height: squareSize)
+                        .scaleEffect(scale)
+                        .offset(offset)
+                        .opacity(0.3)
+
+                    // Foreground image with gestures - clipped to crop square
                     Image(uiImage: image)
                         .resizable()
                         .aspectRatio(contentMode: .fill)
