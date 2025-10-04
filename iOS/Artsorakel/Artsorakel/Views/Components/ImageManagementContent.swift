@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct ImageManagementContent: View {
-    let image: UIImage
+    let images: [CroppedImageData]
     let onReset: () -> Void
+    let onAddImage: () -> Void
+    let onImageTap: (CroppedImageData) -> Void
     @EnvironmentObject var localizationManager: LocalizationManager
 
     var body: some View {
@@ -39,15 +41,56 @@ struct ImageManagementContent: View {
                     .padding(.horizontal, DesignSystem.Spacing.xxxLarge)
                     .padding(.top, DesignSystem.Spacing.medium)
 
-                // Image thumbnails (just showing the one image for now)
-                HStack(spacing: DesignSystem.Spacing.small) {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(DesignSystem.CornerRadius.small)
-                        .clipped()
+                // Image thumbnails with horizontal scroll and add button
+                GeometryReader { geometry in
+                    ScrollViewReader { proxy in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: DesignSystem.Spacing.small) {
+                                ForEach(images) { imageData in
+                                    Button(action: {
+                                        onImageTap(imageData)
+                                    }) {
+                                        Image(uiImage: imageData.image)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 90, height: 90)
+                                            .cornerRadius(DesignSystem.CornerRadius.small)
+                                            .clipped()
+                                    }
+                                }
+
+                                // Add button
+                                Button(action: onAddImage) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                            .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                                            .frame(width: 90, height: 90)
+
+                                        if resourceExists("ic_add") {
+                                            SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
+                                                .frame(width: 24, height: 24)
+                                        } else {
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 24))
+                                                .foregroundColor(Color.textAccent)
+                                        }
+                                    }
+                                    .frame(width: 90, height: 90)
+                                }
+                                .id("addButton")
+                            }
+                            .padding(.horizontal, max(0, (geometry.size.width - DesignSystem.Spacing.small * 2 - CGFloat(images.count + 1) * 90 - CGFloat(images.count) * DesignSystem.Spacing.small) / 2))
+                        }
+                        .onAppear {
+                            proxy.scrollTo("addButton", anchor: .trailing)
+                        }
+                        .onChange(of: images.count) { _ in
+                            proxy.scrollTo("addButton", anchor: .trailing)
+                        }
+                    }
+                    .padding(.horizontal, DesignSystem.Spacing.small)
                 }
+                .frame(height: 90)
                 .padding(.top, DesignSystem.Spacing.medium)
 
                 // Identify button

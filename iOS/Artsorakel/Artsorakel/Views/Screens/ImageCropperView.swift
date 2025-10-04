@@ -185,9 +185,6 @@ struct ImageCropperView: View {
         // This is how many pixels fit in the crop square at scale 1.0
         let baseDisplayScale = cropSquareSize / smallerDimension
 
-        // Account for user zoom
-        let totalScale = baseDisplayScale * scale
-
         // Convert offset from screen points to image pixels
         // Offset is how far from center the image has been dragged
         let pixelOffsetX = -offset.width / baseDisplayScale / scale

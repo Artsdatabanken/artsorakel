@@ -8,6 +8,13 @@ struct IdentifiableImage: Identifiable {
     let location: CLLocation?
 }
 
+// Wrapper for cropped images with locations
+struct CroppedImageData: Identifiable {
+    let id = UUID()
+    let image: UIImage
+    let location: CLLocation?
+}
+
 struct MainScreenView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var localizationManager: LocalizationManager
@@ -20,8 +27,8 @@ struct MainScreenView: View {
     @State private var showImagePicker = false
     @State private var imagePickerSourceType: UIImagePickerController.SourceType = .camera
     @State private var imageToCrop: IdentifiableImage?
-    @State private var croppedImage: UIImage?
-    @State private var imageLocation: CLLocation?
+    @State private var croppedImages: [CroppedImageData] = []
+    @State private var lastInputMethodIsCamera = true
 
     var body: some View {
         ZStack {
@@ -44,12 +51,21 @@ struct MainScreenView: View {
                         Color.backgroundSubtle
                             .ignoresSafeArea()
 
-                        if let image = croppedImage {
+                        if !croppedImages.isEmpty {
                             ImageManagementContent(
-                                image: image,
+                                images: croppedImages,
                                 onReset: {
-                                    croppedImage = nil
-                                    imageLocation = nil
+                                    croppedImages = []
+                                },
+                                onAddImage: {
+                                    if lastInputMethodIsCamera {
+                                        showCamera = true
+                                    } else {
+                                        showGallery = true
+                                    }
+                                },
+                                onImageTap: { imageData in
+                                    // TODO: Allow re-cropping
                                 }
                             )
                             .padding(DesignSystem.Spacing.standard)
@@ -61,9 +77,11 @@ struct MainScreenView: View {
 
                     CameraButtonsView(
                         onCameraTap: {
+                            lastInputMethodIsCamera = true
                             showCamera = true
                         },
                         onGalleryTap: {
+                            lastInputMethodIsCamera = false
                             showGallery = true
                         }
                     )
@@ -103,8 +121,7 @@ struct MainScreenView: View {
                 image: identifiableImage.image,
                 location: identifiableImage.location,
                 onCropComplete: { croppedImg, loc in
-                    croppedImage = croppedImg
-                    imageLocation = loc
+                    croppedImages.append(CroppedImageData(image: croppedImg, location: loc))
                     imageToCrop = nil
                 }
             )
