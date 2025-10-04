@@ -61,5 +61,7 @@
 	<string>We need access to your camera to let you take photos for species analysis.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location to tag photos with GPS coordinates for species analysis.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save photos you take with the camera to your photo library.</string>
 </dict>
 </plist>

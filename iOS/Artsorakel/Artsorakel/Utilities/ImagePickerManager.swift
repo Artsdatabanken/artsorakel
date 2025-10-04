@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import CoreLocation
+import Photos
 
 struct ImagePickerManager: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
@@ -76,6 +77,9 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             } else if parent.sourceType == .camera {
                 // For camera, use current location
                 location = currentLocation
+
+                // Save camera image to Artsorakel album with location
+                saveCameraImageToAlbum(image: image, location: location)
             }
 
             // Normalize image orientation - rotate the actual image data to .up orientation
@@ -128,7 +132,65 @@ struct ImagePickerManager: UIViewControllerRepresentable {
                 timestamp: Date()
             )
         }
+
+        private func saveCameraImageToAlbum(image: UIImage, location: CLLocation?) {
+            PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+                guard status == .authorized else { return }
+
+                // Fetch or create album BEFORE the change block to avoid deadlock
+                let album = self.fetchOrCreateArtsorakelAlbum()
+
+                PHPhotoLibrary.shared().performChanges({
+                    let creationRequest = PHAssetCreationRequest.forAsset()
+                    creationRequest.addResource(with: .photo, data: image.jpegData(compressionQuality: 0.95)!, options: nil)
+
+                    if let location = location {
+                        creationRequest.location = location
+                    }
+                    creationRequest.creationDate = Date()
+
+                    // Try to add to Artsorakel album
+                    if let album = album {
+                        if let placeholder = creationRequest.placeholderForCreatedAsset {
+                            let albumChangeRequest = PHAssetCollectionChangeRequest(for: album)
+                            albumChangeRequest?.addAssets([placeholder] as NSArray)
+                        }
+                    }
+                }, completionHandler: { success, error in
+                    if let error = error {
+                        print("Error saving image to photo library: \(error)")
+                    }
+                })
+            }
+        }
+
+        private func fetchOrCreateArtsorakelAlbum() -> PHAssetCollection? {
+            // Try to fetch existing album
+            let fetchOptions = PHFetchOptions()
+            fetchOptions.predicate = NSPredicate(format: "localizedTitle = %@", "Artsorakel")
+            let collections = PHAssetCollection.fetchAssetCollections(with: .album, subtype: .albumRegular, options: fetchOptions)
+
+            if let album = collections.firstObject {
+                return album
+            }
+
+            // Create new album if it doesn't exist
+            var localIdentifier: String?
+            do {
+                try PHPhotoLibrary.shared().performChangesAndWait {
+                    let createAlbumRequest = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: "Artsorakel")
+                    localIdentifier = createAlbumRequest.placeholderForCreatedAssetCollection.localIdentifier
+                }
+
+                if let identifier = localIdentifier {
+                    let fetchResult = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [identifier], options: nil)
+                    return fetchResult.firstObject
+                }
+            } catch {
+                print("Error creating album: \(error)")
+            }
+
+            return nil
+        }
     }
 }
-
-import Photos
