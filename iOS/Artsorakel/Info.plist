@@ -56,8 +56,10 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photo library to let you select images for art analysis.</string>
+	<string>We need access to your photo library to let you select images for species analysis.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to let you take photos for art analysis.</string>
+	<string>We need access to your camera to let you take photos for species analysis.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need your location to tag photos with GPS coordinates for species analysis.</string>
 </dict>
 </plist>
