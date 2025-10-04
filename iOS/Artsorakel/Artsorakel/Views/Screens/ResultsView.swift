@@ -138,7 +138,11 @@ struct ResultRow: View {
     let result: PredictionResult
 
     var body: some View {
-        HStack(spacing: DesignSystem.Spacing.standard) {
+        let languageCode = localizationManager.currentLanguage == "system"
+            ? Locale.current.languageCode ?? "en"
+            : localizationManager.currentLanguage
+
+        HStack(spacing: 0) {
             // Placeholder for image (64x64)
             Circle()
                 .fill(Color.surfaceSubtle)
@@ -146,8 +150,8 @@ struct ResultRow: View {
 
             VStack(alignment: .leading, spacing: 4) {
                 // Vernacular name (if available)
-                if let vernacularName = result.getVernacularName(for: Locale.current.languageCode ?? "en"), !vernacularName.isEmpty {
-                    Text(vernacularName)
+                if let vernacularName = result.getVernacularName(for: languageCode), !vernacularName.isEmpty {
+                    Text(vernacularName.prefix(1).capitalized + vernacularName.dropFirst())
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(Color.surfaceAccent)
                 }
@@ -161,40 +165,90 @@ struct ResultRow: View {
                 }
 
                 // Group name (if available)
-                if let groupName = result.getGroupName(for: Locale.current.languageCode ?? "en"), !groupName.isEmpty {
+                if let groupName = result.getGroupName(for: languageCode), !groupName.isEmpty {
                     Text(groupName)
                         .font(DesignSystem.Typography.caption())
                         .foregroundColor(Color.textPrimary)
                 }
 
-                // Probability gauge (simplified)
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(Color.surfaceSubtle)
-                            .frame(height: 8)
-                            .cornerRadius(4)
-
-                        Rectangle()
-                            .fill(Color.surfaceAccent)
-                            .frame(width: geometry.size.width * CGFloat(result.probability), height: 8)
-                            .cornerRadius(4)
-                    }
-                }
-                .frame(height: 8)
+                // Certainty circles
+                CertaintyCircles(probability: result.probability)
+                    .frame(height: 14)
+                    .padding(.top, 4)
             }
+            .padding(.leading, DesignSystem.Spacing.standard)
+            .padding(.trailing, DesignSystem.Spacing.small)
 
             Spacer()
 
-            // Arrow
+            // Arrow (36x36 to match Android)
             if resourceExists("ic_chevron_right") {
-                SVGWebView(svgName: "ic_chevron_right", width: 24, height: 24, tintColor: .surfaceBrand1b)
+                SVGWebView(svgName: "ic_chevron_right", width: 36, height: 36, tintColor: .surfaceBrand1b)
+                    .frame(width: 36, height: 36)
             } else {
                 Image(systemName: "chevron.right")
+                    .font(.system(size: 36))
                     .foregroundColor(Color.surfaceAccent)
+                    .frame(width: 36, height: 36)
             }
         }
         .padding(DesignSystem.Spacing.standard)
         .background(Color.surfacePrimary)
+    }
+}
+
+struct CertaintyCircles: View {
+    let probability: Double
+
+    // Thresholds from Android: first circle always filled, then 35%, 65%, 85%, 95%
+    private let thresholds: [Double] = [0.35, 0.65, 0.85, 0.95]
+
+    // Colors from Android: Red, Orange, Yellow, Light Green, Green
+    private let colors: [Color] = [
+        Color(red: 170/255, green: 0/255, blue: 0/255),
+        Color(red: 195/255, green: 107/255, blue: 22/255),
+        Color(red: 220/255, green: 214/255, blue: 43/255),
+        Color(red: 148/255, green: 195/255, blue: 62/255),
+        Color(red: 76/255, green: 175/255, blue: 80/255)
+    ]
+
+    private let circleDiameter: CGFloat = 14
+    private var gapSize: CGFloat { circleDiameter / 5 }
+
+    var body: some View {
+        HStack(spacing: gapSize) {
+            ForEach(0..<5, id: \.self) { index in
+                Circle()
+                    .fill(circleColor(for: index))
+                    .frame(width: circleDiameter, height: circleDiameter)
+            }
+            Spacer()
+        }
+    }
+
+    private func circleColor(for index: Int) -> Color {
+        let filledCount = getFilledCount()
+
+        if index < filledCount {
+            // Filled circle - use color based on filled count
+            return colors[filledCount - 1]
+        } else {
+            // Unfilled circle - use surface_subtle with 1/3 opacity
+            return Color.surfaceSubtle.opacity(1.0/3.0)
+        }
+    }
+
+    private func getFilledCount() -> Int {
+        // First circle is always filled
+        var count = 1
+
+        // Check each threshold
+        for threshold in thresholds {
+            if probability > threshold {
+                count += 1
+            }
+        }
+
+        return min(count, 5)
     }
 }
