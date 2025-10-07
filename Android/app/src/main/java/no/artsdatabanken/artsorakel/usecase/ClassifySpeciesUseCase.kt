@@ -7,7 +7,7 @@ import no.artsdatabanken.artsorakel.core.errors.ErrorMapper
 import no.artsdatabanken.artsorakel.core.errors.logError
 import no.artsdatabanken.artsorakel.model.PredictionResult
 import no.artsdatabanken.artsorakel.model.ImagePair
-import no.artsdatabanken.artsorakel.model.GeoLocation
+import no.artsdatabanken.artsorakel.model.Warnings
 import no.artsdatabanken.artsorakel.repository.SpeciesRepository
 import no.artsdatabanken.artsorakel.service.ImageProcessingService
 import no.artsdatabanken.artsorakel.utils.SettingsManager
@@ -36,9 +36,13 @@ class ClassifySpeciesUseCase @Inject constructor(
      * Result of the classification operation
      */
     sealed class ClassificationResult {
-        data class Success(val predictions: List<PredictionResult>) : ClassificationResult()
+        data class Success(
+            val predictions: List<PredictionResult>,
+            val warnings: Warnings?
+        ) : ClassificationResult()
         data class PartialFailure(
             val predictions: List<PredictionResult>,
+            val warnings: Warnings?,
             val failedImageCount: Int
         ) : ClassificationResult()
         data class Failure(val error: AppError) : ClassificationResult()
@@ -100,16 +104,17 @@ class ClassifySpeciesUseCase @Inject constructor(
             
             // Step 4: Handle repository result
             return repositoryResult.fold(
-                onSuccess = { predictions ->
+                onSuccess = { result ->
                     if (failedUris.isNotEmpty()) {
                         // Some images failed processing but we got results
                         ClassificationResult.PartialFailure(
-                            predictions = predictions,
+                            predictions = result.predictions,
+                            warnings = result.warnings,
                             failedImageCount = failedUris.size
                         )
                     } else {
                         // All images processed successfully
-                        ClassificationResult.Success(predictions)
+                        ClassificationResult.Success(result.predictions, result.warnings)
                     }
                 },
                 onFailure = { exception ->

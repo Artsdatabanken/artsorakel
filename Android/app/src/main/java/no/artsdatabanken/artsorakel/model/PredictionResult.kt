@@ -6,6 +6,36 @@ data class ModelInfo(
     val locationSource: String
 )
 
+enum class WarningCategory {
+    DANGER,
+    WARNING,
+    INFO;
+
+    companion object {
+        fun fromString(value: String): WarningCategory {
+            return when (value.lowercase()) {
+                "danger" -> DANGER
+                "warning" -> WARNING
+                "info" -> INFO
+                else -> INFO
+            }
+        }
+    }
+}
+
+data class WarningItem(
+    val category: WarningCategory,
+    val title: Map<String, String>?,
+    val message: Map<String, String>,
+    val link: Map<String, String>?,
+    val predictionIndex: Int? = null // Only set for prediction-specific warnings
+)
+
+data class Warnings(
+    val general: List<WarningItem>,
+    val predictions: Map<Int, List<WarningItem>>
+)
+
 /**
  * Represents a single species prediction result
  */

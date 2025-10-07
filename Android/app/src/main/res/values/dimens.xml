@@ -19,4 +19,11 @@
     
     <!-- Navigation drawer bottom menu padding -->
     <dimen name="drawer_menu_bottom_padding">16dp</dimen>
+
+    <!-- Warning card dimensions -->
+    <dimen name="card_stroke_width">1dp</dimen>
+    <dimen name="warning_left_border_width">6dp</dimen>
+    <dimen name="warning_content_padding">16dp</dimen>
+    <dimen name="warning_icon_size">24dp</dimen>
+    <dimen name="warning_icon_margin">12dp</dimen>
 </resources> 

@@ -59,66 +59,15 @@
 
     </LinearLayout>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardFungiWarning"
+    <LinearLayout
+        android:id="@+id/warningsContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="0dp"
+        android:orientation="vertical"
         android:visibility="gone"
-        app:cardBackgroundColor="?attr/alert_info_surface_subtle"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="0dp"
-        app:strokeWidth="1dp"
-        app:strokeColor="?attr/alert_info_border_primary"
         app:layout_constraintTop_toBottomOf="@id/resultInputsContainer"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <View
-                android:id="@+id/fungiWarningLeftBorder"
-                android:layout_width="6dp"
-                android:layout_height="match_parent"
-                android:background="?attr/alert_info_border_primary"/>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="16dp">
-
-                <ImageView
-                    android:id="@+id/imageFungiWarning"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginEnd="12dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_alert_info"
-                    app:tint="?attr/alert_info_text_primary"
-                    android:contentDescription="@string/separator"/>
-
-                <TextView
-                    android:id="@+id/textFungiWarning"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/fungi_warning_text"
-                    android:textSize="14sp"
-                    android:textColor="?attr/alert_info_text_primary"/>
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </com.google.android.material.card.MaterialCardView>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewResults"
@@ -133,7 +82,7 @@
         app:layout_constraintBottom_toTopOf="@id/buttonReset"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cardFungiWarning"
+        app:layout_constraintTop_toBottomOf="@id/warningsContainer"
         tools:listitem="@layout/list_item_prediction" />
 
     <com.google.android.material.button.MaterialButton

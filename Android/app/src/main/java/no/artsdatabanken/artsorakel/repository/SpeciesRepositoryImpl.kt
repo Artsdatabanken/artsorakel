@@ -13,6 +13,9 @@ import no.artsdatabanken.artsorakel.core.errors.logError
 import no.artsdatabanken.artsorakel.model.PredictionResult
 import no.artsdatabanken.artsorakel.model.ModelInfo
 import no.artsdatabanken.artsorakel.model.GeoLocation
+import no.artsdatabanken.artsorakel.model.Warnings
+import no.artsdatabanken.artsorakel.model.WarningItem
+import no.artsdatabanken.artsorakel.model.WarningCategory
 import no.artsdatabanken.artsorakel.network.ApiResponse
 import no.artsdatabanken.artsorakel.network.ApiService
 import no.artsdatabanken.artsorakel.network.TaxonItemDto
@@ -34,19 +37,19 @@ class SpeciesRepositoryImpl @Inject constructor(
         imageDataList: List<ByteArray>,
         imageFilenames: List<String>,
         location: GeoLocation?
-    ): Result<List<PredictionResult>> {
-        
+    ): Result<IdentificationResult> {
+
         return try {
             // Ensure we're not cancelled before starting
             coroutineContext.ensureActive()
-            
+
             // Prepare image parts for multipart request
             val imageParts = imageDataList.mapIndexed { index, imageData ->
                 val requestBody = imageData.toRequestBody("image/jpeg".toMediaTypeOrNull())
                 val filename = imageFilenames.getOrElse(index) { "image_$index.jpg" }
                 MultipartBody.Part.createFormData("image", filename, requestBody)
             }
-            
+
             // Prepare application type part
             val applicationValue = AppConfig.Api.APPLICATION_TYPE
             val applicationRequestBody: RequestBody = applicationValue.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -77,21 +80,22 @@ class SpeciesRepositoryImpl @Inject constructor(
                 latitude = latitudePart,
                 longitude = longitudePart
             )
-            
+
             // Check for cancellation before processing response
             coroutineContext.ensureActive()
-            
+
             // Parse and map response to domain models
             val predictionResults = mapApiResponseToPredictionResults(apiResponse)
-            
+            val warnings = mapApiResponseToWarnings(apiResponse)
+
             if (predictionResults.isNotEmpty()) {
-                Result.success(predictionResults)
+                Result.success(IdentificationResult(predictionResults, warnings))
             } else {
                 val error = ErrorMapper.createNoResultsFoundError()
                 error.logError("SpeciesRepository")
                 Result.failure(Exception(error.message))
             }
-            
+
         } catch (e: Exception) {
             val error = ErrorMapper.mapException(e, ErrorContext.NETWORK)
             error.logError("SpeciesRepository")
@@ -185,5 +189,39 @@ class SpeciesRepositoryImpl @Inject constructor(
             }
             .sortedByDescending { it.probability }
             .take(5) // Limit to top 5 results
+    }
+
+    /**
+     * Maps API warnings to domain model objects.
+     */
+    private fun mapApiResponseToWarnings(apiResponse: ApiResponse?): Warnings? {
+        val warningsDto = apiResponse?.warnings ?: return null
+
+        val generalWarnings = warningsDto.general?.map { warningDto ->
+            WarningItem(
+                category = WarningCategory.fromString(warningDto.category),
+                title = warningDto.title,
+                message = warningDto.message,
+                link = warningDto.link
+            )
+        } ?: emptyList()
+
+        val predictionWarnings = warningsDto.predictions?.mapNotNull { (indexStr, warningDtos) ->
+            val index = indexStr.toIntOrNull() ?: return@mapNotNull null
+            index to warningDtos.map { warningDto ->
+                WarningItem(
+                    category = WarningCategory.fromString(warningDto.category),
+                    title = warningDto.title,
+                    message = warningDto.message,
+                    link = warningDto.link,
+                    predictionIndex = index
+                )
+            }
+        }?.toMap() ?: emptyMap()
+
+        return Warnings(
+            general = generalWarnings,
+            predictions = predictionWarnings
+        )
     }
 } 

@@ -14,6 +14,7 @@ import no.artsdatabanken.artsorakel.model.ImagePair
 import no.artsdatabanken.artsorakel.model.GeoLocation
 import no.artsdatabanken.artsorakel.model.IdentificationHistory
 import no.artsdatabanken.artsorakel.model.RssFeedItem
+import no.artsdatabanken.artsorakel.model.Warnings
 import no.artsdatabanken.artsorakel.service.ImageCacheService
 import no.artsdatabanken.artsorakel.service.ThumbnailService
 import no.artsdatabanken.artsorakel.service.RssFeedService
@@ -46,6 +47,7 @@ sealed class UiState {
     // Success now holds a List of PredictionResult objects
     data class Success(
         val results: List<PredictionResult>,
+        val warnings: Warnings? = null,
         val isHistorical: Boolean = false,
         val historicalDate: java.util.Date? = null
     ) : UiState()
@@ -350,7 +352,10 @@ class MainViewModel @Inject constructor(
                     is ClassifySpeciesUseCase.ClassificationResult.Success -> {
                         // Mark that we're viewing fresh results (not historical)
                         isViewingHistoricalResults = false
-                        _uiState.value = UiState.Success(classificationResult.predictions)
+                        _uiState.value = UiState.Success(
+                            results = classificationResult.predictions,
+                            warnings = classificationResult.warnings
+                        )
                         // Save to history
                         saveToHistory(context, classificationResult.predictions, urisToProcess)
                         // Preload images for better user experience
@@ -364,7 +369,10 @@ class MainViewModel @Inject constructor(
                         error.logError("MainViewModel")
                         // Mark that we're viewing fresh results (not historical)
                         isViewingHistoricalResults = false
-                        _uiState.value = UiState.Success(classificationResult.predictions)
+                        _uiState.value = UiState.Success(
+                            results = classificationResult.predictions,
+                            warnings = classificationResult.warnings
+                        )
                         // Save to history
                         saveToHistory(context, classificationResult.predictions, urisToProcess)
                         // Preload images for better user experience

@@ -3,7 +3,20 @@ import com.google.gson.annotations.SerializedName
 
 data class ApiResponse(
     val predictions: List<PredictionDto>?,
-    val modelInfo: ModelInfoDto?
+    val modelInfo: ModelInfoDto?,
+    val warnings: WarningsDto?
+)
+
+data class WarningsDto(
+    val general: List<WarningItemDto>?,
+    val predictions: Map<String, List<WarningItemDto>>?
+)
+
+data class WarningItemDto(
+    val category: String,
+    val title: Map<String, String>?,
+    val message: Map<String, String>,
+    val link: Map<String, String>?
 )
 
 data class ModelInfoDto(
