@@ -7,6 +7,7 @@ struct ResultsView: View {
     let images: [CroppedImageData]
     let onReset: () -> Void
     let onAddImage: () -> Void
+    let onImageTap: (CroppedImageData) -> Void
     @Binding var isMenuOpen: Bool
 
     var body: some View {
@@ -56,12 +57,16 @@ struct ResultsView: View {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: DesignSystem.Spacing.small) {
                                 ForEach(images) { imageData in
-                                    Image(uiImage: imageData.image)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 90, height: 90)
-                                        .cornerRadius(DesignSystem.CornerRadius.small)
-                                        .clipped()
+                                    Button(action: {
+                                        onImageTap(imageData)
+                                    }) {
+                                        Image(uiImage: imageData.image)
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 90, height: 90)
+                                            .cornerRadius(DesignSystem.CornerRadius.small)
+                                            .clipped()
+                                    }
                                 }
 
                                 // Add button

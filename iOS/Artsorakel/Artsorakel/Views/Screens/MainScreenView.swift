@@ -41,6 +41,7 @@ struct MainScreenView: View {
     @State private var isIdentifying = false
     @State private var identificationResults: [PredictionResult]?
     @State private var identificationTask: Task<Void, Never>?
+    @State private var recropFromResults = false
 
     var body: some View {
         ZStack {
@@ -150,6 +151,14 @@ struct MainScreenView: View {
                             showGallery = true
                         }
                     },
+                    onImageTap: { imageData in
+                        // Don't dismiss results yet - only dismiss on OK/delete
+                        recropFromResults = true
+                        if let index = croppedImages.firstIndex(where: { $0.id == imageData.id }) {
+                            recropContext = (imageData, index)
+                            imageToCrop = IdentifiableImage(image: imageData.originalImage, location: imageData.location)
+                        }
+                    },
                     isMenuOpen: $isMenuOpen
                 )
                 .transition(.move(edge: .trailing))
@@ -181,6 +190,11 @@ struct MainScreenView: View {
                             originalImage: identifiableImage.image,
                             location: loc
                         )
+                        // If recropping from results, dismiss results since image changed
+                        if recropFromResults {
+                            identificationResults = nil
+                            recropFromResults = false
+                        }
                     } else {
                         // Add new image
                         croppedImages.append(CroppedImageData(
@@ -195,6 +209,11 @@ struct MainScreenView: View {
                 onDelete: {
                     if let context = capturedRecropContext {
                         croppedImages.remove(at: context.index)
+                        // If recropping from results, dismiss results since image was deleted
+                        if recropFromResults {
+                            identificationResults = nil
+                            recropFromResults = false
+                        }
                     }
                     imageToCrop = nil
                     recropContext = nil
