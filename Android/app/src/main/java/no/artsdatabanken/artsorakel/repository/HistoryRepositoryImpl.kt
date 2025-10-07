@@ -7,6 +7,7 @@ import kotlinx.coroutines.withContext
 import no.artsdatabanken.artsorakel.model.HistoryDao
 import no.artsdatabanken.artsorakel.model.IdentificationHistory
 import no.artsdatabanken.artsorakel.model.PredictionResult
+import no.artsdatabanken.artsorakel.model.Warnings
 import no.artsdatabanken.artsorakel.service.ThumbnailService
 import com.google.gson.Gson
 import java.util.Date
@@ -37,6 +38,7 @@ class HistoryRepositoryImpl @Inject constructor(
     
     override suspend fun saveIdentificationToHistory(
         predictionResults: List<PredictionResult>,
+        warnings: Warnings?,
         imagePaths: List<String>,
         thumbnailPaths: List<String>
     ): Long {
@@ -47,6 +49,9 @@ class HistoryRepositoryImpl @Inject constructor(
             // Convert prediction results to JSON string for storage
             val allResultsJson = gson.toJson(predictionResults)
 
+            // Convert warnings to JSON string for storage
+            val warningsJson = warnings?.let { gson.toJson(it) }
+
             val historyEntry = IdentificationHistory(
                 timestamp = Date(),
                 bestMatchVernacularNames = bestMatch?.vernacularNames?.let { gson.toJson(it) },
@@ -56,7 +61,8 @@ class HistoryRepositoryImpl @Inject constructor(
                 bestMatchInfoUrl = bestMatch?.infoUrl,
                 allResults = allResultsJson, // Contains full PredictionResults with all vernacularNames
                 thumbnailPaths = thumbnailPaths,
-                originalImagePaths = imagePaths
+                originalImagePaths = imagePaths,
+                warnings = warningsJson
             )
 
             historyDao.insertHistory(historyEntry)

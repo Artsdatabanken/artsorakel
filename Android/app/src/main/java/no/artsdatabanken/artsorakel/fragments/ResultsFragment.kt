@@ -38,6 +38,9 @@ import android.content.Intent
 import android.net.Uri
 import javax.inject.Inject
 import dagger.hilt.android.AndroidEntryPoint
+import android.text.SpannableStringBuilder
+import android.text.style.ImageSpan
+import androidx.core.content.ContextCompat
 
 @AndroidEntryPoint
 class ResultsFragment : Fragment() {
@@ -213,7 +216,7 @@ class ResultsFragment : Fragment() {
         binding.warningsContainer.removeAllViews()
         binding.warningsContainer.visibility = View.VISIBLE
 
-        val currentLanguage = languageManager.getCurrentLanguageTag()
+        val currentLanguage = languageManager.getEffectiveLanguageTag()
         val allWarnings = mutableListOf<Pair<WarningItem, String?>>()
 
         // Add general warnings
@@ -362,11 +365,35 @@ class ResultsFragment : Fragment() {
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            text = if (speciesName != null && warning.title == null) {
+
+            val baseText = if (speciesName != null && warning.title == null) {
                 "$speciesName: $messageText"
             } else {
                 messageText
             }
+
+            // Add external link icon if link exists for current language
+            text = if (warning.link?.get(currentLanguage) != null) {
+                val spannableText = SpannableStringBuilder(baseText)
+                spannableText.append("  ") // Add space before icon
+
+                val linkIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_external_link)
+                linkIcon?.let { icon ->
+                    icon.setBounds(0, 0, icon.intrinsicWidth, icon.intrinsicHeight)
+                    icon.setTint(textColor)
+                    val imageSpan = ImageSpan(icon, ImageSpan.ALIGN_BASELINE)
+                    spannableText.setSpan(
+                        imageSpan,
+                        spannableText.length - 1,
+                        spannableText.length,
+                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                spannableText
+            } else {
+                baseText
+            }
+
             textSize = 14f
             setTextColor(textColor)
         }

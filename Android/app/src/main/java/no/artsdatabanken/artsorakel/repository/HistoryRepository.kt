@@ -3,6 +3,7 @@ package no.artsdatabanken.artsorakel.repository
 import kotlinx.coroutines.flow.Flow
 import no.artsdatabanken.artsorakel.model.IdentificationHistory
 import no.artsdatabanken.artsorakel.model.PredictionResult
+import no.artsdatabanken.artsorakel.model.Warnings
 
 /**
  * Repository interface for identification history operations.
@@ -27,12 +28,14 @@ interface HistoryRepository {
     /**
      * Saves a new identification result to history
      * @param predictionResults List of all prediction results from identification
+     * @param warnings Warnings from the identification (optional)
      * @param imagePaths List of image file paths used for identification
      * @param thumbnailPaths List of saved thumbnail paths
      * @return The ID of the saved history entry
      */
     suspend fun saveIdentificationToHistory(
         predictionResults: List<PredictionResult>,
+        warnings: Warnings? = null,
         imagePaths: List<String>,
         thumbnailPaths: List<String>
     ): Long

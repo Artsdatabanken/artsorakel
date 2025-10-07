@@ -99,6 +99,18 @@ class LanguageManager @Inject constructor(
         return getCurrentLanguage().languageTag
     }
 
+    /**
+     * Gets the effective language tag being used (resolves system default to actual locale)
+     */
+    fun getEffectiveLanguageTag(): String {
+        val currentAppLocales = AppCompatDelegate.getApplicationLocales()
+        if (currentAppLocales.isEmpty) {
+            // System default - use the device's locale
+            return context.resources.configuration.locales[0]?.language ?: "en"
+        }
+        return currentAppLocales[0]?.language ?: "en"
+    }
+
     private fun saveLanguage(language: SupportedLanguage) {
         sharedPreferences.edit {
             putString(Constants.Preferences.LANGUAGE_KEY, language.languageTag)

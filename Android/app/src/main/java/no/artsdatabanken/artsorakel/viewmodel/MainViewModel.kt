@@ -357,7 +357,7 @@ class MainViewModel @Inject constructor(
                             warnings = classificationResult.warnings
                         )
                         // Save to history
-                        saveToHistory(context, classificationResult.predictions, urisToProcess)
+                        saveToHistory(context, classificationResult.predictions, classificationResult.warnings, urisToProcess)
                         // Preload images for better user experience
                         preloadSpeciesImages(classificationResult.predictions)
                         // Signal that results are ready to display
@@ -374,7 +374,7 @@ class MainViewModel @Inject constructor(
                             warnings = classificationResult.warnings
                         )
                         // Save to history
-                        saveToHistory(context, classificationResult.predictions, urisToProcess)
+                        saveToHistory(context, classificationResult.predictions, classificationResult.warnings, urisToProcess)
                         // Preload images for better user experience
                         preloadSpeciesImages(classificationResult.predictions)
                         // Signal that results are ready to display
@@ -470,7 +470,16 @@ class MainViewModel @Inject constructor(
             try {
                 // Parse the stored JSON results
                 val predictions = historyRepository.parseResultsFromJson(historyItem.allResults)
-                
+
+                // Parse warnings if available
+                val warnings = historyItem.warnings?.let { warningsJson ->
+                    try {
+                        com.google.gson.Gson().fromJson(warningsJson, Warnings::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+
                 if (predictions.isNotEmpty()) {
                     // Create ImagePairs for the historical images (temporary, for display only)
                     val historicalImagePairs = historyItem.thumbnailPaths.zip(historyItem.originalImagePaths) { thumbnail, original ->
@@ -479,16 +488,17 @@ class MainViewModel @Inject constructor(
                             originalUri = original.toUri()
                         )
                     }
-                    
+
                     // Mark that we're now viewing historical results
                     isViewingHistoricalResults = true
-                    
+
                     // Update ONLY the display state - user's actual images remain untouched
                     _displayImagePairs.value = historicalImagePairs.toList()
-                    
+
                     // Set the UI state to show the historical results with date
                     _uiState.value = UiState.Success(
                         results = predictions,
+                        warnings = warnings,
                         isHistorical = true,
                         historicalDate = historyItem.timestamp
                     )
@@ -535,25 +545,27 @@ class MainViewModel @Inject constructor(
     private fun saveToHistory(
         context: Context,
         predictions: List<PredictionResult>,
+        warnings: Warnings?,
         imageUris: List<Uri>
     ) {
         viewModelScope.safeLaunch("MainViewModel-saveToHistory") {
             try {
                 // Create thumbnails from the images used for identification
                 val thumbnailPaths = thumbnailService.createAndSaveThumbnails(context, imageUris)
-                
+
                 // Convert URIs to string paths for storage
                 val imagePaths = imageUris.map { it.toString() }
-                
+
                 // Save the identification result to history only if enabled
                 if (settingsManager.isSaveHistoryEnabled()) {
                     historyRepository.saveIdentificationToHistory(
                         predictionResults = predictions,
+                        warnings = warnings,
                         imagePaths = imagePaths,
                         thumbnailPaths = thumbnailPaths
                     )
                 }
-                
+
                 // Refresh recent history after saving
                 loadRecentHistory()
             } catch (e: Exception) {

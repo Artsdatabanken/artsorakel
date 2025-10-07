@@ -39,7 +39,8 @@ data class IdentificationHistory(
     val bestMatchInfoUrl: String?,
     val allResults: String, // JSON string of all PredictionResults (includes all vernacularNames)
     val thumbnailPaths: List<String>, // Local paths to saved thumbnails
-    val originalImagePaths: List<String> // Original image locations
+    val originalImagePaths: List<String>, // Original image locations
+    val warnings: String? = null // JSON string of Warnings object
 ) {
     /**
      * Gets the vernacular name for a specific language from stored JSON
