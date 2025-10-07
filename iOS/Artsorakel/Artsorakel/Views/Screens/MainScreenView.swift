@@ -276,11 +276,8 @@ struct HeaderView: View {
                     isMenuOpen.toggle()
                 }
             }) {
-                Image(systemName: "line.3.horizontal")
-                    .font(.system(size: DesignSystem.IconSize.medium))
-                    .foregroundColor(Color.textAccent)
-                    .frame(width: DesignSystem.ButtonSize.standard, height: 60)
-            }
+                SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                    .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)            }
             .padding(.trailing, DesignSystem.Spacing.standard)
         }
         .frame(height: DesignSystem.ComponentSize.headerHeight)
@@ -297,15 +294,9 @@ struct AvatarView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            if resourceExists(avatarName) {
                 SVGWebView(svgName: avatarName, width: geometry.size.width, height: geometry.size.height)
                     .frame(width: geometry.size.width, height: geometry.size.height)
-            } else {
-                Image(systemName: "photo")
-                    .font(.system(size: DesignSystem.Spacing.huge))
-                    .foregroundColor(Color.gray.opacity(DesignSystem.Opacity.overlay))
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-            }
+           
         }
     }
 }

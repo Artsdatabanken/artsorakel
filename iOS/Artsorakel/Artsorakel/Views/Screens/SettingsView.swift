@@ -24,14 +24,9 @@ struct SettingsView: View {
                             isPresented = false
                         }
                     }) {
-                        if resourceExists("ic_arrow_back") {
                             SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium, tintColor: .textAccent)
                                 .frame(width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium)
-                        } else {
-                            Image(systemName: "chevron.left")
-                                .font(.system(size: DesignSystem.IconSize.medium))
-                                .foregroundColor(Color.textAccent)
-                        }
+                       
                     }
                     .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
                     .padding(.leading, DesignSystem.Spacing.small)
@@ -48,14 +43,9 @@ struct SettingsView: View {
                             showMenuDrawer = true
                         }
                     }) {
-                        if resourceExists("ic_menu") {
                             SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
                                 .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-                        } else {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.system(size: DesignSystem.IconSize.standard))
-                                .foregroundColor(Color.textAccent)
-                        }
+                        
                     }
                     .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
                     .padding(.trailing, DesignSystem.Spacing.small)
@@ -194,10 +184,8 @@ struct SettingsView: View {
                             // Disabled for now
                         }) {
                             HStack(spacing: 8) {
-                                if resourceExists("ic_delete") {
                                     SVGWebView(svgName: "ic_delete", width: 20, height: 20, tintColor: Color(red: 0.8, green: 0.2, blue: 0.2))
                                         .frame(width: DesignSystem.ComponentSize.radioButtonSize, height: DesignSystem.ComponentSize.radioButtonSize)
-                                }
 
                                 Text(localizationManager.localize("clear_history", comment: "Clear history"))
                                     .font(DesignSystem.Typography.body())

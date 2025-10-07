@@ -15,13 +15,8 @@ struct ResultsView: View {
             HStack(spacing: 0) {
                 // Back button
                 Button(action: onReset) {
-                    if resourceExists("ic_arrow_back") {
                         SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
-                    } else {
-                        Image(systemName: "arrow.left")
-                            .font(.system(size: DesignSystem.IconSize.standard))
-                            .foregroundColor(Color.textAccent)
-                    }
+                 
                 }
                 .frame(width: DesignSystem.ButtonSize.standard, height: 60)
                 .padding(.leading, DesignSystem.Spacing.standard)
@@ -41,10 +36,9 @@ struct ResultsView: View {
                         isMenuOpen.toggle()
                     }
                 }) {
-                    Image(systemName: "line.3.horizontal")
-                        .font(.system(size: DesignSystem.IconSize.medium))
-                        .foregroundColor(Color.textAccent)
-                        .frame(width: DesignSystem.ButtonSize.standard, height: 60)
+                  
+                    SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                 }
                 .padding(.trailing, DesignSystem.Spacing.standard)
             }
@@ -77,14 +71,9 @@ struct ResultsView: View {
                                             .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
                                             .frame(width: 90, height: 90)
 
-                                        if resourceExists("ic_add") {
                                             SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
                                                 .frame(width: 24, height: 24)
-                                        } else {
-                                            Image(systemName: "plus")
-                                                .font(.system(size: 24))
-                                                .foregroundColor(Color.textAccent)
-                                        }
+                                        
                                     }
                                     .frame(width: 90, height: 90)
                                 }
@@ -191,16 +180,9 @@ struct ResultRow: View {
 
             Spacer()
 
-            // Arrow (36x36 to match Android)
-            if resourceExists("ic_chevron_right") {
                 SVGWebView(svgName: "ic_chevron_right", width: 36, height: 36, tintColor: .surfaceBrand1b)
                     .frame(width: 36, height: 36)
-            } else {
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 36))
-                    .foregroundColor(Color.surfaceAccent)
-                    .frame(width: 36, height: 36)
-            }
+           
         }
         .padding(DesignSystem.Spacing.standard)
         .background(Color.surfacePrimary)
@@ -210,10 +192,8 @@ struct ResultRow: View {
 struct CertaintyCircles: View {
     let probability: Double
 
-    // Thresholds from Android: first circle always filled, then 35%, 65%, 85%, 95%
     private let thresholds: [Double] = [0.35, 0.65, 0.85, 0.95]
 
-    // Colors from Android: Red, Orange, Yellow, Light Green, Green
     private let colors: [Color] = [
         Color(red: 170/255, green: 0/255, blue: 0/255),
         Color(red: 195/255, green: 107/255, blue: 22/255),

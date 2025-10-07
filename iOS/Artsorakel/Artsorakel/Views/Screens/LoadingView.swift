@@ -54,7 +54,7 @@ struct LoadingView: View {
                 }
             }
             timer = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5.00, execute: workItem)
         }
         .onDisappear {
             timer?.cancel()
