@@ -4,6 +4,7 @@ struct LoadingView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     let onAbort: () -> Void
     @State private var showTimeoutMessage = false
+    @State private var timer: DispatchWorkItem?
 
     var body: some View {
         VStack(spacing: DesignSystem.Spacing.large) {
@@ -14,32 +15,31 @@ struct LoadingView: View {
                 .progressViewStyle(CircularProgressViewStyle(tint: Color.textPrimary))
 
             if showTimeoutMessage {
-                VStack(spacing: DesignSystem.Spacing.standard) {
+                VStack(alignment: .leading, spacing: DesignSystem.Spacing.standard) {
                     Text(localizationManager.localize("timeout_message", comment: "This is taking longer than expected..."))
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(Color.textPrimary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, DesignSystem.Spacing.large)
-                        .padding(.top, DesignSystem.Spacing.large)
 
                     Button(action: onAbort) {
-                        HStack {
-                            if resourceExists("ic_close") {
-                                SVGWebView(svgName: "ic_close", width: 20, height: 20, tintColor: .textAccent)
-                            } else {
-                                Image(systemName: "xmark")
-                                    .foregroundColor(Color.textAccent)
-                            }
+                        HStack(spacing: DesignSystem.Spacing.small) {
                             Text(localizationManager.localize("abort_button", comment: "Abort"))
                                 .font(DesignSystem.Typography.body())
                                 .foregroundColor(Color.textAccent)
+
+                            SVGWebView(svgName: "ic_close", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                                .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
+       
                         }
-                        .padding(.horizontal, DesignSystem.Spacing.large)
-                        .padding(.vertical, DesignSystem.Spacing.standard)
-                        .background(Color.surfaceSubtle)
-                        .cornerRadius(28)
+                        .frame(height: 42)
+                        .padding(.horizontal, 20)
                     }
+                    .buttonStyle(PlainButtonStyle())
+                    .background(Color.surfaceSubtle)
+                    .cornerRadius(21)
+                    .fixedSize()
                 }
+                .padding(.horizontal, DesignSystem.Spacing.large)
+                .padding(.top, DesignSystem.Spacing.large)
             }
 
             Spacer()
@@ -47,12 +47,17 @@ struct LoadingView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.backgroundSubtle)
         .onAppear {
-            // Show timeout message after 15 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+            // Show timeout message after 50ms (for testing)
+            let workItem = DispatchWorkItem {
                 withAnimation {
                     showTimeoutMessage = true
                 }
             }
+            timer = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: workItem)
+        }
+        .onDisappear {
+            timer?.cancel()
         }
     }
 }

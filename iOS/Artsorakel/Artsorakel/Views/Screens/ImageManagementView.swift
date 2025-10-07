@@ -35,14 +35,9 @@ struct ImageManagementView: View {
                             showMenuDrawer = true
                         }
                     }) {
-                        if resourceExists("ic_menu") {
                             SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
                                 .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-                        } else {
-                            Image(systemName: "line.3.horizontal")
-                                .font(.system(size: DesignSystem.IconSize.standard))
-                                .foregroundColor(Color.textAccent)
-                        }
+                       
                     }
                     .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
                     .padding(.trailing, DesignSystem.Spacing.small)
@@ -69,14 +64,9 @@ struct ImageManagementView: View {
                             }
                         }) {
                             HStack(spacing: DesignSystem.Spacing.small) {
-                                if resourceExists("ic_close") {
                                     SVGWebView(svgName: "ic_close", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
                                         .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-                                } else {
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: DesignSystem.IconSize.standard))
-                                        .foregroundColor(Color.textAccent)
-                                }
+                               
 
                                 Text(localizationManager.localize("reset", comment: "Reset"))
                                     .font(DesignSystem.Typography.body())

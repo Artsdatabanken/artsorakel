@@ -138,13 +138,8 @@ struct ImageCropperView: View {
                 Button(action: {
                     isPresented = false
                 }) {
-                    if resourceExists("ic_arrow_back") {
                         SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .surfacePrimary)
-                    } else {
-                        Image(systemName: "arrow.left")
-                            .font(.system(size: DesignSystem.IconSize.standard))
-                            .foregroundColor(Color.surfacePrimary)
-                    }
+                   
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)
@@ -154,13 +149,8 @@ struct ImageCropperView: View {
                     Button(action: {
                         onDelete()
                     }) {
-                        if resourceExists("ic_delete") {
                             SVGWebView(svgName: "ic_delete", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .surfacePrimary)
-                        } else {
-                            Image(systemName: "trash")
-                                .font(.system(size: DesignSystem.IconSize.standard))
-                                .foregroundColor(Color.surfacePrimary)
-                        }
+                        
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: 44)
@@ -170,13 +160,8 @@ struct ImageCropperView: View {
                 Button(action: {
                     cropImage()
                 }) {
-                    if resourceExists("ic_check") {
                         SVGWebView(svgName: "ic_check", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .surfacePrimary)
-                    } else {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: DesignSystem.IconSize.standard))
-                            .foregroundColor(Color.surfacePrimary)
-                    }
+                    
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 44)

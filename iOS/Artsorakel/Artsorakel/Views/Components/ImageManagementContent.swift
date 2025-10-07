@@ -55,7 +55,7 @@ struct ImageManagementContent: View {
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 90, height: 90)
-                                            .cornerRadius(DesignSystem.CornerRadius.small)
+                                            .cornerRadius(DesignSystem.CornerRadius.medium)
                                             .clipped()
                                     }
                                 }
@@ -63,7 +63,7 @@ struct ImageManagementContent: View {
                                 // Add button
                                 Button(action: onAddImage) {
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
                                             .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
                                             .frame(width: 90, height: 90)
 
@@ -99,17 +99,16 @@ struct ImageManagementContent: View {
                     Text(localizationManager.localize("identify", comment: "Identify"))
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(Color.textAccent)
-                        .padding(.horizontal, DesignSystem.Spacing.large)
-                        .padding(.vertical, DesignSystem.Spacing.standard)
+                        .frame(height: 42)
+                        .padding(.horizontal, 20)
                 }
                 .background(Color.surfacePrimary)
                 .overlay(
-                    RoundedRectangle(cornerRadius: 28)
+                    RoundedRectangle(cornerRadius: 21)
                         .stroke(Color.borderAccent, lineWidth: 2)
                 )
-                .cornerRadius(28)
-                .padding(.top, DesignSystem.Spacing.standard)
-                .padding(.bottom, DesignSystem.Spacing.standard)
+                .padding(.top, DesignSystem.Spacing.xxLarge)
+                .padding(.bottom, DesignSystem.Spacing.xLarge)
             }
             .background(Color.surfacePrimary)
             .cornerRadius(DesignSystem.CornerRadius.medium)
