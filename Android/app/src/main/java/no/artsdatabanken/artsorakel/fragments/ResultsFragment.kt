@@ -379,15 +379,13 @@ class ResultsFragment : Fragment() {
 
                 val linkIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_external_link)
                 linkIcon?.let { icon ->
-                    icon.setBounds(0, 0, icon.intrinsicWidth, icon.intrinsicHeight)
+                    // Use a small fixed size that fits inline with text
+                    val iconSize = (14 * resources.displayMetrics.density).toInt() // 14dp
+                    icon.setBounds(0, 0, iconSize, iconSize)
                     icon.setTint(textColor)
+                    spannableText.append(" ")
                     val imageSpan = ImageSpan(icon, ImageSpan.ALIGN_BASELINE)
-                    spannableText.setSpan(
-                        imageSpan,
-                        spannableText.length - 1,
-                        spannableText.length,
-                        SpannableStringBuilder.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    spannableText.setSpan(imageSpan, spannableText.length - 1, spannableText.length, 0)
                 }
                 spannableText
             } else {
