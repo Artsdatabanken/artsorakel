@@ -9,6 +9,7 @@ struct ResultsView: View {
     let onAddImage: () -> Void
     let onImageTap: (CroppedImageData) -> Void
     @Binding var isMenuOpen: Bool
+    @State private var selectedResult: PredictionResult?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -101,7 +102,11 @@ struct ResultsView: View {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(results) { result in
-                        ResultRow(result: result)
+                        Button(action: {
+                            selectedResult = result
+                        }) {
+                            ResultRow(result: result)
+                        }
                         Divider()
                             .background(Color.borderDefault)
                     }
@@ -127,6 +132,17 @@ struct ResultsView: View {
             .shadow(radius: 8)
         }
         .background(Color.backgroundSubtle)
+        .fullScreenCover(item: $selectedResult) { result in
+            SpeciesDetailView(
+                result: result,
+                images: images,
+                onClose: {
+                    selectedResult = nil
+                },
+                isMenuOpen: $isMenuOpen
+            )
+            .environmentObject(localizationManager)
+        }
     }
 }
 
