@@ -205,7 +205,7 @@ class ZoomableCropImageView @JvmOverloads constructor(
         val scaleToFitWidth = cropSize / imageWidth
         val scaleToFitHeight = cropSize / imageHeight
 
-        minScale = minOf(scaleToFitWidth, scaleToFitHeight)
+        minScale = maxOf(scaleToFitWidth, scaleToFitHeight)
 
         if (currentScale < minScale) {
             currentScale = minScale

@@ -114,11 +114,12 @@ class ImageCropperActivity : AppCompatActivity() {
                         val viewHeight = binding.imageViewMain.height.toFloat()
                         val imageWidth = bitmap.width.toFloat()
                         val imageHeight = bitmap.height.toFloat()
-                        
+
                         if (viewWidth > 0 && viewHeight > 0) {
-                            val scaleX = viewWidth / imageWidth
-                            val scaleY = viewHeight / imageHeight
-                            val scale = minOf(scaleX, scaleY)
+                            val cropSize = minOf(viewWidth, viewHeight)
+                            val scaleX = cropSize / imageWidth
+                            val scaleY = cropSize / imageHeight
+                            val scale = maxOf(scaleX, scaleY)
 
                             val matrix = Matrix()
                             matrix.setScale(scale, scale)
@@ -184,7 +185,7 @@ class ImageCropperActivity : AppCompatActivity() {
                 }
                 else -> ExifInterface.ORIENTATION_NORMAL
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ExifInterface.ORIENTATION_NORMAL
         }
     }
