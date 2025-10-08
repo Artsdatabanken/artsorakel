@@ -159,8 +159,7 @@ struct SettingsView: View {
                         SettingsToggleView(
                             title: localizationManager.localize("use_location_for_id", comment: "Use location for identification"),
                             description: localizationManager.localize("use_location_for_id_desc", comment: "Sharing the approximate location of pictures can improve results by selecting the best model. If switched off, the location will not be shared."),
-                            isOn: $useLocation,
-                            isDisabled: true
+                            isOn: $useLocation
                         )
                         .padding(.bottom, DesignSystem.Spacing.xLarge)
 

@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import CoreLocation
+import SwiftUI
 
 class SpeciesAPIService {
     static let shared = SpeciesAPIService()
@@ -33,8 +34,9 @@ class SpeciesAPIService {
         body.append("Content-Disposition: form-data; name=\"application\"\r\n\r\n".data(using: .utf8)!)
         body.append("iOSApp\r\n".data(using: .utf8)!)
 
-        // Add location if available
-        if let location = location {
+        // Add location if available and if user has enabled location sharing
+        let useLocation = UserDefaults.standard.object(forKey: "useLocation") as? Bool ?? true
+        if useLocation, let location = location {
             let lat = String(format: "%.1f", location.coordinate.latitude)
             let lon = String(format: "%.1f", location.coordinate.longitude)
 
@@ -49,12 +51,20 @@ class SpeciesAPIService {
 
         // Add images
         for (index, image) in images.enumerated() {
-            guard let imageData = image.jpegData(compressionQuality: 0.85) else { continue }
+            // If location sharing is disabled, strip EXIF data
+            let imageData: Data?
+            if useLocation {
+                imageData = image.jpegData(compressionQuality: 0.85)
+            } else {
+                imageData = stripEXIFData(from: image, compressionQuality: 0.85)
+            }
+
+            guard let finalImageData = imageData else { continue }
 
             body.append("--\(boundary)\r\n".data(using: .utf8)!)
             body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image_\(index).jpg\"\r\n".data(using: .utf8)!)
             body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-            body.append(imageData)
+            body.append(finalImageData)
             body.append("\r\n".data(using: .utf8)!)
         }
 
@@ -82,6 +92,35 @@ class SpeciesAPIService {
 
     func cancelIdentification() {
         currentTask?.cancel()
+    }
+
+    private func stripEXIFData(from image: UIImage, compressionQuality: CGFloat) -> Data? {
+        // Create a new image context to re-render the image without metadata
+        guard let cgImage = image.cgImage else { return nil }
+
+        // Create a new bitmap context
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+
+        guard let context = CGContext(
+            data: nil,
+            width: cgImage.width,
+            height: cgImage.height,
+            bitsPerComponent: 8,
+            bytesPerRow: 0,
+            space: colorSpace,
+            bitmapInfo: bitmapInfo.rawValue
+        ) else { return nil }
+
+        // Draw the image in the context (this strips metadata)
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+
+        // Get the new CGImage without metadata
+        guard let newCGImage = context.makeImage() else { return nil }
+
+        // Convert to UIImage and then to JPEG data (without EXIF)
+        let newImage = UIImage(cgImage: newCGImage, scale: image.scale, orientation: .up)
+        return newImage.jpegData(compressionQuality: compressionQuality)
     }
 
     private func mapAPIResponseToPredictionResults(_ apiResponse: APIResponse) -> [PredictionResult] {
