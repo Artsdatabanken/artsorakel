@@ -26,9 +26,7 @@ class ClassifySpeciesUseCaseTest {
     private lateinit var classifySpeciesUseCase: ClassifySpeciesUseCase
     
     private val mockUri1 = mockk<Uri>()
-    private val mockUri2 = mockk<Uri>()
     private val testImageData1 = "test_image_1".toByteArray()
-    private val testImageData2 = "test_image_2".toByteArray()
     private val testFilenames = listOf("image_0.jpg", "image_1.jpg")
     
     private val mockPredictionResult = PredictionResult(
@@ -79,7 +77,7 @@ class ClassifySpeciesUseCaseTest {
         
         coEvery {
             mockRepository.identifySpecies(listOf(testImageData1), testFilenames, null)
-        } returns Result.success(predictions)
+        } returns Result.success(no.artsdatabanken.artsorakel.repository.IdentificationResult(predictions, null))
 
         // Act
         val result = classifySpeciesUseCase.classifySpecies(mockContext, imageUris)

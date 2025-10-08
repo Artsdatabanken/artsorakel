@@ -115,7 +115,7 @@ class MainViewModelIntegrationTest {
         // Mock successful classification
         coEvery {
             mockClassifySpeciesUseCase.classifySpecies(any(), any())
-        } returns ClassifySpeciesUseCase.ClassificationResult.Success(expectedPredictions)
+        } returns ClassifySpeciesUseCase.ClassificationResult.Success(expectedPredictions, null)
         
         // Mock image cache operations
         coEvery {

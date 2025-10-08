@@ -93,7 +93,7 @@ class MainViewModelClassificationTest {
         // Stubs
         val ctx = mockk<Context>(relaxed = true)
         val predictions = listOf(PredictionResult(id = "1", vernacularNames = mapOf("en" to "A", "nb" to "A"), scientificName = "B", probability = 0.9, pictureUrl = null, groupNames = mapOf("en" to "G", "nb" to "G"), infoUrl = null, modelInfo = null, redListCategory = null, invasiveCategory = null))
-        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.Success(predictions)
+        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.Success(predictions, null)
         coEvery { thumbnailService.createAndSaveThumbnails(any(), any()) } returns emptyList()
         every { settingsManager.isSaveHistoryEnabled() } returns false
 
@@ -144,7 +144,7 @@ class MainViewModelClassificationTest {
 
         val ctx = mockk<Context>(relaxed = true)
         val predictions = listOf(PredictionResult(id = "1", vernacularNames = mapOf("en" to "A", "nb" to "A"), scientificName = "B", probability = 0.9, pictureUrl = null, groupNames = mapOf("en" to "G", "nb" to "G"), infoUrl = null, modelInfo = null, redListCategory = null, invasiveCategory = null))
-        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.PartialFailure(predictions, failedImageCount = 1)
+        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.PartialFailure(predictions, null, failedImageCount = 1)
         coEvery { thumbnailService.createAndSaveThumbnails(any(), any()) } returns emptyList()
         every { settingsManager.isSaveHistoryEnabled() } returns false
 

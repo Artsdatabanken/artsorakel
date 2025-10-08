@@ -226,7 +226,7 @@ class SpeciesIdentificationIntegrationTest {
         // Mock API with empty response
         coEvery {
             mockApiService.classifyImages(any(), any(), any(), any())
-        } returns ApiResponse(predictions = emptyList(), modelInfo = null)
+        } returns ApiResponse(predictions = emptyList(), modelInfo = null, warnings = null)
         
         // Act
         val result = repository.identifySpecies(
@@ -282,21 +282,22 @@ class SpeciesIdentificationIntegrationTest {
                         )
                     )
                 ),
-                modelInfo = null
+                modelInfo = null,
+                warnings = null
             )
-        
+
         // Act
         val result = repository.identifySpecies(
             imageDataList = listOf(testImageData),
             imageFilenames = listOf("test.jpg"),
             location = null
         )
-        
+
         // Assert
         assertTrue(result.isSuccess)
-        val predictions = result.getOrNull()!!
-        assertEquals(1, predictions.size) // Only valid item should remain
-        assertEquals("valid-id", predictions[0].id)
+        val identificationResult = result.getOrNull()!!
+        assertEquals(1, identificationResult.predictions.size) // Only valid item should remain
+        assertEquals("valid-id", identificationResult.predictions[0].id)
     }
 
     @Test
@@ -385,7 +386,8 @@ class SpeciesIdentificationIntegrationTest {
                 model = "Norwegian",
                 country = "NO",
                 locationSource = "ip"
-            )
+            ),
+            warnings = null
         )
     }
 } 

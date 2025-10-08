@@ -3,7 +3,6 @@ package no.artsdatabanken.artsorakel.repository
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import no.artsdatabanken.artsorakel.model.PredictionResult
 import no.artsdatabanken.artsorakel.network.ApiResponse
 import no.artsdatabanken.artsorakel.network.ApiService
 import no.artsdatabanken.artsorakel.network.PredictionDto
@@ -49,7 +48,7 @@ class SpeciesRepositoryImplTest {
         
         val taxaInfoDto = TaxaInfoDto(items = listOf(taxonItem), type = "species")
         val predictionDto = PredictionDto(regionGroupId = "1", taxa = taxaInfoDto)
-        val apiResponse = ApiResponse(predictions = listOf(predictionDto), modelInfo = null)
+        val apiResponse = ApiResponse(predictions = listOf(predictionDto), modelInfo = null, warnings = null)
 
         coEvery { mockApiService.classifyImages(any(), any(), any(), any()) } returns apiResponse
 
@@ -58,18 +57,18 @@ class SpeciesRepositoryImplTest {
 
         // Assert
         assertTrue(result.isSuccess)
-        val predictions = result.getOrNull()!!
-        assertEquals(1, predictions.size)
-        assertEquals("123", predictions[0].id)
-        assertEquals(mapOf("en" to "Test Species", "nb" to "Test Art"), predictions[0].vernacularNames)
-        assertEquals("Testus scientificus", predictions[0].scientificName)
-        assertEquals(0.85, predictions[0].probability)
+        val identificationResult = result.getOrNull()!!
+        assertEquals(1, identificationResult.predictions.size)
+        assertEquals("123", identificationResult.predictions[0].id)
+        assertEquals(mapOf("en" to "Test Species", "nb" to "Test Art"), identificationResult.predictions[0].vernacularNames)
+        assertEquals("Testus scientificus", identificationResult.predictions[0].scientificName)
+        assertEquals(0.85, identificationResult.predictions[0].probability)
     }
 
     @Test
     fun `identifySpecies - success with empty response`() = runTest {
         // Arrange
-        val apiResponse = ApiResponse(predictions = emptyList(), modelInfo = null)
+        val apiResponse = ApiResponse(predictions = emptyList(), modelInfo = null, warnings = null)
         coEvery { mockApiService.classifyImages(any(), any(), any(), any()) } returns apiResponse
 
         // Act
