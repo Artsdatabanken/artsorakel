@@ -288,6 +288,7 @@ struct SettingsToggleView: View {
         HStack(alignment: .top, spacing: 12) {
             Toggle("", isOn: $isOn)
                 .labelsHidden()
+                .toggleStyle(MaterialToggleStyle())
                 .disabled(isDisabled)
                 .opacity(isDisabled ? DesignSystem.Opacity.disabled : 1.0)
 
@@ -301,6 +302,34 @@ struct SettingsToggleView: View {
                     .foregroundColor(Color.textPrimary.opacity(DesignSystem.Opacity.subtle))
                     .fixedSize(horizontal: false, vertical: true)
             }
+        }
+    }
+}
+
+struct MaterialToggleStyle: ToggleStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            RoundedRectangle(cornerRadius: 16)
+                .fill(configuration.isOn ?
+                      Color.surfaceAccent.opacity(0.38) :
+                      Color.textPrimary.opacity(0.12))
+                .frame(width: 52, height: 32)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.surfaceAccent, lineWidth: configuration.isOn ? 0 : 2)
+                )
+                .overlay(
+                    Circle()
+                        .fill(Color.surfaceAccent)
+                        .frame(width: configuration.isOn ? 24 : 16, height: configuration.isOn ? 24 : 16)
+                        .offset(x: configuration.isOn ? 10 : -12)
+                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                )
+                .onTapGesture {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        configuration.isOn.toggle()
+                    }
+                }
         }
     }
 }
