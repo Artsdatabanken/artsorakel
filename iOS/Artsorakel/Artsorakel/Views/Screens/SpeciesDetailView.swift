@@ -334,7 +334,11 @@ struct SpeciesDetailView: View {
     }
 
     private func extractIdAfterColon(_ fullId: String) -> String? {
-        let components = fullId.split(separator: ":")
+        // First, remove the probability suffix if present (format: "NBIC:12345_0.95")
+        let idWithoutProbability = fullId.split(separator: "_").first.map(String.init) ?? fullId
+
+        // Then extract the ID after the colon
+        let components = idWithoutProbability.split(separator: ":")
         if components.count > 1 {
             let id = String(components[1])
             return id.isEmpty ? nil : id

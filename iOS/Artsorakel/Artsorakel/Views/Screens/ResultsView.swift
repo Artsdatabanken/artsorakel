@@ -13,123 +13,17 @@ struct ResultsView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Header
-            HStack(spacing: 0) {
-                // Back button
-                Button(action: onReset) {
-                        SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
-                 
-                }
-                .frame(width: DesignSystem.ButtonSize.standard, height: 60)
-                .padding(.leading, DesignSystem.Spacing.standard)
-
-                Spacer()
-
-                // Title (centered)
-                Text(localizationManager.localize("results", comment: "Results"))
-                    .font(DesignSystem.Typography.body())
-                    .foregroundColor(Color.textPrimary)
-
-                Spacer()
-
-                // Menu button
-                Button(action: {
-                    withAnimation {
-                        isMenuOpen.toggle()
-                    }
-                }) {
-                  
-                    SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
-                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-                }
-                .padding(.trailing, DesignSystem.Spacing.standard)
-            }
-            .frame(height: DesignSystem.ComponentSize.headerHeight)
-            .background(Color.surfacePrimary)
+            headerView
 
             Divider()
                 .frame(height: DesignSystem.ComponentSize.dividerHeight)
                 .background(Color.borderDefault)
 
-            // Images at top
-            VStack(spacing: DesignSystem.Spacing.standard) {
-                GeometryReader { geometry in
-                    ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: DesignSystem.Spacing.small) {
-                                ForEach(images) { imageData in
-                                    Button(action: {
-                                        onImageTap(imageData)
-                                    }) {
-                                        Image(uiImage: imageData.image)
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: 90, height: 90)
-                                            .cornerRadius(DesignSystem.CornerRadius.small)
-                                            .clipped()
-                                    }
-                                }
+            imagesSection
 
-                                // Add button
-                                Button(action: onAddImage) {
-                                    ZStack {
-                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
-                                            .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
-                                            .frame(width: 90, height: 90)
+            resultsListView
 
-                                            SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
-                                                .frame(width: 24, height: 24)
-                                        
-                                    }
-                                    .frame(width: 90, height: 90)
-                                }
-                                .id("addButton")
-                            }
-                            .padding(.horizontal, max(DesignSystem.Spacing.small, (geometry.size.width - DesignSystem.Spacing.small * 2 - CGFloat(images.count + 1) * 90 - CGFloat(images.count) * DesignSystem.Spacing.small) / 2))
-                        }
-                        .onAppear {
-                            proxy.scrollTo("addButton", anchor: .trailing)
-                        }
-                    }
-                    .padding(.horizontal, DesignSystem.Spacing.small)
-                }
-                .frame(height: 90)
-            }
-            .padding(.vertical, DesignSystem.Spacing.standard)
-            .background(Color.surfaceSecondary)
-
-            // Results list
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(results) { result in
-                        Button(action: {
-                            selectedResult = result
-                        }) {
-                            ResultRow(result: result)
-                        }
-                        Divider()
-                            .background(Color.borderDefault)
-                    }
-                }
-            }
-            .background(Color.backgroundSubtle)
-
-            // Reset button at bottom
-            Button(action: onReset) {
-                Text(localizationManager.localize("reset", comment: "Reset"))
-                    .font(DesignSystem.Typography.body())
-                    .foregroundColor(Color.textAccent)
-                    .padding(.horizontal, DesignSystem.Spacing.large)
-                    .padding(.vertical, DesignSystem.Spacing.standard)
-            }
-            .background(Color.surfacePrimary)
-            .overlay(
-                RoundedRectangle(cornerRadius: 28)
-                    .stroke(Color.borderAccent, lineWidth: 2)
-            )
-            .cornerRadius(28)
-            .padding(.vertical, DesignSystem.Spacing.standard)
-            .shadow(radius: 8)
+            resetButton
         }
         .background(Color.backgroundSubtle)
         .fullScreenCover(item: $selectedResult) { result in
@@ -143,6 +37,117 @@ struct ResultsView: View {
             )
             .environmentObject(localizationManager)
         }
+    }
+
+    private var headerView: some View {
+        HStack(spacing: 0) {
+            Button(action: onReset) {
+                SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+            }
+            .frame(width: DesignSystem.ButtonSize.standard, height: 60)
+            .padding(.leading, DesignSystem.Spacing.standard)
+
+            Spacer()
+
+            Text(localizationManager.localize("results", comment: "Results"))
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(Color.textPrimary)
+
+            Spacer()
+
+            Button(action: {
+                withAnimation {
+                    isMenuOpen.toggle()
+                }
+            }) {
+                SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                    .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
+            }
+            .padding(.trailing, DesignSystem.Spacing.standard)
+        }
+        .frame(height: DesignSystem.ComponentSize.headerHeight)
+        .background(Color.surfacePrimary)
+    }
+
+    private var imagesSection: some View {
+        VStack(spacing: DesignSystem.Spacing.standard) {
+            GeometryReader { geometry in
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: DesignSystem.Spacing.small) {
+                            ForEach(images) { imageData in
+                                Button(action: {
+                                    onImageTap(imageData)
+                                }) {
+                                    Image(uiImage: imageData.image)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 90, height: 90)
+                                        .cornerRadius(DesignSystem.CornerRadius.small)
+                                        .clipped()
+                                }
+                            }
+
+                            Button(action: onAddImage) {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                        .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                                        .frame(width: 90, height: 90)
+
+                                    SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
+                                        .frame(width: 24, height: 24)
+                                }
+                                .frame(width: 90, height: 90)
+                            }
+                            .id("addButton")
+                        }
+                        .padding(.horizontal, max(DesignSystem.Spacing.small, (geometry.size.width - DesignSystem.Spacing.small * 2 - CGFloat(images.count + 1) * 90 - CGFloat(images.count) * DesignSystem.Spacing.small) / 2))
+                    }
+                    .onAppear {
+                        proxy.scrollTo("addButton", anchor: .trailing)
+                    }
+                }
+                .padding(.horizontal, DesignSystem.Spacing.small)
+            }
+            .frame(height: 90)
+        }
+        .padding(.vertical, DesignSystem.Spacing.standard)
+        .background(Color.surfaceSecondary)
+    }
+
+    private var resetButton: some View {
+        Button(action: onReset) {
+            Text(localizationManager.localize("reset", comment: "Reset"))
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(Color.textAccent)
+                .padding(.horizontal, DesignSystem.Spacing.large)
+                .padding(.vertical, DesignSystem.Spacing.standard)
+        }
+        .background(Color.surfacePrimary)
+        .overlay(
+            RoundedRectangle(cornerRadius: 28)
+                .stroke(Color.borderAccent, lineWidth: 2)
+        )
+        .cornerRadius(28)
+        .padding(.vertical, DesignSystem.Spacing.standard)
+        .shadow(radius: 8)
+    }
+
+    private var resultsListView: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(results) { result in
+                    ResultRow(result: result)
+                        .contentShape(Rectangle())
+                        .onTapGesture {
+                            selectedResult = result
+                        }
+                    Divider()
+                        .background(Color.borderDefault)
+                }
+            }
+        }
+        .background(Color.backgroundSubtle)
     }
 }
 

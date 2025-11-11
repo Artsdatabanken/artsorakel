@@ -147,8 +147,11 @@ class SpeciesAPIService {
                 return nil
             }
 
+            // Create unique ID by combining scientificNameId with probability to handle duplicates
+            let uniqueId = "\(scientificNameId)_\(probability)"
+
             return PredictionResult(
-                id: scientificNameId,
+                id: uniqueId,
                 vernacularNames: item.vernacularNames?.filter { !$0.value.isEmpty },
                 scientificName: item.scientificName?.isEmpty == false ? item.scientificName : nil,
                 groupNames: item.groupNames?.filter { !$0.value.isEmpty },

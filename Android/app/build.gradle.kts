@@ -11,7 +11,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "no.artsdatabanken.artsorakel"
+        applicationId = "no.artsdatabanken.orakel"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -91,6 +91,7 @@ kotlin {
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
+    jvmToolchain(21)
 }
 
 // Kapt configurations 

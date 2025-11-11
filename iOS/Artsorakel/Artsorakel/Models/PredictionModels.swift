@@ -1,13 +1,13 @@
 import Foundation
 import CoreLocation
 
-struct ModelInfo: Codable {
+struct ModelInfo: Codable, Equatable {
     let model: String?
     let country: String?
     let locationSource: String?
 }
 
-struct PredictionResult: Identifiable, Codable {
+struct PredictionResult: Identifiable, Codable, Equatable {
     let id: String
     let vernacularNames: [String: String]?
     let scientificName: String?

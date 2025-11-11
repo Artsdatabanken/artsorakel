@@ -32,7 +32,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Artsorakel"
         android:usesCleartextTraffic="false"
-        tools:targetApi="31">
+        android:enableOnBackInvokedCallback="true"
+        tools:targetApi="36">
 
         <!-- Declare edge-to-edge support for Android 15+ -->
         <meta-data
