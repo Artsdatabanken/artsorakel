@@ -87,14 +87,13 @@
                 android:layout_gravity="top|center_horizontal"
                 android:elevation="16dp"
                 android:text="@string/identify"
-                android:textColor="?attr/text_accent"
-                app:backgroundTint="?attr/surface_primary"
+                android:textColor="?attr/surface_primary"
+                app:backgroundTint="?attr/surface_accent"
                 app:cornerRadius="28dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/inputImages"
-                app:strokeColor="?attr/border_accent"
-                app:strokeWidth="2dp"
+                app:strokeWidth="0dp"
                 android:textAllCaps="false"
                 />
 
