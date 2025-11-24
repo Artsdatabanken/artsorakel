@@ -9,7 +9,6 @@ Android/.idea/navEditor.xml
 Android/.idea/assetWizardSettings.xml
 Android/build
 Android/build/captures
-Android/local.properties
 
 .DS_Store
 .externalNativeBuild
@@ -36,6 +35,8 @@ Android/.idea/
 *.apk
 *.aab
 *.hprof
+**/release/
+**/debug/
 
 # Optional editor settings
 .vscode/

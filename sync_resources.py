@@ -90,8 +90,9 @@ def sync_config():
         print_success("Secrets file found")
 
     if not config_file.exists():
-        print_error("Config file not found")
-        return
+        print_error(f"CRITICAL: Config file not found at {config_file}")
+        print_error("   Cannot proceed without app configuration")
+        sys.exit(1)
 
     # Read config
     with open(config_file, 'r') as f:
@@ -178,8 +179,9 @@ def sync_strings():
 
     csv_file = SHARED_DIR / 'strings.csv'
     if not csv_file.exists():
-        print_error(f"CSV file not found at {csv_file}")
-        return False
+        print_error(f"CRITICAL: CSV file not found at {csv_file}")
+        print_error("   Cannot proceed without localization strings")
+        sys.exit(1)
 
     # Read CSV
     with open(csv_file, 'r', encoding='utf-8') as f:
@@ -187,8 +189,9 @@ def sync_strings():
         rows = list(reader)
 
         if not rows:
-            print_error("No data in CSV file")
-            return False
+            print_error("CRITICAL: No data in CSV file")
+            print_error("   Cannot proceed with empty localization strings")
+            sys.exit(1)
 
         # Get language codes
         languages = [col for col in reader.fieldnames if col != 'key']
@@ -374,34 +377,38 @@ def sync_vectors():
     android:viewportWidth="108"
     android:viewportHeight="108">
     <path
-        android:fillColor="#394244"
+        android:fillColor="#495e2e"
         android:pathData="M0,0h108v108h-108z" />
 </vector>
 ''')
     print_success("Generated ic_launcher_background.xml")
 
     # Generate launcher foreground from logo
-    logo_svg = SHARED_DIR / 'images' / 'ic_logo_color_dark.svg'
+    logo_svg = SHARED_DIR / 'images' / 'artsorakel_owl_optimized.svg'
     if not logo_svg.exists():
         print_error(f"ERROR: Logo SVG not found at {logo_svg}")
         print_error("   Cannot generate launcher foreground without logo SVG")
         sys.exit(1)
 
     if not vdtool_available:
-        print_warning("vd-tool not found - skipping vector conversions")
+        print_error("CRITICAL: vd-tool not found - cannot generate Android launcher icons")
         print(f"  {Colors.YELLOW}   Install with: npm install -g vd-tool{Colors.NC}")
-        return True
+        sys.exit(1)
 
     result = run_vdtool(logo_svg, drawable_dir)
 
     if result == 'java_missing':
-        print_warning("vd-tool requires Java - skipping vector conversions")
+        print_error("CRITICAL: vd-tool requires Java - cannot generate Android launcher icons")
         print(f"  {Colors.YELLOW}   Install Java from: https://www.java.com{Colors.NC}")
-        return True
+        sys.exit(1)
     elif not result:
-        print_warning("vd-tool conversion failed for launcher foreground")
-        print(f"  {Colors.YELLOW}   Unable to convert {logo_svg}{Colors.NC}")
-        return True
+        print_error("CRITICAL: vd-tool conversion failed for launcher foreground")
+        print_error(f"   Unable to convert {logo_svg}")
+        print_error(f"   This is likely due to:")
+        print_error(f"   - Spaces or special characters in filename")
+        print_error(f"   - Invalid SVG structure")
+        print_error(f"   - Transform attributes in SVG (run check_svg_for_transforms)")
+        sys.exit(1)
 
     # Rename to launcher foreground
     launcher_fg = drawable_dir / 'ic_launcher_foreground.xml'
@@ -411,11 +418,9 @@ def sync_vectors():
     with open(launcher_fg, 'r') as f:
         content = f.read()
 
-    # Replace viewport dimensions
+    # Set physical dimensions to 108dp but keep original viewport for proper scaling
     content = re.sub(r'android:width="[^"]*"', 'android:width="108dp"', content)
     content = re.sub(r'android:height="[^"]*"', 'android:height="108dp"', content)
-    content = re.sub(r'android:viewportWidth="[^"]*"', 'android:viewportWidth="108"', content)
-    content = re.sub(r'android:viewportHeight="[^"]*"', 'android:viewportHeight="108"', content)
 
     with open(launcher_fg, 'w') as f:
         f.write(content)
@@ -489,8 +494,10 @@ def sync_vectors():
                 conversion_failed = True
 
     if conversion_failed:
-        print_error("⛔ Some conversions failed due to transform attributes. Please fix the SVG files first.")
-        return False
+        print_error("CRITICAL: Some conversions failed due to transform attributes")
+        print_error("   Please fix the SVG files and remove transform attributes")
+        print_error("   See error messages above for specific files")
+        sys.exit(1)
 
     if not converted_any:
         print_warning("No light/dark SVG pairs found to convert in shared/images/")
@@ -1040,12 +1047,13 @@ def sync_app_icons():
     ios_icon_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Assets.xcassets' / 'AppIcon.appiconset'
     ios_icon_dir.mkdir(parents=True, exist_ok=True)
 
-    source_svg = SHARED_DIR / 'images' / 'ic_logo_color_dark.svg'
-    light_svg = SHARED_DIR / 'images' / 'ic_logo_color_light.svg'
+    source_svg = SHARED_DIR / 'images' / 'artsorakel_owl_optimized.svg'
+    light_svg = SHARED_DIR / 'images' / 'artsorakel_owl_optimized.svg'
 
     if not source_svg.exists():
-        print_error(f"Logo SVG not found at {source_svg}")
-        return
+        print_error(f"CRITICAL: Logo SVG not found at {source_svg}")
+        print_error("   Cannot generate iOS app icons without logo SVG")
+        sys.exit(1)
 
     # Check for ImageMagick or rsvg-convert
     has_convert = shutil.which('convert') is not None
@@ -1054,30 +1062,36 @@ def sync_app_icons():
     if has_convert:
         print("  🎨 Using ImageMagick to generate iOS app icons...")
 
-        # Generate light appearance icon
-        if light_svg.exists():
+        try:
+            # Generate light appearance icon
+            if light_svg.exists():
+                subprocess.run([
+                    'convert', '-background', '#495e2e', str(light_svg),
+                    '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
+                    str(ios_icon_dir / 'AppIcon.png')
+                ], check=True, capture_output=True)
+                print_success("Generated AppIcon.png (light appearance)")
+
+            # Generate dark appearance icon
             subprocess.run([
-                'convert', '-background', '#FFFFFF', str(light_svg),
+                'convert', '-background', '#495e2e', str(source_svg),
                 '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
-                str(ios_icon_dir / 'AppIcon.png')
+                str(ios_icon_dir / 'AppIcon~dark.png')
             ], check=True, capture_output=True)
-            print_success("Generated AppIcon.png (light appearance)")
+            print_success("Generated AppIcon~dark.png (dark appearance)")
 
-        # Generate dark appearance icon
-        subprocess.run([
-            'convert', '-background', '#394244', str(source_svg),
-            '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
-            str(ios_icon_dir / 'AppIcon~dark.png')
-        ], check=True, capture_output=True)
-        print_success("Generated AppIcon~dark.png (dark appearance)")
-
-        # Generate tinted appearance icon
-        subprocess.run([
-            'convert', str(source_svg), '-colorspace', 'Gray', '-negate',
-            '-background', '#FFFFFF', '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
-            str(ios_icon_dir / 'AppIcon~tinted.png')
-        ], check=True, capture_output=True)
-        print_success("Generated AppIcon~tinted.png (tinted appearance)")
+            # Generate tinted appearance icon
+            subprocess.run([
+                'convert', str(source_svg), '-colorspace', 'Gray', '-negate',
+                '-background', '#495e2e', '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
+                str(ios_icon_dir / 'AppIcon~tinted.png')
+            ], check=True, capture_output=True)
+            print_success("Generated AppIcon~tinted.png (tinted appearance)")
+        except subprocess.CalledProcessError as e:
+            print_error("CRITICAL: ImageMagick conversion failed for iOS icons")
+            print_error(f"   Error: {e.stderr.decode() if e.stderr else 'Unknown error'}")
+            print_error(f"   Command: {' '.join(e.cmd)}")
+            sys.exit(1)
 
         # Write Contents.json with all three icons
         contents_json = ios_icon_dir / 'Contents.json'
@@ -1126,22 +1140,28 @@ def sync_app_icons():
     elif has_rsvg:
         print("  🎨 Using rsvg-convert to generate iOS app icons...")
 
-        # Generate light appearance
-        if light_svg.exists():
+        try:
+            # Generate light appearance
+            if light_svg.exists():
+                subprocess.run([
+                    'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#495e2e',
+                    str(light_svg), '-o', str(ios_icon_dir / 'AppIcon.png')
+                ], check=True, capture_output=True)
+                print_success("Generated AppIcon.png (light appearance)")
+
+            # Generate dark appearance
             subprocess.run([
-                'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#FFFFFF',
-                str(light_svg), '-o', str(ios_icon_dir / 'AppIcon.png')
+                'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#495e2e',
+                str(source_svg), '-o', str(ios_icon_dir / 'AppIcon~dark.png')
             ], check=True, capture_output=True)
-            print_success("Generated AppIcon.png (light appearance)")
+            print_success("Generated AppIcon~dark.png (dark appearance)")
 
-        # Generate dark appearance
-        subprocess.run([
-            'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#394244',
-            str(source_svg), '-o', str(ios_icon_dir / 'AppIcon~dark.png')
-        ], check=True, capture_output=True)
-        print_success("Generated AppIcon~dark.png (dark appearance)")
-
-        print_warning("Tinted icon generation requires ImageMagick")
+            print_warning("Tinted icon generation requires ImageMagick")
+        except subprocess.CalledProcessError as e:
+            print_error("CRITICAL: rsvg-convert conversion failed for iOS icons")
+            print_error(f"   Error: {e.stderr.decode() if e.stderr else 'Unknown error'}")
+            print_error(f"   Command: {' '.join(e.cmd)}")
+            sys.exit(1)
 
         # Write Contents.json with two icons
         contents_json = ios_icon_dir / 'Contents.json'
@@ -1176,8 +1196,10 @@ def sync_app_icons():
         print(f"  {Colors.GREEN}✅ iOS app icons generated (without tinted variant){Colors.NC}")
 
     else:
-        print_warning("No SVG to PNG converter found. Install ImageMagick or rsvg-convert to generate iOS icons")
-        print(f"{Colors.YELLOW}   Install with: apt-get install imagemagick (Linux) or brew install imagemagick (macOS){Colors.NC}")
+        print_error("CRITICAL: No SVG to PNG converter found")
+        print_error("   Cannot generate iOS icons without ImageMagick or rsvg-convert")
+        print_error("   Install with: brew install imagemagick (macOS) or apt-get install imagemagick (Linux)")
+        sys.exit(1)
 
 
 def validate_sync() -> bool:
@@ -1238,10 +1260,12 @@ def main():
     sync_app_icons()
 
     # Validate
-    if validate_sync():
-        print(f"{Colors.GREEN}✨ Resource synchronization completed successfully!{Colors.NC}")
-    else:
-        print(f"{Colors.YELLOW}⚠️  Synchronization completed with warnings{Colors.NC}")
+    if not validate_sync():
+        print_error("CRITICAL: Validation failed")
+        print_error("   Project structure is incomplete or invalid")
+        sys.exit(1)
+
+    print(f"{Colors.GREEN}✨ Resource synchronization completed successfully!{Colors.NC}")
 
 
 if __name__ == '__main__':
