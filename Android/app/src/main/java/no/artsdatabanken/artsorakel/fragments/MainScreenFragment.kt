@@ -1,7 +1,9 @@
 package no.artsdatabanken.artsorakel.fragments
 
 import android.content.Intent
-import android.net.Uri
+import android.content.res.Configuration
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,7 +14,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import android.util.TypedValue
-import android.graphics.drawable.LayerDrawable
 import androidx.fragment.app.Fragment
 import android.text.SpannableStringBuilder
 import android.text.style.ImageSpan
@@ -22,11 +23,15 @@ import coil.load
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import no.artsdatabanken.artsorakel.R
+import no.artsdatabanken.artsorakel.activities.MainActivity
 import no.artsdatabanken.artsorakel.databinding.FragmentMainScreenBinding
 import no.artsdatabanken.artsorakel.model.IdentificationHistory
 import no.artsdatabanken.artsorakel.model.RssFeedItem
 import no.artsdatabanken.artsorakel.model.RssCategory
 import no.artsdatabanken.artsorakel.viewmodel.MainViewModel
+import java.text.SimpleDateFormat
+import java.util.Locale
+import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class MainScreenFragment : Fragment() {
@@ -58,7 +63,7 @@ class MainScreenFragment : Fragment() {
         super.onResume()
         setupAvatarForCurrentTheme()
         viewModel.checkAndHandleLanguageChange()
-        (activity as? no.artsdatabanken.artsorakel.activities.MainActivity)?.hideHeaderBackButton()
+        (activity as? MainActivity)?.hideHeaderBackButton()
     }
 
     private fun setupAvatarForCurrentTheme() {
@@ -70,8 +75,8 @@ class MainScreenFragment : Fragment() {
             else -> {
                 // MODE_NIGHT_FOLLOW_SYSTEM or MODE_NIGHT_AUTO_BATTERY
                 val config = resources.configuration
-                val currentNightMode = config.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK
-                currentNightMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
+                val currentNightMode = config.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                currentNightMode == Configuration.UI_MODE_NIGHT_YES
             }
         }
         
@@ -94,7 +99,7 @@ class MainScreenFragment : Fragment() {
     }
 
     private fun expandHistoryView() {
-        (activity as? no.artsdatabanken.artsorakel.activities.MainActivity)?.navigationManager?.showExpandedHistory()
+        (activity as? MainActivity)?.navigationManager?.showExpandedHistory()
     }
 
     private fun setupRssFeedDismiss() {
@@ -153,7 +158,7 @@ class MainScreenFragment : Fragment() {
             history.bestMatchScientificName ?: "Unknown"
         } else {
             vernacularName.replaceFirstChar {
-                if (it.isLowerCase()) it.titlecase(java.util.Locale.getDefault()) else it.toString()
+                if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
             }
         }
         textViewSpeciesName.text = displayName
@@ -170,7 +175,7 @@ class MainScreenFragment : Fragment() {
             textViewScientificName.visibility = View.GONE
         }
 
-        val dateFormat = java.text.SimpleDateFormat("dd. MMM yyyy", java.util.Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd. MMM yyyy", Locale.getDefault())
         textViewTimestamp.text = dateFormat.format(history.timestamp)
 
         if (history.thumbnailPaths.isNotEmpty()) {
@@ -196,7 +201,7 @@ class MainScreenFragment : Fragment() {
 
             val typedValue = TypedValue()
             val theme = requireContext().theme
-            var textColor = 0
+            var textColor: Int
 
             when (feedItem.category) {
                 RssCategory.DANGER -> {
@@ -268,7 +273,7 @@ class MainScreenFragment : Fragment() {
                     // Use a small fixed size that fits inline with text
                     val iconSize = (14 * resources.displayMetrics.density).toInt() // 14dp
                     icon.setBounds(0, 0, iconSize, iconSize)
-                    icon.setColorFilter(textColor, android.graphics.PorterDuff.Mode.SRC_IN)
+                    icon.colorFilter = PorterDuffColorFilter(textColor, PorterDuff.Mode.SRC_IN)
                     val imageSpan = ImageSpan(icon, ImageSpan.ALIGN_BASELINE)
                     descriptionText.append(" ")
                     descriptionText.setSpan(imageSpan, descriptionText.length - 1, descriptionText.length, 0)
@@ -277,7 +282,7 @@ class MainScreenFragment : Fragment() {
                 binding.textRssDescription.text = descriptionText
 
                 binding.rssContentFrame.setOnClickListener {
-                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(feedItem.link))
+                    val intent = Intent(Intent.ACTION_VIEW, feedItem.link.toUri())
                     startActivity(intent)
                 }
                 binding.rssContentFrame.isClickable = true

@@ -8,12 +8,12 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
-import no.artsdatabanken.artsorakel.R
 import no.artsdatabanken.artsorakel.activities.MainActivity
 import no.artsdatabanken.artsorakel.adapter.FaqAdapter
 import no.artsdatabanken.artsorakel.databinding.FragmentFaqBinding
 import no.artsdatabanken.artsorakel.manager.LanguageManager
 import no.artsdatabanken.artsorakel.model.FaqItem
+import no.artsdatabanken.artsorakel.model.FaqData
 import java.io.InputStreamReader
 import javax.inject.Inject
 
@@ -27,10 +27,6 @@ class FaqFragment : Fragment() {
     lateinit var languageManager: LanguageManager
 
     private lateinit var faqAdapter: FaqAdapter
-
-    data class FaqData(
-        val items: List<FaqItem>
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -96,7 +92,7 @@ class FaqFragment : Fragment() {
                     faqData.items
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             try {
                 requireContext().assets.open("faq_en.json").use { inputStream ->
                     InputStreamReader(inputStream).use { reader ->
@@ -105,7 +101,7 @@ class FaqFragment : Fragment() {
                         faqData.items
                     }
                 }
-            } catch (fallbackError: Exception) {
+            } catch (_: Exception) {
                 emptyList()
             }
         }

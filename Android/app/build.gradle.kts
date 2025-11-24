@@ -65,6 +65,7 @@ android {
             // Release builds should send "Artsorakel x.x.x (android)" to API
             buildConfigField("boolean", "IS_RELEASE_BUILD", "true")
             buildConfigField("boolean", "ENABLE_LOGGING", "false")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -148,12 +149,12 @@ dependencies {
     kapt(libs.hilt.compiler)
 
     // Room database - using KSP for better performance
-    implementation("androidx.room:room-runtime:2.8.0")
-    implementation("androidx.room:room-ktx:2.8.0")
-    ksp("androidx.room:room-compiler:2.8.0")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
     // Location services
-    implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation(libs.play.services.location)
 
     // Testing (Unit Tests)
     testImplementation(libs.junit)

@@ -18,7 +18,7 @@
 -keep class * implements com.google.gson.JsonSerializer
 -keep class * implements com.google.gson.JsonDeserializer
 
-# Keep data classes used for API responses
+# Keep data classes used for API responses and JSON deserialization
 -keep class no.artsdatabanken.artsorakel.network.** { *; }
 -keep class no.artsdatabanken.artsorakel.model.** { *; }
 
@@ -51,29 +51,18 @@
 
 # ========== ENHANCED LIBRARY OPTIMIZATIONS ==========
 
-# Retrofit and OkHttp optimizations
--keep class retrofit2.** { *; }
--keep class okhttp3.** { *; }
--keep class okio.** { *; }
--dontwarn okhttp3.**
--dontwarn okio.**
--dontwarn javax.annotation.**
--dontwarn org.conscrypt.**
--dontwarn org.bouncycastle.**
--dontwarn org.openjsse.**
-
 # Coroutines optimizations for better performance
 -keepclassmembernames class kotlinx.** {
     volatile <fields>;
 }
 -keep class kotlinx.coroutines.internal.MainDispatcherFactory { *; }
 -keep class kotlinx.coroutines.android.AndroidDispatcherFactory { *; }
--dontwarn kotlinx.coroutines.**
 
-# AndroidX optimizations
--keep class androidx.lifecycle.** { *; }
--keep class androidx.savedstate.** { *; }
--dontwarn androidx.lifecycle.**
+# Suppress warnings for optional dependencies
+-dontwarn javax.annotation.**
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
 
 # Remove logging in release builds for better performance and smaller size
 -assumenosideeffects class android.util.Log {
@@ -87,8 +76,8 @@
 
 # Remove debug-only code from custom logger
 -assumenosideeffects class no.artsdatabanken.artsorakel.core.logging.AppLogger {
-    public static void debug(...);
-    public static void verbose(...);
+    public void d(...);
+    public void v(...);
 }
 
 # Optimize resource access
