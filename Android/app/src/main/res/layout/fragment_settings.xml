@@ -268,6 +268,8 @@
                     app:thumbTint="@color/switch_thumb_selector"
                     app:trackTint="@color/switch_track_selector"
                     app:trackDecorationTint="@color/switch_track_decoration_selector"
+                    app:thumbIcon="@drawable/switch_thumb_icon_selector"
+                    app:thumbIconTint="@color/switch_thumb_icon_tint_selector"
                     />
 
                 <LinearLayout
@@ -334,6 +336,8 @@
                     app:thumbTint="@color/switch_thumb_selector"
                     app:trackTint="@color/switch_track_selector"
                     app:trackDecorationTint="@color/switch_track_decoration_selector"
+                    app:thumbIcon="@drawable/switch_thumb_icon_selector"
+                    app:thumbIconTint="@color/switch_thumb_icon_tint_selector"
                     />
 
                 <LinearLayout
@@ -384,7 +388,7 @@
                     app:backgroundTint="?attr/surface_primary"
                     app:cornerRadius="28dp"
                     app:icon="@drawable/ic_delete"
-                    app:iconTint="?attr/alert_danger_text_primary"
+                    app:iconTint="?attr/alert_danger_border_primary"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/inputImages"

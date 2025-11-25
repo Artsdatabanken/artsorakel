@@ -74,6 +74,9 @@
   --border-subtle: var(--ocean-10);
   --border-strong: var(--ocean-50);
 
+  /* Neutral / Border */
+  --neutral-border-default: var(--neutral-7);
+
   /* Border / Brand */
   --border-brand-1: var(--coral-70);
   --border-brand-2: var(--evergreen-60);
@@ -193,6 +196,9 @@
   --border-default: var(--ocean-90);
   --border-subtle: var(--ocean-80);
   --border-strong: var(--ocean-40);
+
+  /* Neutral / Border */
+  --neutral-border-default: var(--neutral-7);
 
   /* Border / Brand */
   --border-brand-1: var(--coral-50);

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:alpha="0.38" android:color="?attr/surface_accent" android:state_checked="true"/>
-    <item android:alpha="0.12" android:color="?attr/text_primary" android:state_checked="false"/>
+    <!-- On state: background is border_accent (full opacity) -->
+    <item android:color="?attr/border_accent" android:state_checked="true"/>
+    <!-- Off state: background is neutral_border_default -->
+    <item android:color="?attr/neutral_border_default" android:state_checked="false"/>
 </selector>

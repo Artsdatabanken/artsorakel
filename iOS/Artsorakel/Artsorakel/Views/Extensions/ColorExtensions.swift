@@ -32,6 +32,7 @@ extension Color {
     static let borderStrong = Color("Color_borderStrong")
     static let borderSubtle = Color("Color_borderSubtle")
     static let inner = Color("Color_inner")
+    static let neutralBorderDefault = Color("Color_neutralBorderDefault")
     static let opacity = Color("Color_opacity")
     static let outer = Color("Color_outer")
     static let surfaceAccent = Color("Color_surfaceAccent")

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="?attr/surface_accent" android:state_checked="true"/>
-    <item android:color="?attr/surface_accent" android:state_checked="false"/>
+    <!-- On state: dot is surface_primary -->
+    <item android:color="?attr/surface_primary" android:state_checked="true"/>
+    <!-- Off state: dot is background_default -->
+    <item android:color="?attr/background_default" android:state_checked="false"/>
 </selector>

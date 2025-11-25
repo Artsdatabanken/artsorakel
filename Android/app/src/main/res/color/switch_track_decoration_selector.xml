@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- On state: no stroke -->
     <item android:color="@android:color/transparent" android:state_checked="true"/>
-    <item android:color="?attr/surface_accent" android:state_checked="false"/>
+    <!-- Off state: stroke is border_accent -->
+    <item android:color="?attr/border_accent" android:state_checked="false"/>
 </selector>

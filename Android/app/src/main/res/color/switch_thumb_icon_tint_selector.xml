@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- On state: checkmark is surface_invert -->
+    <item android:color="?attr/surface_invert" android:state_checked="true"/>
+    <!-- Off state: transparent (no icon shown anyway) -->
+    <item android:color="@android:color/transparent" android:state_checked="false"/>
+</selector>
