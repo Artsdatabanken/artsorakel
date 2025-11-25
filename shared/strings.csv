@@ -88,3 +88,19 @@ invasive_hi,High risk,Alto riesgo,Høy risiko,Hög risk,Hoog risico,Høg risiko
 invasive_se,Severe risk,Riesgo severo,Svært høy risiko,Mycket hög risk,Zeer hoog risico,Svært høg risiko
 unknown_species,this species,esta especie,denne arten,denna art,deze soort,denne arten
 crop_hint,Drag and zoom until the species fills the square,Arrastra y haz zoom hasta que la especie llene el cuadrado,Dra og zoom til arten fyller ruten,Dra och zooma tills arten fyller rutan,Sleep en zoom totdat de soort het vierkant vult,Dra og zoom til arten fyller ruta
+permissions_title,Permissions,Permisos,Tillatelser,Behörigheter,Machtigingen,Løyve
+permission_photos,Photo access,Acceso a fotos,Tilgang til bilder,Fotoåtkomst,Fototoegang,Tilgang til bilete
+permission_photos_full,Full access,Acceso completo,Full tilgang,Full åtkomst,Volledige toegang,Full tilgang
+permission_photos_limited,Limited access,Acceso limitado,Begrenset tilgang,Begränsad åtkomst,Beperkte toegang,Avgrensa tilgang
+permission_photos_none,Not granted,No concedido,Ikke gitt,Inte beviljad,Niet verleend,Ikkje gjeve
+permission_camera,Camera,Cámara,Kamera,Kamera,Camera,Kamera
+permission_location,Location,Ubicación,Posisjon,Position,Locatie,Posisjon
+permission_granted,Granted,Concedido,Gitt,Beviljad,Verleend,Gjeve
+permission_not_granted,Not granted,No concedido,Ikke gitt,Inte beviljad,Niet verleend,Ikkje gjeve
+permission_manage,Manage,Administrar,Administrer,Hantera,Beheren,Administrer
+permission_change_access,Change access,Cambiar acceso,Endre tilgang,Ändra åtkomst,Toegang wijzigen,Endra tilgang
+permission_open_settings,Open settings,Abrir ajustes,Åpne innstillinger,Öppna inställningar,Open instellingen,Opne innstillingar
+permission_limited_access_title,Limited photo access,Acceso limitado a fotos,Begrenset bildetilgang,Begränsad fotoåtkomst,Beperkte fototoegang,Avgrensa biletilgang
+permission_limited_access_message,The app only has access to some of your photos. You can select more photos or grant full access in settings.,La aplicación solo tiene acceso a algunas de tus fotos. Puedes seleccionar más fotos o conceder acceso completo en los ajustes.,Appen har kun tilgang til noen av bildene dine. Du kan velge flere bilder eller gi full tilgang i innstillingene.,Appen har bara åtkomst till vissa av dina foton. Du kan välja fler foton eller ge full åtkomst i inställningarna.,De app heeft alleen toegang tot sommige van je foto's. Je kunt meer foto's selecteren of volledige toegang verlenen in de instellingen.,Appen har berre tilgang til nokre av bileta dine. Du kan velje fleire bilete eller gje full tilgang i innstillingane.
+permission_select_more_photos,Select more photos,Seleccionar más fotos,Velg flere bilder,Välj fler foton,Selecteer meer foto's,Vel fleire bilete
+permission_image_not_accessible,Could not access the selected image. The app may not have permission to access this file.,No se pudo acceder a la imagen seleccionada. Es posible que la aplicación no tenga permiso para acceder a este archivo.,Kunne ikke åpne det valgte bildet. Appen har kanskje ikke tilgang til denne filen.,Kunde inte öppna den valda bilden. Appen kanske inte har åtkomst till denna fil.,Kon de geselecteerde afbeelding niet openen. De app heeft mogelijk geen toegang tot dit bestand.,Kunne ikkje opna det valde biletet. Appen har kanskje ikkje tilgang til denne fila.

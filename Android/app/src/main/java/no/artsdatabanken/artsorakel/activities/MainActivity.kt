@@ -75,6 +75,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var pickImageLauncher: ActivityResultLauncher<Array<String>>
     private lateinit var imageCropperLauncher: ActivityResultLauncher<Intent>
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var requestMultiplePermissionsLauncher: ActivityResultLauncher<Array<String>>
 
 
     
@@ -308,6 +309,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Multi-permission launcher for Android 14+ photo access re-request
+        requestMultiplePermissionsLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            if (::permissionManager.isInitialized) {
+                // Consider granted if any permission was granted
+                val anyGranted = permissions.values.any { it }
+                permissionManager.handlePermissionResult(anyGranted)
+            }
+        }
+
         // Use OpenDocument instead of GetContent to preserve EXIF data
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
@@ -358,7 +368,7 @@ class MainActivity : AppCompatActivity() {
     private fun initializeManagers() {
         // Initialize managers that need activity context/launchers
         navigationManager.initialize(this)
-        permissionManager.initialize(this, requestPermissionLauncher)
+        permissionManager.initialize(this, requestPermissionLauncher, requestMultiplePermissionsLauncher)
         drawerManager.initialize(this, binding.drawerLayout, binding.navView)
         imageOperationsManager = ImageOperationsManager(this, takePictureLauncher, pickImageLauncher)
         galleryImageSaver = GalleryImageSaver(this)
@@ -785,8 +795,7 @@ class MainActivity : AppCompatActivity() {
                 val currentState = viewModel.uiState.value
                 val hasExistingImages = viewModel.selectedImageUris.value.isNotEmpty()
 
-                if (hasExistingImages && currentState is UiState.Idle) {
-                } else {
+                if (!(hasExistingImages && currentState is UiState.Idle)) {
                     // Any other state, reset UI and clear images
                     if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
                         drawerManager.closeDrawer()
@@ -810,8 +819,15 @@ class MainActivity : AppCompatActivity() {
 
                 permissionManager.checkStoragePermissionAndExecute {
                     permissionManager.checkMediaLocationPermissionAndExecute {
-                        val location = imageOperationsManager.extractLocationFromImage(uri)
-                        startImageCropper(uri, location)
+                        // Check if we can actually access the file (might fail with limited access)
+                        if (canAccessUri(uri)) {
+                            val location = imageOperationsManager.extractLocationFromImage(uri)
+                            startImageCropper(uri, location)
+                        } else {
+                            // File not accessible - likely due to limited photo access
+                            isProcessingSharedImage = false
+                            showLimitedAccessDialog()
+                        }
                     }
                 }
 
@@ -843,7 +859,52 @@ class MainActivity : AppCompatActivity() {
             onComplete()
         }
     }
-    
+
+    /**
+     * Checks if a URI is accessible by trying to open an input stream.
+     * This helps detect when a shared image can't be accessed due to limited permissions.
+     */
+    private fun canAccessUri(uri: Uri): Boolean {
+        return try {
+            contentResolver.openInputStream(uri)?.use { true } ?: false
+        } catch (_: SecurityException) {
+            false
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    /**
+     * Shows a dialog when a shared image can't be accessed due to limited photo permissions.
+     * Offers options to select more photos or open settings for full access.
+     */
+    private fun showLimitedAccessDialog() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Android 14+: Offer to select more photos or open settings
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.permission_limited_access_title))
+                .setMessage(getString(R.string.permission_image_not_accessible))
+                .setPositiveButton(getString(R.string.permission_select_more_photos)) { _, _ ->
+                    permissionManager.requestMorePhotoAccess()
+                }
+                .setNeutralButton(getString(R.string.permission_open_settings)) { _, _ ->
+                    permissionManager.openAppSettings()
+                }
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show()
+        } else {
+            // Older Android: Just show error and offer to open settings
+            com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+                .setTitle(getString(R.string.permission_limited_access_title))
+                .setMessage(getString(R.string.permission_image_not_accessible))
+                .setPositiveButton(getString(R.string.permission_open_settings)) { _, _ ->
+                    permissionManager.openAppSettings()
+                }
+                .setNegativeButton(getString(R.string.cancel), null)
+                .show()
+        }
+    }
+
     // --- Settings Overlay State Restoration ---
     
     /**
