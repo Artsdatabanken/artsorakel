@@ -26,6 +26,18 @@ interface ApiService {
         @Part("longitude") longitude: RequestBody? = null
     ): ApiResponse
 
+    /**
+     * Saves images to the server for reporting.
+     * Returns an ID and password that can be used to reference the images
+     * when redirecting to artsobservasjoner.no for observation reporting.
+     */
+    @Headers("Accept: */*")
+    @Multipart
+    @POST("/save")
+    suspend fun saveImages(
+        @Part image: List<MultipartBody.Part>
+    ): SaveImageResponse
+
     // --- Retrofit Client Setup ---
     companion object {
         fun create(): ApiService {

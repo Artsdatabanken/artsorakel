@@ -14,7 +14,6 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import android.widget.TextView
-import android.widget.FrameLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.text.HtmlCompat.FROM_HTML_MODE_LEGACY
@@ -42,7 +41,10 @@ import no.artsdatabanken.artsorakel.databinding.FragmentSpeciesDetailBinding
 import no.artsdatabanken.artsorakel.core.Constants
 import no.artsdatabanken.artsorakel.core.SpeciesDisplayData
 import no.artsdatabanken.artsorakel.model.ModelInfo
+import no.artsdatabanken.artsorakel.repository.SpeciesRepository
+import no.artsdatabanken.artsorakel.service.ImageProcessingService
 import androidx.core.net.toUri
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class SpeciesDetailFragment : Fragment() {
@@ -59,6 +61,12 @@ class SpeciesDetailFragment : Fragment() {
 
     @Inject
     lateinit var gson: Gson
+
+    @Inject
+    lateinit var speciesRepository: SpeciesRepository
+
+    @Inject
+    lateinit var imageProcessingService: ImageProcessingService
 
     private var vernacularNames: Map<String, String>? = null
     private var scientificName: String? = null
@@ -229,7 +237,6 @@ class SpeciesDetailFragment : Fragment() {
         val hasValidId = extractIdAfterColon(scientificNameID) != null
 
         if (hasValidId && isNorwayObservation) {
-            val displayName = getDisplayName()
             binding.textViewReport.visibility = View.VISIBLE
             binding.textViewReport.setOnClickListener {
                 showReportDialog()
@@ -273,14 +280,90 @@ class SpeciesDetailFragment : Fragment() {
                 }
                 .setPositiveButton(getString(R.string.report_dialog_continue)) { dialog, _ ->
                     dialog.dismiss()
-                    openReportUrl(extractedId)
+                    uploadImagesAndReport(extractedId)
                 }
                 .show()
         }
     }
-    
-    private fun openReportUrl(scientificNameId: String) {
-        val reportUrl = "https://mobil.artsobservasjoner.no/#/?scientificnameid=${scientificNameId}%26"
+
+    private fun uploadImagesAndReport(scientificNameId: String) {
+        // Use selectedImagePairs to get the actual user's cropped images (not historical thumbnails)
+        val imagePairs = viewModel.selectedImagePairs.value
+        if (imagePairs.isEmpty()) {
+            // No images to upload, open URL without image reference
+            openReportUrl(scientificNameId, null, null)
+            return
+        }
+
+        // Extract cropped URIs from the image pairs
+        val croppedUris = imagePairs.map { it.croppedUri }
+
+        // Show loading state
+        binding.textViewReport.isEnabled = false
+        val originalText = binding.textViewReport.text
+        binding.textViewReport.text = getString(R.string.report_uploading)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            try {
+                // Process images for upload (resize and compress)
+                val (imageDataList, filenames, _) = imageProcessingService.processMultipleImages(
+                    context = requireContext(),
+                    uris = croppedUris,
+                    targetWidth = 1024,
+                    targetHeight = 1024,
+                    quality = 85
+                )
+
+                if (imageDataList.isEmpty()) {
+                    // All images failed to process, open URL without image reference
+                    Logger.e("SpeciesDetail", "All images failed to process for upload")
+                    openReportUrl(scientificNameId, null, null)
+                    return@launch
+                }
+
+                // Upload images to server
+                val saveResult = speciesRepository.saveImagesForReport(imageDataList, filenames)
+
+                saveResult.fold(
+                    onSuccess = { response ->
+                        Logger.d("SpeciesDetail", "Images saved successfully: id=${response.id}")
+                        openReportUrl(scientificNameId, response.id, response.password)
+                    },
+                    onFailure = { exception ->
+                        Logger.e("SpeciesDetail", "Failed to save images", exception)
+                        Toast.makeText(context, getString(R.string.report_upload_failed), Toast.LENGTH_LONG).show()
+                    }
+                )
+            } catch (e: Exception) {
+                Logger.e("SpeciesDetail", "Error during image upload", e)
+                Toast.makeText(context, getString(R.string.report_upload_failed), Toast.LENGTH_LONG).show()
+            } finally {
+                // Restore button state
+                binding.textViewReport.text = originalText
+                binding.textViewReport.isEnabled = true
+            }
+        }
+    }
+
+    private fun openReportUrl(scientificNameId: String, imageId: String?, password: String?) {
+        // Build the report URL with all metadata
+        // Format: https://mobil.artsobservasjoner.no/#/orakel?scientificnameid=<id>&meta=from%3Dorakel%7Cplatform%3Dandroid%7Cpercentage%3D<prob>&id=<imageId>&password=<password>
+
+        val probabilityPercent = (probability * 100).roundToInt()
+
+        val urlBuilder = StringBuilder("https://mobil.artsobservasjoner.no/#/orakel")
+        urlBuilder.append("?scientificnameid=$scientificNameId")
+        urlBuilder.append("&meta=from%3Dorakel%7Cplatform%3Dandroid%7Cpercentage%3D$probabilityPercent")
+
+        // Add image reference if available
+        if (imageId != null && password != null) {
+            urlBuilder.append("&id=$imageId")
+            urlBuilder.append("&password=$password")
+        }
+
+        val reportUrl = urlBuilder.toString()
+        Logger.d("SpeciesDetail", "Opening report URL: $reportUrl")
+
         try {
             val intent = Intent(Intent.ACTION_VIEW, reportUrl.toUri())
             startActivity(intent)

@@ -13,6 +13,7 @@ import no.artsdatabanken.artsorakel.core.errors.ErrorMapper
 import no.artsdatabanken.artsorakel.core.errors.logError
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.InputStream
 import javax.inject.Inject
 
@@ -67,10 +68,25 @@ class ImageProcessingService @Inject constructor() {
                     )
                 }
 
-                val inputStream: InputStream = context.contentResolver.openInputStream(uri)
-                    ?: return@withContext Result.failure(
-                        IllegalArgumentException("Unable to open input stream for URI: $uri")
-                    )
+                // Handle both file:// URIs and content:// URIs
+                val inputStream: InputStream = when (uri.scheme) {
+                    "file" -> {
+                        val path = uri.path
+                        if (path != null && File(path).exists()) {
+                            FileInputStream(File(path))
+                        } else {
+                            return@withContext Result.failure(
+                                IllegalArgumentException("File does not exist: $uri")
+                            )
+                        }
+                    }
+                    else -> {
+                        context.contentResolver.openInputStream(uri)
+                            ?: return@withContext Result.failure(
+                                IllegalArgumentException("Unable to open input stream for URI: $uri")
+                            )
+                    }
+                }
                 
                 inputStream.use { // Ensures the stream is closed
                     val originalBitmap = BitmapFactory.decodeStream(it)

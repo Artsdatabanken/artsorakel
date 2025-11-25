@@ -55,4 +55,11 @@ data class TaxonItemDto(
     val redListCategory: String?, // Red list category code (e.g., "CR", "EN", "VU")
     val invasiveCategory: String? // Invasive species category code (e.g., "NK", "LO", "HI")
 )
-    
+
+/**
+ * Response from the /save endpoint containing encrypted image reference data
+ */
+data class SaveImageResponse(
+    val id: String,
+    val password: String
+)

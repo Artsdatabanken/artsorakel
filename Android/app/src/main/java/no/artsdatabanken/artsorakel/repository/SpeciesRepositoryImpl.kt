@@ -18,7 +18,7 @@ import no.artsdatabanken.artsorakel.model.WarningItem
 import no.artsdatabanken.artsorakel.model.WarningCategory
 import no.artsdatabanken.artsorakel.network.ApiResponse
 import no.artsdatabanken.artsorakel.network.ApiService
-import no.artsdatabanken.artsorakel.network.TaxonItemDto
+import no.artsdatabanken.artsorakel.network.SaveImageResponse
 import kotlin.coroutines.coroutineContext
 import javax.inject.Inject
 
@@ -223,5 +223,31 @@ class SpeciesRepositoryImpl @Inject constructor(
             general = generalWarnings,
             predictions = predictionWarnings
         )
+    }
+
+    override suspend fun saveImagesForReport(
+        imageDataList: List<ByteArray>,
+        imageFilenames: List<String>
+    ): Result<SaveImageResponse> {
+        return try {
+            coroutineContext.ensureActive()
+
+            // Prepare image parts for multipart request
+            val imageParts = imageDataList.mapIndexed { index, imageData ->
+                val requestBody = imageData.toRequestBody("image/jpeg".toMediaTypeOrNull())
+                val filename = imageFilenames.getOrElse(index) { "image_$index.jpg" }
+                MultipartBody.Part.createFormData("image", filename, requestBody)
+            }
+
+            coroutineContext.ensureActive()
+
+            // Make the API call to save images
+            val response = apiService.saveImages(image = imageParts)
+            Result.success(response)
+        } catch (e: Exception) {
+            val error = ErrorMapper.mapException(e, ErrorContext.NETWORK)
+            error.logError("SpeciesRepository-saveImages")
+            Result.failure(e)
+        }
     }
 } 
