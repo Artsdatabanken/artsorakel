@@ -190,7 +190,7 @@
   --text-visited-hover: var(--ocean-20);
 
   /* Border / Base */
-  --border-default: var(--ocean-100);
+  --border-default: var(--ocean-90);
   --border-subtle: var(--ocean-80);
   --border-strong: var(--ocean-40);
 
