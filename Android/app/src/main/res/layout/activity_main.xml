@@ -298,9 +298,9 @@
         android:layout_width="320dp"
         android:layout_height="match_parent"
         android:layout_gravity="end">
-        
+
         <include layout="@layout/nav_drawer_bottom_layout" />
-        
+
     </com.google.android.material.navigation.NavigationView>
 
 </androidx.drawerlayout.widget.DrawerLayout>

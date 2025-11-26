@@ -12,8 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:clipToPadding="false"
-        android:importantForAccessibility="no">
+        android:clipToPadding="false">
 
         <!-- Theme Item -->
         <LinearLayout

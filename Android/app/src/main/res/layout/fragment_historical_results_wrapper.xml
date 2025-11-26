@@ -21,10 +21,12 @@
             
             <ImageButton
                 android:id="@+id/backButton"
-                android:layout_width="20dp"
+                android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="16dp"
+                android:layout_marginStart="2dp"
                 android:layout_marginTop="6dp"
+                android:padding="14dp"
+                android:scaleType="fitCenter"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/ic_arrow_back"
                 app:tint="?attr/text_accent"
