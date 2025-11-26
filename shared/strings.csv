@@ -32,13 +32,13 @@ identification_history,History,Historial,Historikk,Historik,Geschiedenis,Histori
 identify,Identify,Identificar,Identifiser,Identifiera,Identificeer,Identifiser
 identify_description,Identify Species,Identificar especies,Identifiser art,Identifiera art,Identificeer soort,Identifiser art
 image_preview_description,Fullscreen preview of the selected image,Vista previa en pantalla completa de la imagen seleccionada,Fullskjerm forhåndsvisning av det valgte bildet,Fullskärmsförhandsvisning av den valda bilden,Preview van de geselecteerde foto in volledig scherm,Fullskjerm førehandsvisning av det valde biletet
-language_dutch,Dutch,Holandés,Nederlandsk,Nederländska,Nederlands,Nederlandsk
-language_english,English,Inglés,Engelsk,Engelska,Engels,Engelsk
+language_dutch,Nederlands,Nederlands,Nederlands,Nederlands,Nederlands,Nederlands
+language_english,English,English,English,English,English,English
 language_language,Language,Idioma,Språk,Språk,Taal,Språk
-language_norwegian_bokmaal,Norsk (Bokmål),Noruego (Bokmål),Norsk (Bokmål),Norska (Bokmål),Noors (Bokmål),Norsk (Bokmål)
-language_norwegian_nynorsk,Norwegian (Nynorsk),Noruego (Nynorsk),Norsk (Nynorsk),Norska (Nynorsk),Noors (Nynorsk),Norsk (Nynorsk)
-language_spanish,Spanish,Español,Spansk,Spanska,Spaans,Spansk
-language_swedish,Swedish,Sueco,Svensk,Svenska,Zweeds,Svensk
+language_norwegian_bokmaal,Norsk (Bokmål),Norsk (Bokmål),Norsk (Bokmål),Norsk (Bokmål),Norsk (Bokmål),Norsk (Bokmål)
+language_norwegian_nynorsk,Norsk (Nynorsk),Norsk (Nynorsk),Norsk (Nynorsk),Norsk (Nynorsk),Norsk (Nynorsk),Norsk (Nynorsk)
+language_spanish,Español,Español,Español,Español,Español,Español
+language_swedish,Svenska,Svenska,Svenska,Svenska,Svenska,Svenska
 logo_description,Artsdatabanken logo,Logo de Artsdatabanken,Artsdatabanken logo,Artsdatabanken logo,Artsdatabanken logo,Artsdatabanken logo
 main_title,Identifies species in nature,Identifica especies en la naturaleza,Identifiserer arter i naturen,Identifierar arter i naturen,Identificeert soorten in de natuur,Identifiserer artar i naturen
 match_label,Match:,Coincidencia:,Treffprosent:,Träffprocent:,Matchpercentage:,Treffprosent:
@@ -62,7 +62,7 @@ reset,Identify new species,Identificar nueva especie,Identifiser ny art,Identifi
 results,Results,Resultados,Resultater,Resultat,Resultaten,Resultat
 save_history,Save history,Guardar historial,Lagre historikk,Spara historik,Bewaar geschiedenis,Lagra historikk
 save_history_desc,Keep identification results in device history,Mantener resultados de identificación en el historial del dispositivo,Lagre tidligere identifikasjoner på denne enheten,Spara identifieringsresultat i enhetens historik,Bewaar eerdere identificaties of deze eenheid,Lagra tidlegare identifikasjonar på denne eininga
-selected_image_thumbnail,Selected Image Thumbnail,Miniatura de imagen seleccionada,Valgt bilde miniatyr,Vald bildminiatyr,Miniatuur geselecteerde foto,Valt bilete miniatyr
+selected_image_thumbnail,Historical result thumbnail,Miniatura de resultado histórico,Historisk resultat miniatyrbilde,Historiskt resultat miniatyrbild,Miniatuur historisch resultaat,Historisk resultat miniatyrbilete
 separator,Separator,Separador,Separator,Separator,Separator,Separator
 settings,Settings,Configuración,Innstillinger,Inställningar,Instellingen,Innstillinger
 species_profile_image,Species profile image,Imagen de perfil de la especie,Artens profilbilde,Artens profilbild,Soort profielfoto,Artens profilbilete

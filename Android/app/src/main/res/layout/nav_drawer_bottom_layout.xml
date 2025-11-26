@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:clipToPadding="false">
+        android:clipToPadding="false"
+        android:importantForAccessibility="no">
 
         <!-- Theme Item -->
         <LinearLayout
@@ -32,7 +33,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_theme"
                 android:layout_marginEnd="16dp"
-                android:contentDescription="@string/theme_theme"
+                android:importantForAccessibility="no"
                 app:tint="?attr/text_accent" />
 
             <TextView
@@ -64,7 +65,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_language"
                 android:layout_marginEnd="16dp"
-                android:contentDescription="@string/language_language"
+                android:importantForAccessibility="no"
                 app:tint="?attr/text_accent" />
 
             <TextView
@@ -107,7 +108,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_settings"
                 android:layout_marginEnd="16dp"
-                android:contentDescription="@string/settings"
+                android:importantForAccessibility="no"
                 app:tint="?attr/text_accent" />
 
             <TextView
@@ -139,7 +140,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_alert_info"
                 android:layout_marginEnd="16dp"
-                android:contentDescription="@string/about"
+                android:importantForAccessibility="no"
                 app:tint="?attr/text_accent" />
 
             <TextView
@@ -171,7 +172,7 @@
                 android:layout_height="24dp"
                 android:src="@drawable/ic_help"
                 android:layout_marginEnd="16dp"
-                android:contentDescription="@string/faq"
+                android:importantForAccessibility="no"
                 app:tint="?attr/text_accent" />
 
             <TextView
