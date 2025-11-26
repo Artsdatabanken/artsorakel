@@ -406,53 +406,6 @@
                 android:fontFamily="@font/chivo_bold"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Photo Access Permission -->
-            <LinearLayout
-                android:id="@+id/photoPermissionRow"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_photos"
-                        android:textSize="14sp"
-                        android:textColor="?attr/text_primary"
-                        android:fontFamily="@font/chivo_regular" />
-
-                    <TextView
-                        android:id="@+id/photoPermissionStatus"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/permission_photos_none"
-                        android:textSize="12sp"
-                        android:textColor="?attr/text_secondary"
-                        android:fontFamily="@font/chivo_regular"
-                        android:layout_marginTop="2dp" />
-
-                </LinearLayout>
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/photoPermissionButton"
-                    style="@style/Widget.Material3.Button.TextButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/permission_manage"
-                    android:textColor="?attr/text_accent"
-                    android:textAllCaps="false"
-                    android:fontFamily="@font/chivo_regular" />
-
-            </LinearLayout>
-
             <!-- Camera Permission -->
             <LinearLayout
                 android:id="@+id/cameraPermissionRow"

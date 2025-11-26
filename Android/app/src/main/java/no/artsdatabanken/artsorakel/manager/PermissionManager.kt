@@ -17,18 +17,6 @@ import androidx.lifecycle.LifecycleOwner
 import javax.inject.Inject
 
 /**
- * Represents the current status of photo/media permissions.
- */
-enum class PhotoPermissionStatus {
-    /** Full access to all photos (READ_MEDIA_IMAGES or READ_EXTERNAL_STORAGE granted) */
-    FULL_ACCESS,
-    /** Limited access to user-selected photos only (Android 14+ with READ_MEDIA_VISUAL_USER_SELECTED) */
-    LIMITED_ACCESS,
-    /** No permission granted */
-    NO_ACCESS
-}
-
-/**
  * Enhanced permission manager that handles all app permissions with lifecycle awareness.
  * Provides a centralized way to manage permission requests and callbacks.
  */
@@ -36,7 +24,6 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
 
     private lateinit var activity: AppCompatActivity
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
-    private var requestMorePhotosLauncher: ActivityResultLauncher<Array<String>>? = null
 
     private var pendingAction: (() -> Unit)? = null
     private var onPermissionDenied: (() -> Unit)? = null
@@ -48,57 +35,13 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
      */
     fun initialize(
         activity: AppCompatActivity,
-        requestPermissionLauncher: ActivityResultLauncher<String>,
-        requestMorePhotosLauncher: ActivityResultLauncher<Array<String>>? = null
+        requestPermissionLauncher: ActivityResultLauncher<String>
     ) {
         this.activity = activity
         this.requestPermissionLauncher = requestPermissionLauncher
-        this.requestMorePhotosLauncher = requestMorePhotosLauncher
         activity.lifecycle.addObserver(this)
     }
 
-    /**
-     * Gets the current photo/media permission status.
-     * On Android 14+, distinguishes between full access and limited (user-selected) access.
-     */
-    fun getPhotoPermissionStatus(): PhotoPermissionStatus {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // Android 14+: Check for both full and limited access
-            val hasFullAccess = ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.READ_MEDIA_IMAGES
-            ) == PackageManager.PERMISSION_GRANTED
-
-            val hasLimitedAccess = ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-            ) == PackageManager.PERMISSION_GRANTED
-
-            when {
-                hasFullAccess -> PhotoPermissionStatus.FULL_ACCESS
-                hasLimitedAccess -> PhotoPermissionStatus.LIMITED_ACCESS
-                else -> PhotoPermissionStatus.NO_ACCESS
-            }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Android 13: Only full or no access
-            val hasAccess = ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.READ_MEDIA_IMAGES
-            ) == PackageManager.PERMISSION_GRANTED
-            if (hasAccess) PhotoPermissionStatus.FULL_ACCESS else PhotoPermissionStatus.NO_ACCESS
-        } else {
-            // Android 12 and below
-            val hasAccess = ContextCompat.checkSelfPermission(
-                activity,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-            if (hasAccess) PhotoPermissionStatus.FULL_ACCESS else PhotoPermissionStatus.NO_ACCESS
-        }
-    }
-
-    /**
-     * Checks if camera permission is granted.
-     */
     fun isCameraPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             activity,
@@ -106,9 +49,6 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    /**
-     * Checks if any location permission is granted.
-     */
     fun isLocationPermissionGranted(): Boolean {
         val hasFine = ContextCompat.checkSelfPermission(
             activity,
@@ -123,39 +63,12 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
         return hasFine || hasCoarse
     }
 
-    /**
-     * Opens the app's settings page where the user can manage permissions.
-     */
     fun openAppSettings() {
         val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
             data = Uri.fromParts("package", activity.packageName, null)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
         activity.startActivity(intent)
-    }
-
-    /**
-     * Re-requests photo permission. On Android 14+, this allows the user to select more photos
-     * or grant full access. On older versions, it opens app settings.
-     */
-    fun requestMorePhotoAccess(onComplete: (() -> Unit)? = null) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            // Android 14+: Re-request permission to show photo picker again
-            pendingAction = onComplete
-            requestMorePhotosLauncher?.launch(
-                arrayOf(
-                    Manifest.permission.READ_MEDIA_IMAGES,
-                    Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
-                )
-            ) ?: run {
-                // Fallback to single permission request
-                requestPermissionLauncher.launch(Manifest.permission.READ_MEDIA_IMAGES)
-            }
-        } else {
-            // Older versions: Open settings
-            openAppSettings()
-            onComplete?.invoke()
-        }
     }
 
     override fun onDestroy(owner: LifecycleOwner) {

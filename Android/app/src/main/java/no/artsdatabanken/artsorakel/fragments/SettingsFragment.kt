@@ -15,7 +15,6 @@ import no.artsdatabanken.artsorakel.R
 import no.artsdatabanken.artsorakel.activities.MainActivity
 import no.artsdatabanken.artsorakel.databinding.FragmentSettingsBinding
 import no.artsdatabanken.artsorakel.manager.LanguageManager
-import no.artsdatabanken.artsorakel.manager.PhotoPermissionStatus
 import no.artsdatabanken.artsorakel.manager.ThemeManager
 import no.artsdatabanken.artsorakel.utils.SettingsManager
 import no.artsdatabanken.artsorakel.viewmodel.MainViewModel
@@ -206,33 +205,8 @@ class SettingsFragment : Fragment() {
         val mainActivity = activity as? MainActivity ?: return
         val permissionManager = mainActivity.permissionManager
 
-        // Update initial status
         updatePermissionStatus()
 
-        // Photo permission button
-        binding.photoPermissionButton.setOnClickListener {
-            val status = permissionManager.getPhotoPermissionStatus()
-            if (status == PhotoPermissionStatus.LIMITED_ACCESS) {
-                // Show dialog with options
-                MaterialAlertDialogBuilder(requireContext())
-                    .setTitle(getString(R.string.permission_limited_access_title))
-                    .setMessage(getString(R.string.permission_limited_access_message))
-                    .setPositiveButton(getString(R.string.permission_select_more_photos)) { _, _ ->
-                        permissionManager.requestMorePhotoAccess {
-                            updatePermissionStatus()
-                        }
-                    }
-                    .setNeutralButton(getString(R.string.permission_open_settings)) { _, _ ->
-                        permissionManager.openAppSettings()
-                    }
-                    .setNegativeButton(getString(R.string.cancel), null)
-                    .show()
-            } else {
-                permissionManager.openAppSettings()
-            }
-        }
-
-        // Camera permission button
         binding.cameraPermissionButton.setOnClickListener {
             if (!permissionManager.isCameraPermissionGranted()) {
                 permissionManager.checkCameraPermissionAndExecute {
@@ -243,7 +217,6 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        // Location permission button
         binding.locationPermissionButton.setOnClickListener {
             if (!permissionManager.isLocationPermissionGranted()) {
                 permissionManager.checkLocationPermissionAndExecute {
@@ -259,30 +232,13 @@ class SettingsFragment : Fragment() {
         val mainActivity = activity as? MainActivity ?: return
         val permissionManager = mainActivity.permissionManager
 
-        // Update photo permission status
-        val photoStatus = permissionManager.getPhotoPermissionStatus()
-        binding.photoPermissionStatus.text = when (photoStatus) {
-            PhotoPermissionStatus.FULL_ACCESS -> getString(R.string.permission_photos_full)
-            PhotoPermissionStatus.LIMITED_ACCESS -> getString(R.string.permission_photos_limited)
-            PhotoPermissionStatus.NO_ACCESS -> getString(R.string.permission_photos_none)
-        }
-        binding.photoPermissionButton.text = when (photoStatus) {
-            PhotoPermissionStatus.NO_ACCESS -> getString(R.string.permission_manage)
-            PhotoPermissionStatus.LIMITED_ACCESS -> getString(R.string.permission_change_access)
-            PhotoPermissionStatus.FULL_ACCESS -> getString(R.string.permission_manage)
-        }
-
-        // Update camera permission status
-        val cameraGranted = permissionManager.isCameraPermissionGranted()
-        binding.cameraPermissionStatus.text = if (cameraGranted) {
+        binding.cameraPermissionStatus.text = if (permissionManager.isCameraPermissionGranted()) {
             getString(R.string.permission_granted)
         } else {
             getString(R.string.permission_not_granted)
         }
 
-        // Update location permission status
-        val locationGranted = permissionManager.isLocationPermissionGranted()
-        binding.locationPermissionStatus.text = if (locationGranted) {
+        binding.locationPermissionStatus.text = if (permissionManager.isLocationPermissionGranted()) {
             getString(R.string.permission_granted)
         } else {
             getString(R.string.permission_not_granted)

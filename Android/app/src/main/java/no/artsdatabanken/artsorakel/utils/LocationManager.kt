@@ -108,11 +108,8 @@ class LocationManager(private val context: Context) {
         val longitudeRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
         val longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
 
-        android.util.Log.d("LocationManager", "EXIF GPS Tags:")
-        android.util.Log.d("LocationManager", "  TAG_GPS_LATITUDE: $latitude")
-        android.util.Log.d("LocationManager", "  TAG_GPS_LATITUDE_REF: $latitudeRef")
-        android.util.Log.d("LocationManager", "  TAG_GPS_LONGITUDE: $longitude")
-        android.util.Log.d("LocationManager", "  TAG_GPS_LONGITUDE_REF: $longitudeRef")
+        android.util.Log.d("LocationManager", "EXIF GPS Tags: lat=$latitude, latRef=$latitudeRef, lon=$longitude, lonRef=$longitudeRef")
+        android.widget.Toast.makeText(context, "EXIF: lat=$latitude, lon=$longitude", android.widget.Toast.LENGTH_LONG).show()
 
         // First try manual parsing, as it's more reliable
         if (latitude != null && longitude != null) {

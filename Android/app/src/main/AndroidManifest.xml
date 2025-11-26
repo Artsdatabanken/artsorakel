@@ -11,8 +11,6 @@
     <!-- Permissions for reading storage -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <!-- For Android 14+ Selected Photos Access -->
-    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED" />
     <!-- Permission for writing to external storage to save images to gallery -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
     <!-- Location permissions for geotagging photos -->
