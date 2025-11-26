@@ -121,16 +121,37 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
      * Handles different permissions based on Android version
      */
     fun checkStoragePermissionAndExecute(action: () -> Unit) {
-        val permission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            Manifest.permission.READ_MEDIA_IMAGES
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // Android 14+: Accept either full access OR limited access
+            val hasFullAccess = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+            val hasLimitedAccess = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasFullAccess || hasLimitedAccess) {
+                action()
+            } else {
+                handlePermission(
+                    Manifest.permission.READ_MEDIA_IMAGES,
+                    "Storage permission is needed to select images",
+                    action
+                )
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            handlePermission(
+                Manifest.permission.READ_MEDIA_IMAGES,
+                "Storage permission is needed to select images",
+                action
+            )
         } else {
-            Manifest.permission.READ_EXTERNAL_STORAGE
+            handlePermission(
+                Manifest.permission.READ_EXTERNAL_STORAGE,
+                "Storage permission is needed to select images",
+                action
+            )
         }
-        handlePermission(
-            permission,
-            "Storage permission is needed to select images",
-            action
-        )
     }
 
     /**
@@ -152,15 +173,24 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
     }
 
     /**
-     * Checks ACCESS_MEDIA_LOCATION permission for Android 10+ to read location from images
+     * Checks ACCESS_MEDIA_LOCATION permission for Android 10+ to read location from images.
+     * This permission must be explicitly granted - it is NOT included with limited photo access.
      */
     fun checkMediaLocationPermissionAndExecute(action: () -> Unit) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            handlePermission(
-                Manifest.permission.ACCESS_MEDIA_LOCATION,
-                "Permission is needed to read location data from images",
-                action
-            )
+            val hasMediaLocation = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.ACCESS_MEDIA_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (hasMediaLocation) {
+                action()
+            } else {
+                handlePermission(
+                    Manifest.permission.ACCESS_MEDIA_LOCATION,
+                    "Permission is needed to read location data from images",
+                    action
+                )
+            }
         } else {
             // For Android 9 and below, no special permission needed
             action()

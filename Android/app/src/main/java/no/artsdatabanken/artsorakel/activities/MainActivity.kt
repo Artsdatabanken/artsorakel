@@ -1,6 +1,8 @@
 package no.artsdatabanken.artsorakel.activities
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -11,6 +13,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.core.view.GravityCompat
@@ -279,11 +282,11 @@ class MainActivity : AppCompatActivity() {
             }
             
             // Gallery button on main screen
+            // Note: OpenDocument (SAF) doesn't require storage permissions - the system
+            // file picker grants access to whatever file the user selects
             fabCameraGallery.setOnClickListener {
                 viewModel.setLastInputMethod(false)
-                permissionManager.checkStoragePermissionAndExecute { 
-                    imageOperationsManager.launchImagePicker() 
-                }
+                imageOperationsManager.launchImagePicker()
             }
 
             buttonMenu.setOnClickListener { 
@@ -304,7 +307,16 @@ class MainActivity : AppCompatActivity() {
     private fun setupResultLaunchers() {
         requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (::permissionManager.isInitialized) {
-                permissionManager.handlePermissionResult(isGranted)
+                // On Android 14+, "limited access" reports as denied for READ_MEDIA_IMAGES
+                // but grants READ_MEDIA_VISUAL_USER_SELECTED. Check actual state.
+                val actuallyGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                    isGranted || ContextCompat.checkSelfPermission(
+                        this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED
+                    ) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    isGranted
+                }
+                permissionManager.handlePermissionResult(actuallyGranted)
             }
         }
 
@@ -312,6 +324,7 @@ class MainActivity : AppCompatActivity() {
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
                 val location = imageOperationsManager.extractLocationFromImage(it)
+                Toast.makeText(this, "Gallery: $location", Toast.LENGTH_LONG).show()
                 startImageCropper(it, location)
             }
         }
@@ -507,9 +520,8 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                 } else {
-                    permissionManager.checkStoragePermissionAndExecute { 
-                        imageOperationsManager.launchImagePicker() 
-                    }
+                    // OpenDocument (SAF) doesn't require storage permissions
+                    imageOperationsManager.launchImagePicker()
                 }
             }
             is FragmentEvent.SelectSpecies -> {
@@ -808,7 +820,36 @@ class MainActivity : AppCompatActivity() {
                     viewModel.clearImages()
                 }
 
-                val location = imageOperationsManager.extractLocationFromImage(uri)
+                // For shared images, we have URI permission from the sending app.
+                // First try to read location directly.
+                var location = imageOperationsManager.extractLocationFromImage(uri)
+
+                if (location == null) {
+                    // Location was null or redacted. If we have full media access,
+                    // LocationManager already tried MediaStore fallback. If not,
+                    // ask for permissions and retry.
+                    val hasFullAccess = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    } else {
+                        ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                    }
+
+                    if (!hasFullAccess && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        // Ask for permissions to try MediaStore fallback
+                        permissionManager.checkStoragePermissionAndExecute {
+                            permissionManager.checkMediaLocationPermissionAndExecute {
+                                // Retry extraction with new permissions
+                                val retryLocation = imageOperationsManager.extractLocationFromImage(uri)
+                                Toast.makeText(this, "Share: $retryLocation", Toast.LENGTH_LONG).show()
+                                startImageCropper(uri, retryLocation)
+                            }
+                        }
+                        return@let
+                    }
+                }
+
+                Toast.makeText(this, "Share: $location", Toast.LENGTH_LONG).show()
                 startImageCropper(uri, location)
 
                 // Clear only share-related fields so config changes won't re-trigger handling
