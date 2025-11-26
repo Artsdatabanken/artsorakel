@@ -362,7 +362,11 @@ class MainActivity : AppCompatActivity() {
             if (::imageOperationsManager.isInitialized) {
                 imageOperationsManager.clearTempUri()
             }
-            // Reset shared image processing flag
+            // Clear the share intent after cropper finishes (success or cancel)
+            // This prevents re-triggering on future configuration changes
+            if (isProcessingSharedImage) {
+                setIntent(Intent(this, MainActivity::class.java))
+            }
             isProcessingSharedImage = false
         }
     }
@@ -859,14 +863,6 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 startImageCropper(uri, location)
-
-                // Clear only share-related fields so config changes won't re-trigger handling
-                intent.let { i ->
-                    i.action = null
-                    i.removeExtra(Intent.EXTRA_STREAM)
-                    i.type = null
-                    i.clipData = null
-                }
             }
         }
     }
