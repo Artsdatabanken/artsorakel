@@ -30,13 +30,16 @@ enum class NavigationType {
 
 @Singleton
 class NavigationStackManager @Inject constructor() : DefaultLifecycleObserver {
-    
+
     private val navigationStack = Stack<NavigationStackEntry>()
     private val overlayContainers = mutableMapOf<Int, View>()
-    
-    fun initialize(overlayViews: Map<Int, View>) {
+    private val baseContentViews = mutableListOf<View>()
+
+    fun initialize(overlayViews: Map<Int, View>, baseContent: List<View> = emptyList()) {
         overlayContainers.clear()
         overlayContainers.putAll(overlayViews)
+        baseContentViews.clear()
+        baseContentViews.addAll(baseContent)
     }
     
     override fun onDestroy(owner: LifecycleOwner) {
@@ -97,9 +100,30 @@ class NavigationStackManager @Inject constructor() : DefaultLifecycleObserver {
     }
     
     private fun updateVisibility() {
+        // Find which overlay container is on top (if any)
+        val topmostOverlayContainerId = navigationStack
+            .lastOrNull { overlayContainers.containsKey(it.containerId) }
+            ?.containerId
+
+        // Update overlay containers visibility and accessibility
         overlayContainers.forEach { (containerId, view) ->
             val hasEntry = navigationStack.any { it.containerId == containerId }
+            val isTopmost = containerId == topmostOverlayContainerId
+
             view.visibility = if (hasEntry) View.VISIBLE else View.GONE
+            view.importantForAccessibility = if (isTopmost)
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES
+            else
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+        }
+
+        // Base content is accessible only when no overlay is showing
+        val hasAnyOverlay = topmostOverlayContainerId != null
+        baseContentViews.forEach { view ->
+            view.importantForAccessibility = if (hasAnyOverlay)
+                View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
+            else
+                View.IMPORTANT_FOR_ACCESSIBILITY_YES
         }
     }
 

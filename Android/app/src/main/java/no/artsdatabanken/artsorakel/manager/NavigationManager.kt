@@ -43,7 +43,13 @@ class NavigationManager @Inject constructor(
             R.id.speciesDetailsOverlayContainer to activity.findViewById(R.id.speciesDetailsOverlayContainer),
             R.id.settingsOverlayContainer to activity.findViewById(R.id.settingsOverlayContainer)
         )
-        stackManager.initialize(overlayViews)
+        // All base content views that should be hidden from TalkBack when any overlay is shown
+        val baseContentViews = listOf<android.view.View>(
+            activity.findViewById(R.id.headerRow),
+            activity.findViewById(R.id.fragmentContainer),
+            activity.findViewById(R.id.BottomButtonBar)
+        )
+        stackManager.initialize(overlayViews, baseContentViews)
         
         if (stackManager.size() > 0) {
             restoreNavigationState()

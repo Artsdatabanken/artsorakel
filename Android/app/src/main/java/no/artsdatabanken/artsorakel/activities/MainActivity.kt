@@ -323,7 +323,11 @@ class MainActivity : AppCompatActivity() {
         // Use OpenDocument instead of GetContent to preserve EXIF data
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
-                val location = imageOperationsManager.extractLocationFromImage(it)
+                val location = if (settingsManager.isUseLocationForIdEnabled()) {
+                    imageOperationsManager.extractLocationFromImage(it)
+                } else {
+                    null
+                }
                 startImageCropper(it, location)
             }
         }
@@ -332,11 +336,15 @@ class MainActivity : AppCompatActivity() {
             if (success) {
                 if (::imageOperationsManager.isInitialized) {
                     imageOperationsManager.tempImageUri?.let { tempUri ->
-                        // Write location to the temp image
+                        // Write location to the temp image (still write it to EXIF, but may not use it)
                         imageOperationsManager.writeLocationToTempImage()
 
-                        // Get the location for passing to cropper
-                        val location = imageOperationsManager.pendingCameraLocation
+                        // Get the location for passing to cropper only if setting is enabled
+                        val location = if (settingsManager.isUseLocationForIdEnabled()) {
+                            imageOperationsManager.pendingCameraLocation
+                        } else {
+                            null
+                        }
 
                         // Save original image to gallery first
                         saveOriginalImageToGallery(tempUri) {
@@ -820,6 +828,15 @@ class MainActivity : AppCompatActivity() {
                     updateCameraButtonVisibility()
 
                     viewModel.clearImages()
+                }
+
+                // Only try to read location if the setting is enabled
+                val useLocation = settingsManager.isUseLocationForIdEnabled()
+
+                if (!useLocation) {
+                    // Setting disabled - don't use location even if available
+                    startImageCropper(uri, null)
+                    return@let
                 }
 
                 // For shared images, we have URI permission from the sending app.
