@@ -463,8 +463,11 @@ class SpeciesDetailFragment : Fragment() {
         binding.textViewScientificName.visibility = displayData.scientificNameVisibility
 
         binding.textViewGroupName.text = displayData.groupText
-        
-        val text: String = getString(R.string.certainty_text, displayData.certaintyPercentage, displayData.certaintyTextParameter)
+
+        // Check if location was used from ViewModel (simpler than passing through all layers)
+        val wasLocationUsed = viewModel.wasLocationUsed()
+        val certaintyStringRes = if (wasLocationUsed) R.string.certainty_text_with_location else R.string.certainty_text
+        val text: String = getString(certaintyStringRes, displayData.certaintyPercentage, displayData.certaintyTextParameter)
         val styledText: Spanned = Html.fromHtml(text, FROM_HTML_MODE_LEGACY)
         binding.textViewCertainty.text = styledText
 

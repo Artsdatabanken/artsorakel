@@ -226,6 +226,10 @@ class SettingsFragment : Fragment() {
                 permissionManager.openAppSettings()
             }
         }
+
+        binding.photosPermissionButton.setOnClickListener {
+            permissionManager.openAppSettings()
+        }
     }
 
     private fun updatePermissionStatus() {
@@ -242,6 +246,18 @@ class SettingsFragment : Fragment() {
             getString(R.string.permission_granted)
         } else {
             getString(R.string.permission_not_granted)
+        }
+
+        // Photos permission - show on Android 10+ (where media location permission exists)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            binding.photosPermissionRow.visibility = android.view.View.VISIBLE
+            binding.photosPermissionStatus.text = if (permissionManager.isFullPhotosAccessGranted()) {
+                getString(R.string.permission_granted)
+            } else {
+                getString(R.string.permission_not_granted)
+            }
+        } else {
+            binding.photosPermissionRow.visibility = android.view.View.GONE
         }
     }
 

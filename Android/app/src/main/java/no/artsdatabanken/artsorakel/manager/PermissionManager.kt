@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -61,6 +60,33 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
         ) == PackageManager.PERMISSION_GRANTED
 
         return hasFine || hasCoarse
+    }
+
+    /**
+     * Checks if full photos access is granted (READ_MEDIA_IMAGES + ACCESS_MEDIA_LOCATION).
+     * Returns true only if both are granted, which allows reading location from shared images.
+     */
+    fun isFullPhotosAccessGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasReadMedia = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+            val hasMediaLocation = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.ACCESS_MEDIA_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            hasReadMedia && hasMediaLocation
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val hasReadStorage = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.READ_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+            val hasMediaLocation = ContextCompat.checkSelfPermission(
+                activity, Manifest.permission.ACCESS_MEDIA_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            hasReadStorage && hasMediaLocation
+        } else {
+            // Before Android 10, no special permission needed for EXIF
+            true
+        }
     }
 
     fun openAppSettings() {
@@ -212,7 +238,6 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
             }
         } else {
             onPermissionDenied?.invoke()
-            showPermissionDeniedMessage()
         }
     }
 
@@ -221,20 +246,11 @@ class PermissionManager @Inject constructor() : DefaultLifecycleObserver {
             ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED -> {
                 grantedAction()
             }
-            activity.shouldShowRequestPermissionRationale(permission) -> {
-                Toast.makeText(activity, rationale, Toast.LENGTH_LONG).show()
-                pendingAction = grantedAction
-                requestPermissionLauncher.launch(permission)
-            }
             else -> {
                 pendingAction = grantedAction
                 requestPermissionLauncher.launch(permission)
             }
         }
-    }
-
-    private fun showPermissionDeniedMessage() {
-        Toast.makeText(activity, "Permission denied.", Toast.LENGTH_SHORT).show()
     }
 
     private fun clearCallbacks() {

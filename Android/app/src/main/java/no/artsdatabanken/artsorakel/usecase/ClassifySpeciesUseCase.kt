@@ -38,12 +38,14 @@ class ClassifySpeciesUseCase @Inject constructor(
     sealed class ClassificationResult {
         data class Success(
             val predictions: List<PredictionResult>,
-            val warnings: Warnings?
+            val warnings: Warnings?,
+            val locationUsed: Boolean = false
         ) : ClassificationResult()
         data class PartialFailure(
             val predictions: List<PredictionResult>,
             val warnings: Warnings?,
-            val failedImageCount: Int
+            val failedImageCount: Int,
+            val locationUsed: Boolean = false
         ) : ClassificationResult()
         data class Failure(val error: AppError) : ClassificationResult()
     }
@@ -103,6 +105,7 @@ class ClassifySpeciesUseCase @Inject constructor(
             )
             
             // Step 4: Handle repository result
+            val locationUsed = location != null
             return repositoryResult.fold(
                 onSuccess = { result ->
                     if (failedUris.isNotEmpty()) {
@@ -110,11 +113,12 @@ class ClassifySpeciesUseCase @Inject constructor(
                         ClassificationResult.PartialFailure(
                             predictions = result.predictions,
                             warnings = result.warnings,
-                            failedImageCount = failedUris.size
+                            failedImageCount = failedUris.size,
+                            locationUsed = locationUsed
                         )
                     } else {
                         // All images processed successfully
-                        ClassificationResult.Success(result.predictions, result.warnings)
+                        ClassificationResult.Success(result.predictions, result.warnings, locationUsed)
                     }
                 },
                 onFailure = { exception ->

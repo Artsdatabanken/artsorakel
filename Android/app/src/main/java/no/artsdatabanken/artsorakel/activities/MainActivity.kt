@@ -324,7 +324,6 @@ class MainActivity : AppCompatActivity() {
         pickImageLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
             uri?.let {
                 val location = imageOperationsManager.extractLocationFromImage(it)
-                Toast.makeText(this, "Gallery: $location", Toast.LENGTH_LONG).show()
                 startImageCropper(it, location)
             }
         }
@@ -797,8 +796,7 @@ class MainActivity : AppCompatActivity() {
                 val currentState = viewModel.uiState.value
                 val hasExistingImages = viewModel.selectedImageUris.value.isNotEmpty()
 
-                if (hasExistingImages && currentState is UiState.Idle) {
-                } else {
+                if (!(hasExistingImages && currentState is UiState.Idle)) {
                     // Any other state, reset UI and clear images
                     if (binding.drawerLayout.isDrawerOpen(GravityCompat.END)) {
                         drawerManager.closeDrawer()
@@ -822,12 +820,10 @@ class MainActivity : AppCompatActivity() {
 
                 // For shared images, we have URI permission from the sending app.
                 // First try to read location directly.
-                var location = imageOperationsManager.extractLocationFromImage(uri)
+                val location = imageOperationsManager.extractLocationFromImage(uri)
 
-                if (location == null) {
-                    // Location was null or redacted. If we have full media access,
-                    // LocationManager already tried MediaStore fallback. If not,
-                    // ask for permissions and retry.
+                if (location == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Location was null or redacted. Check if we can try MediaStore fallback.
                     val hasFullAccess = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
                         ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -835,13 +831,26 @@ class MainActivity : AppCompatActivity() {
                         ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                     }
 
-                    if (!hasFullAccess && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        // Ask for permissions to try MediaStore fallback
+                    if (!hasFullAccess) {
+                        // No full access - ask for permissions to try MediaStore fallback
                         permissionManager.checkStoragePermissionAndExecute {
                             permissionManager.checkMediaLocationPermissionAndExecute {
-                                // Retry extraction with new permissions
+                                // Check if user chose "limited access" instead of "allow all"
+                                val gotFullAccess = ContextCompat.checkSelfPermission(
+                                    this, Manifest.permission.READ_MEDIA_IMAGES
+                                ) == PackageManager.PERMISSION_GRANTED
+
+                                if (!gotFullAccess && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                                    // User chose limited access - revoke it so they get asked again next time
+                                    // Limited access doesn't help us read location from MediaStore
+                                    revokeSelfPermissionOnKill(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+
+                                    // Warn user that location couldn't be read
+                                    Toast.makeText(this, getString(R.string.warning_partial_access_no_location), Toast.LENGTH_LONG).show()
+                                }
+
+                                // Retry extraction (may work if full access was granted)
                                 val retryLocation = imageOperationsManager.extractLocationFromImage(uri)
-                                Toast.makeText(this, "Share: $retryLocation", Toast.LENGTH_LONG).show()
                                 startImageCropper(uri, retryLocation)
                             }
                         }
@@ -849,7 +858,6 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                Toast.makeText(this, "Share: $location", Toast.LENGTH_LONG).show()
                 startImageCropper(uri, location)
 
                 // Clear only share-related fields so config changes won't re-trigger handling

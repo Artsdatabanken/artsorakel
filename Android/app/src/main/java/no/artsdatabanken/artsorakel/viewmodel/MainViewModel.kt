@@ -49,7 +49,8 @@ sealed class UiState {
         val results: List<PredictionResult>,
         val warnings: Warnings? = null,
         val isHistorical: Boolean = false,
-        val historicalDate: java.util.Date? = null
+        val historicalDate: java.util.Date? = null,
+        val locationUsed: Boolean = false
     ) : UiState()
     data class Error(val error: AppError) : UiState() {
         // Convenience property for UI
@@ -71,6 +72,13 @@ class MainViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
     val uiState: StateFlow<UiState> = _uiState.asStateFlow()
+
+    /**
+     * Returns whether location was used for the current identification results.
+     */
+    fun wasLocationUsed(): Boolean {
+        return (_uiState.value as? UiState.Success)?.locationUsed ?: false
+    }
     
     // Event system for fragment communication
     private val _fragmentEvents = Channel<FragmentEvent>(Channel.BUFFERED)
@@ -354,7 +362,8 @@ class MainViewModel @Inject constructor(
                         isViewingHistoricalResults = false
                         _uiState.value = UiState.Success(
                             results = classificationResult.predictions,
-                            warnings = classificationResult.warnings
+                            warnings = classificationResult.warnings,
+                            locationUsed = classificationResult.locationUsed
                         )
                         // Save to history
                         saveToHistory(context, classificationResult.predictions, classificationResult.warnings, urisToProcess)
@@ -371,7 +380,8 @@ class MainViewModel @Inject constructor(
                         isViewingHistoricalResults = false
                         _uiState.value = UiState.Success(
                             results = classificationResult.predictions,
-                            warnings = classificationResult.warnings
+                            warnings = classificationResult.warnings,
+                            locationUsed = classificationResult.locationUsed
                         )
                         // Save to history
                         saveToHistory(context, classificationResult.predictions, classificationResult.warnings, urisToProcess)
