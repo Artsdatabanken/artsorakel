@@ -1,7 +1,6 @@
 // File: PredictionResultAdapter.kt
 package no.artsdatabanken.artsorakel.adapter
 
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import no.artsdatabanken.artsorakel.databinding.ListItemPredictionBinding
 import no.artsdatabanken.artsorakel.model.PredictionResult
-import no.artsdatabanken.artsorakel.R
 import no.artsdatabanken.artsorakel.core.SpeciesDisplayData
-import java.util.Locale
 
 class PredictionResultAdapter(
     private val onItemClick: (PredictionResult) -> Unit = {}
@@ -25,7 +22,7 @@ class PredictionResultAdapter(
 
     override fun getItemId(position: Int): Long {
         // Use a stable hash of the unique ID
-        return getItem(position).id?.hashCode()?.toLong() ?: RecyclerView.NO_ID
+        return getItem(position).id.hashCode().toLong()
     }
 
     // ViewHolder holds references to the views in list_item_prediction.xml
@@ -44,6 +41,7 @@ class PredictionResultAdapter(
             binding.textViewScientificName.visibility = displayData.scientificNameVisibility
             
             binding.textViewGroupName.text = displayData.groupText
+            binding.textViewGroupName.visibility = if (displayData.groupText.isNotBlank()) View.VISIBLE else View.GONE
 
             // Load image using Coil with group-specific placeholder
             binding.imageViewPrediction.load(result.pictureUrl) {

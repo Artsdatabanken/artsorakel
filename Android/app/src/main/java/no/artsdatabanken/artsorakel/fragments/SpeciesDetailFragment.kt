@@ -246,17 +246,6 @@ class SpeciesDetailFragment : Fragment() {
         }
     }
 
-    private fun getDisplayName(): String {
-        // Get the appropriate display name based on current language
-        val context = requireContext()
-        val languageManager = no.artsdatabanken.artsorakel.manager.LanguageManager(context)
-        val currentLanguage = languageManager.getCurrentLanguageTag()
-
-        return vernacularNames?.get(currentLanguage)
-            ?: scientificName
-            ?: getString(R.string.unknown_species)
-    }
-
     private fun openInfoUrl() {
         infoUrl?.let { url ->
             if (url.isNotBlank()) {
@@ -463,6 +452,7 @@ class SpeciesDetailFragment : Fragment() {
         binding.textViewScientificName.visibility = displayData.scientificNameVisibility
 
         binding.textViewGroupName.text = displayData.groupText
+        binding.textViewGroupName.visibility = if (displayData.groupText.isNotBlank()) View.VISIBLE else View.GONE
 
         // Check if location was used from ViewModel (simpler than passing through all layers)
         val wasLocationUsed = viewModel.wasLocationUsed()

@@ -74,8 +74,8 @@ class FaqFragment : Fragment() {
 
     private fun loadFaqFromJson(): List<FaqItem> {
         return try {
-            val languageTag = when (languageManager.getCurrentLanguage().languageTag) {
-                "nb" -> "nb"
+            val languageTag = when (languageManager.getEffectiveLanguageTag()) {
+                "nb", "no" -> "nb"
                 "nn" -> "nn"
                 "nl" -> "nl"
                 "es" -> "es"

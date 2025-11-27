@@ -13,7 +13,7 @@
         android:id="@+id/rootConstraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:backgroundTint="?attr/surface_primary"
+        android:backgroundTint="?attr/background_default"
         android:clipChildren="false">
 
         <!-- Header Section -->
@@ -23,6 +23,7 @@
             android:layout_height="64dp"
             android:orientation="horizontal"
             android:paddingTop="4dp"
+            android:background="?attr/background_default"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -62,7 +63,7 @@
                 android:src="@drawable/chevron_separator"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:tint="?attr/border_default"
+                app:tint="?attr/background_strong"
                 />
 
             <TextView
