@@ -90,7 +90,8 @@ class DisclaimerDialogFragment : DialogFragment() {
         // Load and display HTML content with styling
         try {
             val htmlContent = HtmlLoader.loadHtml(requireContext(), "disclaimer", languageManager)
-            val styledHtmlContent = injectAppStyling(htmlContent, themeColors)
+            val processedContent = inlineSvgImages(htmlContent, themeColors)
+            val styledHtmlContent = injectAppStyling(processedContent, themeColors)
             contentWebView.loadDataWithBaseURL(
                 "file:///android_asset/", 
                 styledHtmlContent, 
@@ -163,6 +164,44 @@ class DisclaimerDialogFragment : DialogFragment() {
         return ThemeColors(backgroundColor, textColor)
     }
     
+    /**
+     * Inline SVG images so they can inherit CSS color via currentColor
+     */
+    private fun inlineSvgImages(htmlContent: String, themeColors: ThemeColors): String {
+        val textColorHex = String.format("#%06X", (0xFFFFFF and themeColors.textColor))
+        var result = htmlContent
+
+        // Find all <img src="file:///android_asset/...svg"> tags and replace with inline SVG
+        val imgPattern = """<img\s+src="file:///android_asset/([^"]+\.svg)"([^>]*)/>""".toRegex()
+
+        imgPattern.findAll(htmlContent).forEach { match ->
+            val svgFileName = match.groupValues[1]
+            val imgAttributes = match.groupValues[2]
+
+            try {
+                val svgContent = requireContext().assets.open(svgFileName).bufferedReader().use { it.readText() }
+
+                // Extract style from img tag if present
+                val styleMatch = """style="([^"]*)"""".toRegex().find(imgAttributes)
+                val style = styleMatch?.groupValues?.get(1) ?: ""
+
+                // Remove XML declaration and add color style to SVG tag
+                val cleanedSvg = svgContent
+                    .replace("""<\?xml[^>]+\?>""".toRegex(), "")
+                    .replace("""<svg""".toRegex(), """<svg style="color: $textColorHex; $style" """)
+                    .trim()
+
+                val inlinedSvg = """<div style="text-align: center;">$cleanedSvg</div>"""
+
+                result = result.replace(match.value, inlinedSvg)
+            } catch (e: Exception) {
+                // If we can't load the SVG, keep the original img tag
+            }
+        }
+
+        return result
+    }
+
     /**
      * Inject app styling into HTML content with actual theme colors
      */
