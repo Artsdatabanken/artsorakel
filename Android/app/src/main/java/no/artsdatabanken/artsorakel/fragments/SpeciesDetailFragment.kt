@@ -34,6 +34,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import no.artsdatabanken.artsorakel.service.ImageCacheService
 import no.artsdatabanken.artsorakel.viewmodel.MainViewModel
+import no.artsdatabanken.artsorakel.viewmodel.UiState
 import javax.inject.Inject
 import no.artsdatabanken.artsorakel.R
 import no.artsdatabanken.artsorakel.adapter.ImageCarouselAdapter
@@ -44,7 +45,6 @@ import no.artsdatabanken.artsorakel.model.ModelInfo
 import no.artsdatabanken.artsorakel.repository.SpeciesRepository
 import no.artsdatabanken.artsorakel.service.ImageProcessingService
 import androidx.core.net.toUri
-import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class SpeciesDetailFragment : Fragment() {
@@ -282,6 +282,26 @@ class SpeciesDetailFragment : Fragment() {
             // No images to upload, open URL without image reference
             openReportUrl(scientificNameId, null, null)
             return
+        }
+
+        // Check if we have a fresh upload ID (less than 25 minutes old)
+        val uiState = viewModel.uiState.value
+        if (uiState is UiState.Success) {
+            val uploadId = uiState.uploadId
+            val uploadSecret = uiState.uploadSecret
+            val timestamp = uiState.identificationTimestamp
+
+            if (uploadId != null && uploadSecret != null) {
+                val ageMinutes = (System.currentTimeMillis() - timestamp.time) / (1000 * 60)
+                if (ageMinutes < 25) {
+                    // Upload credentials are fresh, use them directly
+                    Logger.d("SpeciesDetail", "Using existing upload credentials (age: ${ageMinutes}min)")
+                    openReportUrl(scientificNameId, uploadId, uploadSecret)
+                    return
+                } else {
+                    Logger.d("SpeciesDetail", "Upload credentials are stale (age: ${ageMinutes}min), getting new ones")
+                }
+            }
         }
 
         // Extract cropped URIs from the image pairs

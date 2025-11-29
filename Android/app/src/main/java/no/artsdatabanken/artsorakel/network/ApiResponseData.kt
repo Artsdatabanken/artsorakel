@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName
 data class ApiResponse(
     val predictions: List<PredictionDto>?,
     val modelInfo: ModelInfoDto?,
-    val warnings: WarningsDto?
+    val warnings: WarningsDto?,
+    val uploadId: String?,
+    val uploadSecret: String?
 )
 
 data class WarningsDto(

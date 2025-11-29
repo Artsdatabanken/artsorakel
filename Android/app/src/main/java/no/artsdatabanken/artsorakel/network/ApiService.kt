@@ -18,7 +18,7 @@ interface ApiService {
 
     @Headers("Accept: */*")
     @Multipart
-    @POST("/")
+    @POST("/identify")
     suspend fun classifyImages(
         @Part image: List<MultipartBody.Part>,
         @Part("application") application: RequestBody,

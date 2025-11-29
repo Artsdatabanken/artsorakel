@@ -41,7 +41,9 @@ data class IdentificationHistory(
     val thumbnailPaths: List<String>, // Local paths to saved thumbnails (200x200)
     val originalImagePaths: List<String>, // Original image locations (content URIs, may expire)
     val fullSizeImagePaths: List<String> = emptyList(), // Local paths to saved full-size images (1024x1024) for reporting
-    val warnings: String? = null // JSON string of Warnings object
+    val warnings: String? = null, // JSON string of Warnings object
+    val uploadId: String? = null, // Upload ID from server for reporting to artsobservasjoner
+    val uploadSecret: String? = null // Upload secret from server for reporting to artsobservasjoner
 ) {
     /**
      * Gets the vernacular name for a specific language from stored JSON
@@ -57,51 +59,15 @@ data class IdentificationHistory(
                 ) as? Map<String, String>
 
                 return namesMap?.get(languageCode)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Return null on error
             }
         }
         return null
     }
 
-    /**
-     * Gets any available Norwegian name (nb or nn)
-     */
-    fun getNorwegianName(): String? {
-        bestMatchVernacularNames?.let { json ->
-            try {
-                val namesMap = com.google.gson.Gson().fromJson(
-                    json,
-                    object : com.google.gson.reflect.TypeToken<Map<String, String>>() {}.type
-                ) as? Map<String, String>
 
-                return namesMap?.get("nb") ?: namesMap?.get("nn")
-            } catch (e: Exception) {
-                // Return null on error
-            }
-        }
-        return null
-    }
 
-    /**
-     * Gets the group name for a specific language from stored JSON
-     * Returns null if not available in the requested language
-     */
-    fun getGroupNameForLanguage(languageCode: String): String? {
-        bestMatchGroupNames?.let { json ->
-            try {
-                val namesMap = com.google.gson.Gson().fromJson(
-                    json,
-                    object : com.google.gson.reflect.TypeToken<Map<String, String>>() {}.type
-                ) as? Map<String, String>
-
-                return namesMap?.get(languageCode)
-            } catch (e: Exception) {
-                // Return null on error
-            }
-        }
-        return null
-    }
 }
 
 /**

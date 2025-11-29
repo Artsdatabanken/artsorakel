@@ -39,13 +39,17 @@ class ClassifySpeciesUseCase @Inject constructor(
         data class Success(
             val predictions: List<PredictionResult>,
             val warnings: Warnings?,
-            val locationUsed: Boolean = false
+            val locationUsed: Boolean = false,
+            val uploadId: String? = null,
+            val uploadSecret: String? = null
         ) : ClassificationResult()
         data class PartialFailure(
             val predictions: List<PredictionResult>,
             val warnings: Warnings?,
             val failedImageCount: Int,
-            val locationUsed: Boolean = false
+            val locationUsed: Boolean = false,
+            val uploadId: String? = null,
+            val uploadSecret: String? = null
         ) : ClassificationResult()
         data class Failure(val error: AppError) : ClassificationResult()
     }
@@ -114,11 +118,19 @@ class ClassifySpeciesUseCase @Inject constructor(
                             predictions = result.predictions,
                             warnings = result.warnings,
                             failedImageCount = failedUris.size,
-                            locationUsed = locationUsed
+                            locationUsed = locationUsed,
+                            uploadId = result.uploadId,
+                            uploadSecret = result.uploadSecret
                         )
                     } else {
                         // All images processed successfully
-                        ClassificationResult.Success(result.predictions, result.warnings, locationUsed)
+                        ClassificationResult.Success(
+                            predictions = result.predictions,
+                            warnings = result.warnings,
+                            locationUsed = locationUsed,
+                            uploadId = result.uploadId,
+                            uploadSecret = result.uploadSecret
+                        )
                     }
                 },
                 onFailure = { exception ->

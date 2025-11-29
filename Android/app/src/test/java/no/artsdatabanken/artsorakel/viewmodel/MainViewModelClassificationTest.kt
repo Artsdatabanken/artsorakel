@@ -93,7 +93,7 @@ class MainViewModelClassificationTest {
         // Stubs
         val ctx = mockk<Context>(relaxed = true)
         val predictions = listOf(PredictionResult(id = "1", vernacularNames = mapOf("en" to "A", "nb" to "A"), scientificName = "B", probability = 0.9, pictureUrl = null, groupNames = mapOf("en" to "G", "nb" to "G"), infoUrl = null, modelInfo = null, redListCategory = null, invasiveCategory = null))
-        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.Success(predictions, null)
+        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.Success(predictions, null, false, "test-upload-id", "test-upload-secret")
         coEvery { thumbnailService.createAndSaveThumbnails(any(), any()) } returns emptyList()
         every { settingsManager.isSaveHistoryEnabled() } returns false
 
@@ -103,7 +103,11 @@ class MainViewModelClassificationTest {
         viewModel.classifyImagesFromUris(ctx)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(UiState.Success(predictions), viewModel.uiState.value)
+        val state = viewModel.uiState.value
+        assert(state is UiState.Success)
+        assertEquals(predictions, (state as UiState.Success).results)
+        assertEquals("test-upload-id", state.uploadId)
+        assertEquals("test-upload-secret", state.uploadSecret)
         job.cancel()
     }
 
@@ -144,7 +148,7 @@ class MainViewModelClassificationTest {
 
         val ctx = mockk<Context>(relaxed = true)
         val predictions = listOf(PredictionResult(id = "1", vernacularNames = mapOf("en" to "A", "nb" to "A"), scientificName = "B", probability = 0.9, pictureUrl = null, groupNames = mapOf("en" to "G", "nb" to "G"), infoUrl = null, modelInfo = null, redListCategory = null, invasiveCategory = null))
-        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.PartialFailure(predictions, null, failedImageCount = 1)
+        coEvery { classifySpeciesUseCase.classifySpecies(any(), any(), any()) } returns ClassifySpeciesUseCase.ClassificationResult.PartialFailure(predictions, null, failedImageCount = 1, uploadId = "test-upload-id", uploadSecret = "test-upload-secret")
         coEvery { thumbnailService.createAndSaveThumbnails(any(), any()) } returns emptyList()
         every { settingsManager.isSaveHistoryEnabled() } returns false
 
@@ -152,7 +156,9 @@ class MainViewModelClassificationTest {
         viewModel.classifyImagesFromUris(ctx)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        assertEquals(UiState.Success(predictions), viewModel.uiState.value)
+        val state = viewModel.uiState.value
+        assert(state is UiState.Success)
+        assertEquals(predictions, (state as UiState.Success).results)
         job.cancel()
     }
 }

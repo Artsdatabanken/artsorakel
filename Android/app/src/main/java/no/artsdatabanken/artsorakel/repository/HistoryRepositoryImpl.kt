@@ -41,7 +41,9 @@ class HistoryRepositoryImpl @Inject constructor(
         warnings: Warnings?,
         imagePaths: List<String>,
         thumbnailPaths: List<String>,
-        fullSizeImagePaths: List<String>
+        fullSizeImagePaths: List<String>,
+        uploadId: String?,
+        uploadSecret: String?
     ): Long {
         return withContext(Dispatchers.IO) {
             // Get the best match (first result with highest probability)
@@ -64,7 +66,9 @@ class HistoryRepositoryImpl @Inject constructor(
                 thumbnailPaths = thumbnailPaths,
                 originalImagePaths = imagePaths,
                 fullSizeImagePaths = fullSizeImagePaths,
-                warnings = warningsJson
+                warnings = warningsJson,
+                uploadId = uploadId,
+                uploadSecret = uploadSecret
             )
 
             historyDao.insertHistory(historyEntry)

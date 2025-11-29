@@ -48,7 +48,7 @@ class SpeciesRepositoryImplTest {
         
         val taxaInfoDto = TaxaInfoDto(items = listOf(taxonItem), type = "species")
         val predictionDto = PredictionDto(regionGroupId = "1", taxa = taxaInfoDto)
-        val apiResponse = ApiResponse(predictions = listOf(predictionDto), modelInfo = null, warnings = null)
+        val apiResponse = ApiResponse(predictions = listOf(predictionDto), modelInfo = null, warnings = null, uploadId = "test-upload-id", uploadSecret = "test-upload-secret")
 
         coEvery { mockApiService.classifyImages(any(), any(), any(), any()) } returns apiResponse
 
@@ -68,7 +68,7 @@ class SpeciesRepositoryImplTest {
     @Test
     fun `identifySpecies - success with empty response`() = runTest {
         // Arrange
-        val apiResponse = ApiResponse(predictions = emptyList(), modelInfo = null, warnings = null)
+        val apiResponse = ApiResponse(predictions = emptyList(), modelInfo = null, warnings = null, uploadId = null, uploadSecret = null)
         coEvery { mockApiService.classifyImages(any(), any(), any(), any()) } returns apiResponse
 
         // Act

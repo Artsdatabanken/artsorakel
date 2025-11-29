@@ -32,6 +32,8 @@ interface HistoryRepository {
      * @param imagePaths List of image file paths used for identification
      * @param thumbnailPaths List of saved thumbnail paths (200x200)
      * @param fullSizeImagePaths List of saved full-size image paths (1024x1024) for reporting
+     * @param uploadId Upload ID from server for reporting to artsobservasjoner (optional)
+     * @param uploadSecret Upload secret from server for reporting to artsobservasjoner (optional)
      * @return The ID of the saved history entry
      */
     suspend fun saveIdentificationToHistory(
@@ -39,7 +41,9 @@ interface HistoryRepository {
         warnings: Warnings? = null,
         imagePaths: List<String>,
         thumbnailPaths: List<String>,
-        fullSizeImagePaths: List<String> = emptyList()
+        fullSizeImagePaths: List<String> = emptyList(),
+        uploadId: String? = null,
+        uploadSecret: String? = null
     ): Long
     
     /**

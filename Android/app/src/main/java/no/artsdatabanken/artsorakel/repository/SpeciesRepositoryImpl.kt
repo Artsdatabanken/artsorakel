@@ -89,7 +89,12 @@ class SpeciesRepositoryImpl @Inject constructor(
             val warnings = mapApiResponseToWarnings(apiResponse)
 
             if (predictionResults.isNotEmpty()) {
-                Result.success(IdentificationResult(predictionResults, warnings))
+                Result.success(IdentificationResult(
+                    predictions = predictionResults,
+                    warnings = warnings,
+                    uploadId = apiResponse.uploadId,
+                    uploadSecret = apiResponse.uploadSecret
+                ))
             } else {
                 val error = ErrorMapper.createNoResultsFoundError()
                 error.logError("SpeciesRepository")

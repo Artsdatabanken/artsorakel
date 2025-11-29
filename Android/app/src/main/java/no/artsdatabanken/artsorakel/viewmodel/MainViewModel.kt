@@ -38,7 +38,6 @@ import no.artsdatabanken.artsorakel.core.errors.safeLaunch
 import no.artsdatabanken.artsorakel.core.FragmentEvent
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
-import androidx.core.net.toUri
 
 // Sealed class to represent UI State
 sealed class UiState {
@@ -50,7 +49,10 @@ sealed class UiState {
         val warnings: Warnings? = null,
         val isHistorical: Boolean = false,
         val historicalDate: java.util.Date? = null,
-        val locationUsed: Boolean = false
+        val locationUsed: Boolean = false,
+        val uploadId: String? = null,
+        val uploadSecret: String? = null,
+        val identificationTimestamp: java.util.Date = java.util.Date() // When the identification was made
     ) : UiState()
     data class Error(val error: AppError) : UiState() {
         // Convenience property for UI
@@ -364,10 +366,19 @@ class MainViewModel @Inject constructor(
                         _uiState.value = UiState.Success(
                             results = classificationResult.predictions,
                             warnings = classificationResult.warnings,
-                            locationUsed = classificationResult.locationUsed
+                            locationUsed = classificationResult.locationUsed,
+                            uploadId = classificationResult.uploadId,
+                            uploadSecret = classificationResult.uploadSecret
                         )
                         // Save to history
-                        saveToHistory(context, classificationResult.predictions, classificationResult.warnings, urisToProcess)
+                        saveToHistory(
+                            context,
+                            classificationResult.predictions,
+                            classificationResult.warnings,
+                            urisToProcess,
+                            classificationResult.uploadId,
+                            classificationResult.uploadSecret
+                        )
                         // Preload images for better user experience
                         preloadSpeciesImages(classificationResult.predictions)
                         // Signal that results are ready to display
@@ -382,10 +393,19 @@ class MainViewModel @Inject constructor(
                         _uiState.value = UiState.Success(
                             results = classificationResult.predictions,
                             warnings = classificationResult.warnings,
-                            locationUsed = classificationResult.locationUsed
+                            locationUsed = classificationResult.locationUsed,
+                            uploadId = classificationResult.uploadId,
+                            uploadSecret = classificationResult.uploadSecret
                         )
                         // Save to history
-                        saveToHistory(context, classificationResult.predictions, classificationResult.warnings, urisToProcess)
+                        saveToHistory(
+                            context,
+                            classificationResult.predictions,
+                            classificationResult.warnings,
+                            urisToProcess,
+                            classificationResult.uploadId,
+                            classificationResult.uploadSecret
+                        )
                         // Preload images for better user experience
                         preloadSpeciesImages(classificationResult.predictions)
                         // Signal that results are ready to display
@@ -486,7 +506,7 @@ class MainViewModel @Inject constructor(
                 val warnings = historyItem.warnings?.let { warningsJson ->
                     try {
                         com.google.gson.Gson().fromJson(warningsJson, Warnings::class.java)
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         null
                     }
                 }
@@ -514,7 +534,10 @@ class MainViewModel @Inject constructor(
                         results = predictions,
                         warnings = warnings,
                         isHistorical = true,
-                        historicalDate = historyItem.timestamp
+                        historicalDate = historyItem.timestamp,
+                        uploadId = historyItem.uploadId,
+                        uploadSecret = historyItem.uploadSecret,
+                        identificationTimestamp = historyItem.timestamp
                     )
                     
                     // Preload species images for better user experience
@@ -560,7 +583,9 @@ class MainViewModel @Inject constructor(
         context: Context,
         predictions: List<PredictionResult>,
         warnings: Warnings?,
-        imageUris: List<Uri>
+        imageUris: List<Uri>,
+        uploadId: String? = null,
+        uploadSecret: String? = null
     ) {
         viewModelScope.safeLaunch("MainViewModel-saveToHistory") {
             try {
@@ -577,7 +602,9 @@ class MainViewModel @Inject constructor(
                         warnings = warnings,
                         imagePaths = imagePaths,
                         thumbnailPaths = fullSizeImagePaths, // Use full-size images as thumbnails too
-                        fullSizeImagePaths = fullSizeImagePaths
+                        fullSizeImagePaths = fullSizeImagePaths,
+                        uploadId = uploadId,
+                        uploadSecret = uploadSecret
                     )
                 }
 

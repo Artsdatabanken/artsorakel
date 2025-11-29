@@ -10,7 +10,9 @@ import no.artsdatabanken.artsorakel.network.SaveImageResponse
  */
 data class IdentificationResult(
     val predictions: List<PredictionResult>,
-    val warnings: Warnings?
+    val warnings: Warnings?,
+    val uploadId: String? = null,
+    val uploadSecret: String? = null
 )
 
 /**

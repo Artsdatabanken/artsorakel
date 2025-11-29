@@ -13,7 +13,7 @@ import android.content.Context
  */
 @Database(
     entities = [IdentificationHistory::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(DateConverter::class, UriListConverter::class)
@@ -25,6 +25,16 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
+        /**
+         * Migration from version 4 to 5: Add uploadId and uploadSecret columns
+         */
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE identification_history ADD COLUMN uploadId TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE identification_history ADD COLUMN uploadSecret TEXT DEFAULT NULL")
+            }
+        }
+
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
@@ -32,6 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "artsorakel_database"
                 )
+                .addMigrations(MIGRATION_4_5)
                 .build()
                 INSTANCE = instance
                 instance
