@@ -59,7 +59,7 @@ iOS/Artsorakel/Artsorakel/Resources/
 iOS/Artsorakel/Artsorakel/Assets.xcassets/Color_*.colorset/
 
 # Secrets - NEVER commit these
-shared/config/secrets.json
+shared/config/secrets*.json
 Android/app/local.properties
 iOS/Artsorakel/Config/Secrets.xcconfig
 iOS/Artsorakel/Config/*.json

@@ -40,7 +40,8 @@ class HistoryRepositoryImpl @Inject constructor(
         predictionResults: List<PredictionResult>,
         warnings: Warnings?,
         imagePaths: List<String>,
-        thumbnailPaths: List<String>
+        thumbnailPaths: List<String>,
+        fullSizeImagePaths: List<String>
     ): Long {
         return withContext(Dispatchers.IO) {
             // Get the best match (first result with highest probability)
@@ -62,6 +63,7 @@ class HistoryRepositoryImpl @Inject constructor(
                 allResults = allResultsJson, // Contains full PredictionResults with all vernacularNames
                 thumbnailPaths = thumbnailPaths,
                 originalImagePaths = imagePaths,
+                fullSizeImagePaths = fullSizeImagePaths,
                 warnings = warningsJson
             )
 
@@ -85,8 +87,9 @@ class HistoryRepositoryImpl @Inject constructor(
         withContext(Dispatchers.IO) {
             // Delete all history entries from database
             historyDao.deleteAllHistory()
-            // Clear all thumbnail files
+            // Clear all image files (both old thumbnails and new full-size images)
             thumbnailService.clearAllThumbnails(context)
+            thumbnailService.clearAllFullSizeImages(context)
         }
     }
     

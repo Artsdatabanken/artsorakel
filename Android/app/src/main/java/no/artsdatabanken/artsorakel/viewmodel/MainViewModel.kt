@@ -94,6 +94,7 @@ class MainViewModel @Inject constructor(
 
     // Display image pairs (user images or historical images)
     private val _displayImagePairs = MutableStateFlow<List<ImagePair>>(emptyList())
+    val displayImagePairs: StateFlow<List<ImagePair>> = _displayImagePairs.asStateFlow()
 
     val selectedImageUris: StateFlow<List<Uri>> = _displayImagePairs.map { pairs ->
         pairs.map { it.croppedUri }
@@ -491,11 +492,14 @@ class MainViewModel @Inject constructor(
                 }
 
                 if (predictions.isNotEmpty()) {
-                    // Create ImagePairs for the historical images (temporary, for display only)
-                    val historicalImagePairs = historyItem.thumbnailPaths.zip(historyItem.originalImagePaths) { thumbnail, original ->
+                    // Create ImagePairs for the historical images
+                    // Use fullSizeImagePaths if available (new format), fall back to thumbnailPaths (old format)
+                    val imagePaths = historyItem.fullSizeImagePaths.ifEmpty { historyItem.thumbnailPaths }
+                    val historicalImagePairs = imagePaths.map { path ->
+                        val fileUri = Uri.fromFile(java.io.File(path))
                         ImagePair(
-                            croppedUri = thumbnail.toUri(),
-                            originalUri = original.toUri()
+                            croppedUri = fileUri,
+                            originalUri = fileUri
                         )
                     }
 
@@ -560,10 +564,10 @@ class MainViewModel @Inject constructor(
     ) {
         viewModelScope.safeLaunch("MainViewModel-saveToHistory") {
             try {
-                // Create thumbnails from the images used for identification
-                val thumbnailPaths = thumbnailService.createAndSaveThumbnails(context, imageUris)
+                // Save full-size images (1024x1024) for both display and reporting
+                val fullSizeImagePaths = thumbnailService.createAndSaveFullSizeImages(context, imageUris)
 
-                // Convert URIs to string paths for storage
+                // Convert URIs to string paths for storage (these may expire, kept for reference)
                 val imagePaths = imageUris.map { it.toString() }
 
                 // Save the identification result to history only if enabled
@@ -572,7 +576,8 @@ class MainViewModel @Inject constructor(
                         predictionResults = predictions,
                         warnings = warnings,
                         imagePaths = imagePaths,
-                        thumbnailPaths = thumbnailPaths
+                        thumbnailPaths = fullSizeImagePaths, // Use full-size images as thumbnails too
+                        fullSizeImagePaths = fullSizeImagePaths
                     )
                 }
 
@@ -587,21 +592,26 @@ class MainViewModel @Inject constructor(
     }
 
     /**
-     * Deletes a specific history item and its associated thumbnails
+     * Deletes a specific history item and its associated images
      */
     fun deleteHistoryItem(historyItem: IdentificationHistory) {
         viewModelScope.safeLaunch("MainViewModel-deleteHistoryItem") {
             try {
-                // Delete associated thumbnail files first
-                thumbnailService.deleteThumbnails(historyItem.thumbnailPaths)
-                
+                // Delete associated full-size image files
+                if (historyItem.fullSizeImagePaths.isNotEmpty()) {
+                    thumbnailService.deleteFullSizeImages(historyItem.fullSizeImagePaths)
+                } else {
+                    // Fall back to deleting old thumbnail files for backward compatibility
+                    thumbnailService.deleteThumbnails(historyItem.thumbnailPaths)
+                }
+
                 // Delete the history record from database
                 historyRepository.deleteHistory(historyItem)
-                
+
                 // Refresh history lists after deletion
                 loadRecentHistory()
                 loadAllHistory()
-                
+
             } catch (e: Exception) {
                 val error = ErrorMapper.mapException(e)
                 error.logError("MainViewModel-deleteHistoryItem")

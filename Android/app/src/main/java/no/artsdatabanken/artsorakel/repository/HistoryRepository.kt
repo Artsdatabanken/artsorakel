@@ -30,14 +30,16 @@ interface HistoryRepository {
      * @param predictionResults List of all prediction results from identification
      * @param warnings Warnings from the identification (optional)
      * @param imagePaths List of image file paths used for identification
-     * @param thumbnailPaths List of saved thumbnail paths
+     * @param thumbnailPaths List of saved thumbnail paths (200x200)
+     * @param fullSizeImagePaths List of saved full-size image paths (1024x1024) for reporting
      * @return The ID of the saved history entry
      */
     suspend fun saveIdentificationToHistory(
         predictionResults: List<PredictionResult>,
         warnings: Warnings? = null,
         imagePaths: List<String>,
-        thumbnailPaths: List<String>
+        thumbnailPaths: List<String>,
+        fullSizeImagePaths: List<String> = emptyList()
     ): Long
     
     /**

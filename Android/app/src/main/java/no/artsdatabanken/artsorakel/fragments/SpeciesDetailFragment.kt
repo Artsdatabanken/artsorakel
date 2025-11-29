@@ -276,8 +276,8 @@ class SpeciesDetailFragment : Fragment() {
     }
 
     private fun uploadImagesAndReport(scientificNameId: String) {
-        // Use selectedImagePairs to get the actual user's cropped images (not historical thumbnails)
-        val imagePairs = viewModel.selectedImagePairs.value
+        // Use displayImagePairs to get the images (works for both current and historical results)
+        val imagePairs = viewModel.displayImagePairs.value
         if (imagePairs.isEmpty()) {
             // No images to upload, open URL without image reference
             openReportUrl(scientificNameId, null, null)
@@ -336,13 +336,10 @@ class SpeciesDetailFragment : Fragment() {
 
     private fun openReportUrl(scientificNameId: String, imageId: String?, password: String?) {
         // Build the report URL with all metadata
-        // Format: https://mobil.artsobservasjoner.no/#/orakel?scientificnameid=<id>&meta=from%3Dorakel%7Cplatform%3Dandroid%7Cpercentage%3D<prob>&id=<imageId>&password=<password>
+        // Format: https://mobil.artsobservasjoner.no/contribute/submit-sightings?ReportByScientificName=<id>&id=<imageId>&password=<password>
 
-        val probabilityPercent = (probability * 100).roundToInt()
-
-        val urlBuilder = StringBuilder("https://mobil.artsobservasjoner.no/#/orakel")
-        urlBuilder.append("?scientificnameid=$scientificNameId")
-        urlBuilder.append("&meta=from%3Dorakel%7Cplatform%3Dandroid%7Cpercentage%3D$probabilityPercent")
+        val urlBuilder = StringBuilder("https://mobil.artsobservasjoner.no/contribute/submit-sightings")
+        urlBuilder.append("?ReportByScientificName=$scientificNameId")
 
         // Add image reference if available
         if (imageId != null && password != null) {

@@ -38,8 +38,9 @@ data class IdentificationHistory(
     val bestMatchGroupNames: String? = null,
     val bestMatchInfoUrl: String?,
     val allResults: String, // JSON string of all PredictionResults (includes all vernacularNames)
-    val thumbnailPaths: List<String>, // Local paths to saved thumbnails
-    val originalImagePaths: List<String>, // Original image locations
+    val thumbnailPaths: List<String>, // Local paths to saved thumbnails (200x200)
+    val originalImagePaths: List<String>, // Original image locations (content URIs, may expire)
+    val fullSizeImagePaths: List<String> = emptyList(), // Local paths to saved full-size images (1024x1024) for reporting
     val warnings: String? = null // JSON string of Warnings object
 ) {
     /**

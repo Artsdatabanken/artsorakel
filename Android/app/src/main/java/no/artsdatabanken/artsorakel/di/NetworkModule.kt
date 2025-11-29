@@ -33,13 +33,20 @@ object NetworkModule {
             .readTimeout(AppConfig.Network.TIMEOUT_SECONDS, TimeUnit.SECONDS)
             .writeTimeout(AppConfig.Network.TIMEOUT_SECONDS, TimeUnit.SECONDS)
 
-        // Add Authorization header if bearer token is configured
+        // Add Authorization header only for artsdatabanken.no API requests
         if (AppConfig.Network.BEARER_TOKEN.isNotEmpty()) {
             clientBuilder.addInterceptor { chain ->
                 val original = chain.request()
-                val request = original.newBuilder()
-                    .header("Authorization", "Bearer ${AppConfig.Network.BEARER_TOKEN}")
-                    .build()
+                val host = original.url.host
+
+                // Only add bearer token for artsdatabanken.no domains
+                val request = if (host.endsWith("artsdatabanken.no")) {
+                    original.newBuilder()
+                        .header("Authorization", "Bearer ${AppConfig.Network.BEARER_TOKEN}")
+                        .build()
+                } else {
+                    original
+                }
                 chain.proceed(request)
             }
         }
