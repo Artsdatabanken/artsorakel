@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.text.style.ImageSpan
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -263,21 +264,36 @@ class MainScreenFragment : Fragment() {
                 }
             }
 
-            // Set up description with inline external link icon if link is available
+            // Set up description with "Read more" link and external link icon if link is available
             if (!feedItem.link.isNullOrEmpty()) {
                 val descriptionText = SpannableStringBuilder(feedItem.description)
-                descriptionText.append("  ") // Add space before icon
+                descriptionText.append(" ") // Add space before link text
 
+                // Get the accent color for the link
+                val accentTypedValue = TypedValue()
+                theme.resolveAttribute(R.attr.text_accent, accentTypedValue, true)
+                val linkColor = accentTypedValue.data
+
+                // Add "Read more" text
+                val readMoreText = getString(R.string.read_more)
+                val linkStartIndex = descriptionText.length
+                descriptionText.append(readMoreText)
+                descriptionText.append(" ")
+
+                // Add the external link icon
                 val linkIcon = ContextCompat.getDrawable(requireContext(), R.drawable.ic_external_link)
                 linkIcon?.let { icon ->
-                    // Use a small fixed size that fits inline with text
                     val iconSize = (14 * resources.displayMetrics.density).toInt() // 14dp
                     icon.setBounds(0, 0, iconSize, iconSize)
-                    icon.colorFilter = PorterDuffColorFilter(textColor, PorterDuff.Mode.SRC_IN)
+                    icon.colorFilter = PorterDuffColorFilter(linkColor, PorterDuff.Mode.SRC_IN)
                     val imageSpan = ImageSpan(icon, ImageSpan.ALIGN_BASELINE)
                     descriptionText.append(" ")
                     descriptionText.setSpan(imageSpan, descriptionText.length - 1, descriptionText.length, 0)
                 }
+
+                // Apply link color to "Read more" text and icon
+                val linkEndIndex = descriptionText.length
+                descriptionText.setSpan(ForegroundColorSpan(linkColor), linkStartIndex, linkEndIndex, 0)
 
                 binding.textRssDescription.text = descriptionText
 
