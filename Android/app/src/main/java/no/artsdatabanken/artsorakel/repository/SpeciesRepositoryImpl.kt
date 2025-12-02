@@ -1,11 +1,13 @@
 package no.artsdatabanken.artsorakel.repository
 
+import android.annotation.SuppressLint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ensureActive
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import no.artsdatabanken.artsorakel.BuildConfig
 import no.artsdatabanken.artsorakel.core.AppConfig
 import no.artsdatabanken.artsorakel.core.errors.ErrorContext
 import no.artsdatabanken.artsorakel.core.errors.ErrorMapper
@@ -33,6 +35,7 @@ class SpeciesRepositoryImpl @Inject constructor(
     // Track current operation for cancellation support
     private var currentJob: Job? = null
     
+    @SuppressLint("DefaultLocale")
     override suspend fun identifySpecies(
         imageDataList: List<ByteArray>,
         imageFilenames: List<String>,
@@ -57,16 +60,16 @@ class SpeciesRepositoryImpl @Inject constructor(
             // Prepare location parts if available (rounded to 2 decimal places)
             val latitudePart = location?.let {
                 val lat = String.format("%.1f", it.latitude)
-                android.util.Log.d("SpeciesRepository", "Sending latitude to server: $lat")
+                if (BuildConfig.DEBUG) android.util.Log.d("SpeciesRepository", "Sending latitude to server: $lat")
                 lat.toRequestBody("text/plain".toMediaTypeOrNull())
             }
             val longitudePart = location?.let {
                 val lon = String.format("%.1f", it.longitude)
-                android.util.Log.d("SpeciesRepository", "Sending longitude to server: $lon")
+                if (BuildConfig.DEBUG) android.util.Log.d("SpeciesRepository", "Sending longitude to server: $lon")
                 lon.toRequestBody("text/plain".toMediaTypeOrNull())
             }
 
-            if (location == null) {
+            if (BuildConfig.DEBUG && location == null) {
                 android.util.Log.d("SpeciesRepository", "No location data available, server will use IP-based geolocation")
             }
 

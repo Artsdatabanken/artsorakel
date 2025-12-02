@@ -18,7 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import android.util.Log
+import no.artsdatabanken.artsorakel.BuildConfig
 import no.artsdatabanken.artsorakel.core.Constants
 import no.artsdatabanken.artsorakel.databinding.ActivityImageCropperBinding
 import no.artsdatabanken.artsorakel.extensions.setupStatusBar
@@ -60,7 +60,7 @@ class ImageCropperActivity : AppCompatActivity() {
         locationLon = intent.getDoubleExtra("location_lon", Double.NaN)
         locationAlt = intent.getDoubleExtra("location_alt", Double.NaN)
 
-        Log.d("ImageCropperActivity", "Received location: lat=$locationLat, lon=$locationLon, alt=$locationAlt")
+        if (BuildConfig.DEBUG) android.util.Log.d("ImageCropperActivity", "Received location: lat=$locationLat, lon=$locationLon, alt=$locationAlt")
         
         if (imageUri == null) {
             setResult(RESULT_CANCELED)
@@ -290,9 +290,9 @@ class ImageCropperActivity : AppCompatActivity() {
                     exif.setAltitude(locationAlt)
                 }
                 exif.saveAttributes()
-                Log.d("ImageCropperActivity", "Wrote full precision location to cropped image: lat=$locationLat, lon=$locationLon")
+                if (BuildConfig.DEBUG) android.util.Log.d("ImageCropperActivity", "Wrote full precision location to cropped image: lat=$locationLat, lon=$locationLon")
             } catch (e: Exception) {
-                Log.e("ImageCropperActivity", "Failed to write location to cropped image", e)
+                if (BuildConfig.DEBUG) android.util.Log.e("ImageCropperActivity", "Failed to write location to cropped image", e)
             }
         }
 

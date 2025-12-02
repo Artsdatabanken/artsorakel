@@ -3,6 +3,7 @@ package no.artsdatabanken.artsorakel.core
 import android.content.Context
 import android.graphics.Typeface
 import android.view.View
+import no.artsdatabanken.artsorakel.BuildConfig
 import no.artsdatabanken.artsorakel.R
 import no.artsdatabanken.artsorakel.model.PredictionResult
 import java.util.Locale
@@ -37,9 +38,11 @@ data class SpeciesDisplayData(
             val groupName = result.getGroupNameForLanguage(currentLanguage)
 
             // Debug logging
-            android.util.Log.d("SpeciesDisplayData", "Current language: $currentLanguage")
-            android.util.Log.d("SpeciesDisplayData", "Available group names: ${result.groupNames}")
-            android.util.Log.d("SpeciesDisplayData", "Selected group name: $groupName")
+            if (BuildConfig.DEBUG) {
+                android.util.Log.d("SpeciesDisplayData", "Current language: $currentLanguage")
+                android.util.Log.d("SpeciesDisplayData", "Available group names: ${result.groupNames}")
+                android.util.Log.d("SpeciesDisplayData", "Selected group name: $groupName")
+            }
             val probability = result.probability
             val certaintyPercentage = (probability * 100).toInt()
 
@@ -68,7 +71,7 @@ data class SpeciesDisplayData(
                     certaintyParam
                 )
             } else {
-                val capitalizedVernacular = vernacularName!!.replaceFirstChar {
+                val capitalizedVernacular = vernacularName.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                 }
                 Quintuple(
@@ -139,7 +142,7 @@ data class SpeciesDisplayData(
                     certaintyParam
                 )
             } else {
-                val capitalizedVernacular = displayVernacularName!!.replaceFirstChar {
+                val capitalizedVernacular = displayVernacularName.replaceFirstChar {
                     if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
                 }
                 Quintuple(

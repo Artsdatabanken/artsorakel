@@ -4,8 +4,6 @@ import android.Manifest
 import android.content.ContentUris
 import android.content.Context
 import android.content.pm.PackageManager
-import android.database.Cursor
-import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -17,9 +15,16 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import java.io.File
-import java.io.InputStream
+import no.artsdatabanken.artsorakel.BuildConfig
 import no.artsdatabanken.artsorakel.model.GeoLocation
+
+private fun logD(tag: String, message: String) {
+    if (BuildConfig.DEBUG) android.util.Log.d(tag, message)
+}
+
+private fun logE(tag: String, message: String, throwable: Throwable? = null) {
+    if (BuildConfig.DEBUG) android.util.Log.e(tag, message, throwable)
+}
 
 class LocationManager(private val context: Context) {
 
@@ -28,7 +33,7 @@ class LocationManager(private val context: Context) {
 
     suspend fun getCurrentLocation(): GeoLocation? {
         if (!hasLocationPermission()) {
-            android.util.Log.d("LocationManager", "No location permission granted")
+            logD("LocationManager", "No location permission granted")
             return null
         }
 
@@ -40,56 +45,56 @@ class LocationManager(private val context: Context) {
                 Priority.PRIORITY_BALANCED_POWER_ACCURACY
             }
 
-            android.util.Log.d("LocationManager", "Requesting current location with priority: $priority")
+            logD("LocationManager", "Requesting current location with priority: $priority")
 
             val location = fusedLocationClient.getCurrentLocation(priority, null).await()
 
             location?.let {
-                android.util.Log.d("LocationManager", "Got current location: lat=${it.latitude}, lon=${it.longitude}")
+                logD("LocationManager", "Got current location: lat=${it.latitude}, lon=${it.longitude}")
                 GeoLocation(
                     latitude = it.latitude,
                     longitude = it.longitude,
                     altitude = if (it.hasAltitude()) it.altitude else null
                 )
             } ?: run {
-                android.util.Log.d("LocationManager", "getCurrentLocation returned null")
+                logD("LocationManager", "getCurrentLocation returned null")
                 null
             }
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "Error getting current location", e)
+            logE("LocationManager", "Error getting current location", e)
             null
         }
     }
 
     fun extractLocationFromImage(uri: Uri): GeoLocation? {
         return try {
-            android.util.Log.d("LocationManager", "Extracting location from URI: $uri (scheme: ${uri.scheme})")
+            logD("LocationManager", "Extracting location from URI: $uri (scheme: ${uri.scheme})")
             val result = when (uri.scheme) {
                 "file" -> extractFromFile(uri.path ?: return null)
                 "content" -> extractFromContent(uri)
                 else -> null
             }
-            android.util.Log.d("LocationManager", "Extraction result: $result")
+            logD("LocationManager", "Extraction result: $result")
             result
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "Error extracting location", e)
+            logE("LocationManager", "Error extracting location", e)
             null
         }
     }
 
     private fun extractFromFile(path: String): GeoLocation? {
         return try {
-            android.util.Log.d("LocationManager", "Extracting from file path: $path")
+            logD("LocationManager", "Extracting from file path: $path")
             val exif = ExifInterface(path)
             extractGeoLocation(exif)
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "Error extracting from file: $path", e)
+            logE("LocationManager", "Error extracting from file: $path", e)
             null
         }
     }
 
     private fun extractFromContent(uri: Uri): GeoLocation? {
-        android.util.Log.d("LocationManager", "extractFromContent URI: $uri, authority: ${uri.authority}")
+        logD("LocationManager", "extractFromContent URI: $uri, authority: ${uri.authority}")
 
         // Try regular URI first (works for OpenDocument URIs which preserve EXIF)
         try {
@@ -97,30 +102,30 @@ class LocationManager(private val context: Context) {
                 val exif = ExifInterface(inputStream)
                 val result = extractGeoLocation(exif)
                 if (result != null) {
-                    android.util.Log.d("LocationManager", "Regular read succeeded with location")
+                    logD("LocationManager", "Regular read succeeded with location")
                     return result
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "Regular read failed", e)
+            logE("LocationManager", "Regular read failed", e)
         }
 
         // If no location found, check if we have full media access and can query MediaStore directly
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val hasMediaLoc = androidx.core.content.ContextCompat.checkSelfPermission(
-                context, android.Manifest.permission.ACCESS_MEDIA_LOCATION
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                context, Manifest.permission.ACCESS_MEDIA_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
             val hasReadMedia = androidx.core.content.ContextCompat.checkSelfPermission(
-                context, android.Manifest.permission.READ_MEDIA_IMAGES
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                context, Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
 
-            android.util.Log.d("LocationManager", "Perms: mediaLoc=$hasMediaLoc, readMedia=$hasReadMedia")
+            logD("LocationManager", "Perms: mediaLoc=$hasMediaLoc, readMedia=$hasReadMedia")
 
             if (hasMediaLoc && hasReadMedia) {
                 // Try to get location directly from MediaStore (bypasses sharing app redaction)
                 val mediaStoreLocation = tryGetLocationFromMediaStore(uri)
                 if (mediaStoreLocation != null) {
-                    android.util.Log.d("LocationManager", "Got location from MediaStore query")
+                    logD("LocationManager", "Got location from MediaStore query")
                     return mediaStoreLocation
                 }
 
@@ -132,24 +137,24 @@ class LocationManager(private val context: Context) {
                 if (isMediaStoreUri) {
                     try {
                         val originalUri = MediaStore.setRequireOriginal(uri)
-                        android.util.Log.d("LocationManager", "Trying setRequireOriginal")
+                        logD("LocationManager", "Trying setRequireOriginal")
                         context.contentResolver.openInputStream(originalUri)?.use { inputStream ->
                             val exif = ExifInterface(inputStream)
                             val result = extractGeoLocation(exif)
                             if (result != null) {
-                                android.util.Log.d("LocationManager", "setRequireOriginal succeeded!")
+                                logD("LocationManager", "setRequireOriginal succeeded!")
                                 return result
                             }
                         }
                     } catch (e: Exception) {
-                        android.util.Log.e("LocationManager", "setRequireOriginal failed", e)
+                        logE("LocationManager", "setRequireOriginal failed", e)
                     }
                 }
             }
         }
 
         // Location data is either not present or was redacted by the sharing app
-        android.util.Log.d("LocationManager", "No unredacted location available - sharing app may have stripped it")
+        logD("LocationManager", "No unredacted location available - sharing app may have stripped it")
         return null
     }
 
@@ -175,7 +180,7 @@ class LocationManager(private val context: Context) {
             // Try direct query on the URI
             return queryMediaStoreForLocation(uri)
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "MediaStore query failed", e)
+            logE("LocationManager", "MediaStore query failed", e)
             return null
         }
     }
@@ -205,12 +210,13 @@ class LocationManager(private val context: Context) {
                     }
                 }
             }
-        } catch (e: Exception) {
-            android.util.Log.d("LocationManager", "Could not extract media ID from URI")
+        } catch (_: Exception) {
+            logD("LocationManager", "Could not extract media ID from URI")
         }
         return null
     }
 
+    @Suppress("DEPRECATION")
     private fun queryMediaStoreForLocation(mediaUri: Uri): GeoLocation? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
 
@@ -229,7 +235,7 @@ class LocationManager(private val context: Context) {
                         val lat = cursor.getDouble(latIndex)
                         val lon = cursor.getDouble(lonIndex)
 
-                        android.util.Log.d("LocationManager", "MediaStore query: lat=$lat, lon=$lon")
+                        logD("LocationManager", "MediaStore query: lat=$lat, lon=$lon")
 
                         // Skip 0,0 coordinates (redacted or missing)
                         if (lat != 0.0 || lon != 0.0) {
@@ -239,7 +245,7 @@ class LocationManager(private val context: Context) {
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.d("LocationManager", "MediaStore location query failed: ${e.message}")
+            logD("LocationManager", "MediaStore location query failed: ${e.message}")
         }
         return null
     }
@@ -251,30 +257,30 @@ class LocationManager(private val context: Context) {
         val longitudeRef = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF)
         val longitude = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE)
 
-        android.util.Log.d("LocationManager", "EXIF GPS Tags: lat=$latitude, latRef=$latitudeRef, lon=$longitude, lonRef=$longitudeRef")
+        logD("LocationManager", "EXIF GPS Tags: lat=$latitude, latRef=$latitudeRef, lon=$longitude, lonRef=$longitudeRef")
 
         // First try manual parsing, as it's more reliable
         if (latitude != null && longitude != null) {
-            android.util.Log.d("LocationManager", "GPS tags found, attempting manual parsing...")
-            android.util.Log.d("LocationManager", "Latitude isEmpty: ${latitude.isEmpty()}, Longitude isEmpty: ${longitude.isEmpty()}")
+            logD("LocationManager", "GPS tags found, attempting manual parsing...")
+            logD("LocationManager", "Latitude isEmpty: ${latitude.isEmpty()}, Longitude isEmpty: ${longitude.isEmpty()}")
 
             // Check if the values are not empty strings
             if (latitude.isNotEmpty() && longitude.isNotEmpty()) {
                 try {
                     val lat = convertDMSToDecimal(latitude, latitudeRef ?: "N")
                     val lon = convertDMSToDecimal(longitude, longitudeRef ?: "E")
-                    android.util.Log.d("LocationManager", "Manual parsing successful: lat=$lat, lon=$lon")
+                    logD("LocationManager", "Manual parsing successful: lat=$lat, lon=$lon")
 
                     // Treat 0,0 as "no location" (redacted data)
                     if (lat == 0.0 && lon == 0.0) {
-                        android.util.Log.d("LocationManager", "Coordinates are 0,0 - treating as no location")
+                        logD("LocationManager", "Coordinates are 0,0 - treating as no location")
                         return null
                     }
 
                     val altitude = try {
                         exif.getAltitude(Double.NaN)
                     } catch (e: Exception) {
-                        android.util.Log.e("LocationManager", "Error getting altitude", e)
+                        logE("LocationManager", "Error getting altitude", e)
                         Double.NaN
                     }
 
@@ -284,20 +290,20 @@ class LocationManager(private val context: Context) {
                         altitude = if (altitude.isNaN()) null else altitude
                     )
                 } catch (e: Exception) {
-                    android.util.Log.e("LocationManager", "Manual GPS parsing failed", e)
+                    logE("LocationManager", "Manual GPS parsing failed", e)
                 }
             } else {
-                android.util.Log.d("LocationManager", "GPS tags are empty strings")
+                logD("LocationManager", "GPS tags are empty strings")
             }
         } else {
-            android.util.Log.d("LocationManager", "No GPS tags found (null values)")
+            logD("LocationManager", "No GPS tags found (null values)")
         }
 
         // Fall back to the built-in method
         try {
             val latLong = exif.latLong
             if (latLong != null) {
-                android.util.Log.d("LocationManager", "Using built-in latLong: lat=${latLong[0]}, lon=${latLong[1]}")
+                logD("LocationManager", "Using built-in latLong: lat=${latLong[0]}, lon=${latLong[1]}")
                 val altitude = exif.getAltitude(Double.NaN)
                 return GeoLocation(
                     latitude = latLong[0],
@@ -306,16 +312,16 @@ class LocationManager(private val context: Context) {
                 )
             }
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "Built-in latLong failed", e)
+            logE("LocationManager", "Built-in latLong failed", e)
         }
 
-        android.util.Log.d("LocationManager", "No GPS location could be extracted")
+        logD("LocationManager", "No GPS location could be extracted")
         return null
     }
 
     private fun convertDMSToDecimal(dms: String, ref: String): Double {
-        android.util.Log.d("LocationManager", "Converting DMS: '$dms' with ref: '$ref'")
-        android.util.Log.d("LocationManager", "DMS string length: ${dms.length}")
+        logD("LocationManager", "Converting DMS: '$dms' with ref: '$ref'")
+        logD("LocationManager", "DMS string length: ${dms.length}")
 
         // Android ExifInterface may return DMS in different formats
         // Format 1: "degrees/denominator,minutes/denominator,seconds/denominator"
@@ -327,19 +333,19 @@ class LocationManager(private val context: Context) {
             else -> ","
         }
 
-        android.util.Log.d("LocationManager", "Using separator: '$separator'")
+        logD("LocationManager", "Using separator: '$separator'")
 
         val parts = dms.split(separator).map { it.trim() }
-        android.util.Log.d("LocationManager", "Split into ${parts.size} parts: $parts")
+        logD("LocationManager", "Split into ${parts.size} parts: $parts")
 
         if (parts.size != 3) {
-            android.util.Log.e("LocationManager", "Invalid DMS format: expected 3 parts, got ${parts.size}")
+            logE("LocationManager", "Invalid DMS format: expected 3 parts, got ${parts.size}")
             throw IllegalArgumentException("Invalid DMS format: $dms")
         }
 
         // Parse each part as a rational number (numerator/denominator)
         fun parseRational(rational: String, name: String): Double {
-            android.util.Log.d("LocationManager", "Parsing $name: '$rational'")
+            logD("LocationManager", "Parsing $name: '$rational'")
 
             return try {
                 val components = rational.split("/")
@@ -347,7 +353,7 @@ class LocationManager(private val context: Context) {
                     val num = components[0].trim().toDouble()
                     val den = components[1].trim().toDouble()
                     if (den == 0.0) {
-                        android.util.Log.e("LocationManager", "$name has zero denominator!")
+                        logE("LocationManager", "$name has zero denominator!")
                         0.0
                     } else {
                         num / den
@@ -356,10 +362,10 @@ class LocationManager(private val context: Context) {
                     // Might be a direct decimal value
                     rational.toDouble()
                 }
-                android.util.Log.d("LocationManager", "$name parsed as: $result")
+                logD("LocationManager", "$name parsed as: $result")
                 result
             } catch (e: Exception) {
-                android.util.Log.e("LocationManager", "Failed to parse $name: '$rational'", e)
+                logE("LocationManager", "Failed to parse $name: '$rational'", e)
                 0.0
             }
         }
@@ -368,12 +374,12 @@ class LocationManager(private val context: Context) {
         val minutes = parseRational(parts[1], "minutes")
         val seconds = parseRational(parts[2], "seconds")
 
-        android.util.Log.d("LocationManager", "Parsed components - D: $degrees, M: $minutes, S: $seconds")
+        logD("LocationManager", "Parsed components - D: $degrees, M: $minutes, S: $seconds")
 
         val decimal = degrees + (minutes / 60.0) + (seconds / 3600.0)
         val result = if (ref == "S" || ref == "W") -decimal else decimal
 
-        android.util.Log.d("LocationManager", "Final decimal result: $result")
+        logD("LocationManager", "Final decimal result: $result")
         return result
     }
 
@@ -389,10 +395,10 @@ class LocationManager(private val context: Context) {
             }
 
             exif.saveAttributes()
-            android.util.Log.d("LocationManager", "Wrote location to image: lat=${location.latitude}, lon=${location.longitude}")
+            logD("LocationManager", "Wrote location to image: lat=${location.latitude}, lon=${location.longitude}")
             true
         } catch (e: Exception) {
-            android.util.Log.e("LocationManager", "Failed to write location to image", e)
+            logE("LocationManager", "Failed to write location to image", e)
             false
         }
     }

@@ -6,12 +6,11 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.FileProvider
 import java.io.File
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import no.artsdatabanken.artsorakel.BuildConfig
 import no.artsdatabanken.artsorakel.core.errors.ErrorMapper
-import no.artsdatabanken.artsorakel.core.errors.ErrorContext
 import no.artsdatabanken.artsorakel.core.errors.logError
 import no.artsdatabanken.artsorakel.model.GeoLocation
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +57,7 @@ class ImageOperationsManager(
 
     fun extractLocationFromImage(uri: Uri): GeoLocation? {
         val location = locationManager.extractLocationFromImage(uri)
-        android.util.Log.d("ImageOperationsManager", "Extracted location from $uri: $location")
+        if (BuildConfig.DEBUG) android.util.Log.d("ImageOperationsManager", "Extracted location from $uri: $location")
         return location
     }
 
