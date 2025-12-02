@@ -34,7 +34,8 @@ struct AppConfig {
                   let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                   let api = json["api"] as? [String: Any],
-                  let token = api["bearerToken"] as? String else {
+                  let bearerTokens = api["bearerToken"] as? [String: String],
+                  let token = bearerTokens["ios"] else {
                 fatalError("Failed to load bearerToken from secrets.json. Make sure to run sync_resources.py first and that secrets.json exists.")
             }
             return token

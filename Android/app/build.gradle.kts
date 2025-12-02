@@ -20,7 +20,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Default BuildConfig values for all variants
-        buildConfigField("String", "API_BASE_URL", "\"https://ai.test.artsdatabanken.no/\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://ai.artsdatabanken.no/\"")
         buildConfigField("String", "RSS_FEED_URL", "\"https://ai.test.artsdatabanken.no/rss\"")
         buildConfigField("boolean", "IS_RELEASE_BUILD", "false")  // Default to non-release
         buildConfigField("boolean", "ENABLE_LOGGING", "false")
@@ -32,8 +32,10 @@ android {
             @Suppress("UNCHECKED_CAST")
             val secretsJson = groovy.json.JsonSlurper().parseText(secretsFile.readText()) as Map<String, Any>
             @Suppress("UNCHECKED_CAST")
-            val apiSecrets = secretsJson["api"] as Map<String, String>
-            buildConfigField("String", "API_BEARER_TOKEN", "\"${apiSecrets["bearerToken"]}\"")
+            val apiSecrets = secretsJson["api"] as Map<String, Any>
+            @Suppress("UNCHECKED_CAST")
+            val bearerTokens = apiSecrets["bearerToken"] as Map<String, String>
+            buildConfigField("String", "API_BEARER_TOKEN", "\"${bearerTokens["android"]}\"")
         } else {
             buildConfigField("String", "API_BEARER_TOKEN", "\"\"")
             println("WARNING: secrets.json not found. Bearer token will be empty.")

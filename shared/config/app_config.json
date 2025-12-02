@@ -4,7 +4,7 @@
   "bundleId": "no.artsdatabanken.artsorakel",
   "appName": "Artsorakel",
   "api": {
-    "baseUrl": "https://ai.test.artsdatabanken.no/",
+    "baseUrl": "https://ai.artsdatabanken.no/",
     "timeout": 60,
     "maxRetries": 3,
     "requiresAuth": true
