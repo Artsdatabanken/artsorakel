@@ -53,12 +53,14 @@ struct MainScreenView: View {
                     .background(Color.borderDefault)
 
                 VStack(spacing: 0) {
-                    Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
-                        .font(DesignSystem.Typography.titleLarge())
-                        .foregroundColor(Color.textPrimary)
-                        .padding(.horizontal, DesignSystem.Spacing.extraHuge)
-                        .padding(.vertical, DesignSystem.Spacing.standard)
-                        .multilineTextAlignment(.center)
+                    if croppedImages.isEmpty && !isIdentifying {
+                        Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
+                            .font(DesignSystem.Typography.titleLarge())
+                            .foregroundColor(Color.textPrimary)
+                            .padding(.horizontal, DesignSystem.Spacing.extraHuge)
+                            .padding(.vertical, DesignSystem.Spacing.standard)
+                            .multilineTextAlignment(.center)
+                    }
 
                     ZStack {
                         Color.backgroundSubtle
@@ -325,39 +327,36 @@ struct CameraButtonsView: View {
     let onGalleryTap: () -> Void
 
     var body: some View {
-        HStack(spacing: 0) {
-            Spacer()
-                .frame(width: 72)
+        // Camera button centered, gallery button positioned to its left
+        Button(action: onCameraTap) {
+            ZStack {
+                Circle()
+                    .fill(Color.surfaceAccent)
+                    .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
+                    .applyShadow(DesignSystem.Shadow.medium)
 
+                SVGWebView(svgName: "ic_camera", width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large, tintColor: .surfacePrimary)
+                    .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
+            }
+            .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
+        }
+        .overlay(alignment: .leading) {
             Button(action: onGalleryTap) {
                 ZStack {
                     Circle()
-                        .fill(Color.surfaceAccent)
+                        .fill(Color.surfacePrimary)
                         .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
-                        .applyShadow(DesignSystem.Shadow.small)
 
-                    SVGWebView(svgName: "ic_gallery", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .surfacePrimary)
+                    Circle()
+                        .stroke(Color.borderAccent, lineWidth: 2)
+                        .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+
+                    SVGWebView(svgName: "ic_gallery", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
                         .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                 }
                 .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
             }
-            .padding(.trailing, DesignSystem.Spacing.standard)
-            .padding(.top, DesignSystem.Spacing.xxxLarge)
-
-            Button(action: onCameraTap) {
-                ZStack {
-                    Circle()
-                        .fill(Color.surfaceAccent)
-                        .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
-                        .applyShadow(DesignSystem.Shadow.medium)
-
-                    SVGWebView(svgName: "ic_camera", width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large, tintColor: .surfacePrimary)
-                        .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
-                }
-                .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
-            }
-
-            Spacer()
+            .offset(x: -(DesignSystem.ButtonSize.medium + DesignSystem.Spacing.standard), y: DesignSystem.Spacing.xxxLarge / 2)
         }
         .padding(.vertical, DesignSystem.Spacing.standard)
     }

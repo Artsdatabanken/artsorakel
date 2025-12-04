@@ -91,7 +91,7 @@ struct ResultsView: View {
                             Button(action: onAddImage) {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
-                                        .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                                        .strokeBorder(Color.borderAccent, style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
                                         .frame(width: 90, height: 90)
 
                                     SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)

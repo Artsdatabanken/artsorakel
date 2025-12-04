@@ -64,7 +64,7 @@ struct ImageManagementContent: View {
                                 Button(action: onAddImage) {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                                            .strokeBorder(Color.textAccent, style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
+                                            .strokeBorder(Color.borderAccent, style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
                                             .frame(width: 90, height: 90)
 
                                         if resourceExists("ic_add") {
@@ -98,15 +98,12 @@ struct ImageManagementContent: View {
                 Button(action: onIdentify) {
                     Text(localizationManager.localize("identify", comment: "Identify"))
                         .font(DesignSystem.Typography.body())
-                        .foregroundColor(Color.textAccent)
-                        .frame(height: 42)
-                        .padding(.horizontal, 20)
+                        .foregroundColor(Color.surfacePrimary)
+                        .frame(height: 56)
+                        .padding(.horizontal, 22)
                 }
-                .background(Color.surfacePrimary)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 21)
-                        .stroke(Color.borderAccent, lineWidth: 2)
-                )
+                .background(Color.surfaceAccent)
+                .cornerRadius(28)
                 .padding(.top, DesignSystem.Spacing.xxLarge)
                 .padding(.bottom, DesignSystem.Spacing.xLarge)
             }
