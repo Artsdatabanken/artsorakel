@@ -8,8 +8,8 @@ struct ResultsView: View {
     let onReset: () -> Void
     let onAddImage: () -> Void
     let onImageTap: (CroppedImageData) -> Void
+    let onResultTap: (PredictionResult) -> Void
     @Binding var isMenuOpen: Bool
-    @State private var selectedResult: PredictionResult?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,17 +26,6 @@ struct ResultsView: View {
             resetButton
         }
         .background(Color.backgroundSubtle)
-        .fullScreenCover(item: $selectedResult) { result in
-            SpeciesDetailView(
-                result: result,
-                images: images,
-                onClose: {
-                    selectedResult = nil
-                },
-                isMenuOpen: $isMenuOpen
-            )
-            .environmentObject(localizationManager)
-        }
     }
 
     private var headerView: some View {
@@ -140,7 +129,7 @@ struct ResultsView: View {
                     ResultRow(result: result)
                         .contentShape(Rectangle())
                         .onTapGesture {
-                            selectedResult = result
+                            onResultTap(result)
                         }
                     Divider()
                         .background(Color.borderDefault)

@@ -42,6 +42,7 @@ struct MainScreenView: View {
     @State private var identificationResults: [PredictionResult]?
     @State private var identificationTask: Task<Void, Never>?
     @State private var recropFromResults = false
+    @State private var selectedResult: PredictionResult?
 
     var body: some View {
         ZStack {
@@ -52,68 +53,81 @@ struct MainScreenView: View {
                     .frame(height: DesignSystem.ComponentSize.dividerHeight)
                     .background(Color.borderDefault)
 
-                VStack(spacing: 0) {
-                    if croppedImages.isEmpty && !isIdentifying {
+                ZStack {
+                    // Base content - always present
+                    VStack(spacing: 0) {
                         Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
                             .font(DesignSystem.Typography.titleLarge())
                             .foregroundColor(Color.textPrimary)
                             .padding(.horizontal, DesignSystem.Spacing.extraHuge)
                             .padding(.vertical, DesignSystem.Spacing.standard)
                             .multilineTextAlignment(.center)
-                    }
 
-                    ZStack {
-                        Color.backgroundSubtle
-                            .ignoresSafeArea()
+                        ZStack {
+                            Color.backgroundSubtle
+                                .ignoresSafeArea()
 
-                        if isIdentifying {
-                            LoadingView(onAbort: {
-                                identificationTask?.cancel()
-                                isIdentifying = false
-                            })
-                        } else if !croppedImages.isEmpty {
-                            ImageManagementContent(
-                                images: croppedImages,
-                                onReset: {
-                                    croppedImages = []
-                                },
-                                onAddImage: {
-                                    if lastInputMethodIsCamera {
-                                        showCamera = true
-                                    } else {
-                                        showGallery = true
-                                    }
-                                },
-                                onImageTap: { imageData in
-                                    if let index = croppedImages.firstIndex(where: { $0.id == imageData.id }) {
-                                        recropContext = (imageData, index)
-                                        imageToCrop = IdentifiableImage(image: imageData.originalImage, location: imageData.location)
-                                    }
-                                },
-                                onIdentify: {
-                                    identifySpecies()
-                                }
-                            )
-                            .padding(DesignSystem.Spacing.standard)
-                        } else {
                             AvatarView()
                                 .padding(DesignSystem.Spacing.xxLarge)
                         }
+
+                        CameraButtonsView(
+                            onCameraTap: {
+                                lastInputMethodIsCamera = true
+                                showCamera = true
+                            },
+                            onGalleryTap: {
+                                lastInputMethodIsCamera = false
+                                showGallery = true
+                            }
+                        )
+                        .padding(.bottom, DesignSystem.Spacing.standard)
+                    }
+                    .background(Color.backgroundSubtle)
+
+                    // Image management overlay
+                    if !croppedImages.isEmpty {
+                        ImageManagementContent(
+                            images: croppedImages,
+                            onReset: {
+                                croppedImages = []
+                            },
+                            onAddImage: {
+                                if lastInputMethodIsCamera {
+                                    showCamera = true
+                                } else {
+                                    showGallery = true
+                                }
+                            },
+                            onImageTap: { imageData in
+                                if let index = croppedImages.firstIndex(where: { $0.id == imageData.id }) {
+                                    recropContext = (imageData, index)
+                                    imageToCrop = IdentifiableImage(image: imageData.originalImage, location: imageData.location)
+                                }
+                            },
+                            onIdentify: {
+                                identifySpecies()
+                            },
+                            onCameraTap: {
+                                lastInputMethodIsCamera = true
+                                showCamera = true
+                            },
+                            onGalleryTap: {
+                                lastInputMethodIsCamera = false
+                                showGallery = true
+                            }
+                        )
                     }
 
-                    CameraButtonsView(
-                        onCameraTap: {
-                            lastInputMethodIsCamera = true
-                            showCamera = true
-                        },
-                        onGalleryTap: {
-                            lastInputMethodIsCamera = false
-                            showGallery = true
-                        }
-                    )
-                    .padding(.bottom, DesignSystem.Spacing.standard)
+                    // Loading overlay
+                    if isIdentifying {
+                        LoadingView(onAbort: {
+                            identificationTask?.cancel()
+                            isIdentifying = false
+                        })
+                        .background(Color.backgroundSubtle)
+                    }
                 }
-                .background(Color.backgroundSubtle)
             }
             .ignoresSafeArea(edges: .bottom)
 
@@ -161,10 +175,27 @@ struct MainScreenView: View {
                             imageToCrop = IdentifiableImage(image: imageData.originalImage, location: imageData.location)
                         }
                     },
+                    onResultTap: { result in
+                        selectedResult = result
+                    },
                     isMenuOpen: $isMenuOpen
                 )
                 .transition(.move(edge: .trailing))
                 .zIndex(2)
+            }
+
+            // Species detail overlay
+            if let result = selectedResult {
+                SpeciesDetailView(
+                    result: result,
+                    images: croppedImages,
+                    onClose: {
+                        selectedResult = nil
+                    },
+                    isMenuOpen: $isMenuOpen
+                )
+                .transition(.move(edge: .trailing))
+                .zIndex(2.5)
             }
 
             MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)

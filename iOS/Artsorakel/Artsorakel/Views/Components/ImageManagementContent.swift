@@ -6,11 +6,15 @@ struct ImageManagementContent: View {
     let onAddImage: () -> Void
     let onImageTap: (CroppedImageData) -> Void
     let onIdentify: () -> Void
+    let onCameraTap: () -> Void
+    let onGalleryTap: () -> Void
     @EnvironmentObject var localizationManager: LocalizationManager
 
     var body: some View {
-        VStack(spacing: DesignSystem.Spacing.standard) {
-            // Image card
+        VStack(spacing: 0) {
+            // Image card centered in available space
+            Spacer()
+
             VStack(spacing: 0) {
                 // Close button
                 HStack {
@@ -109,6 +113,17 @@ struct ImageManagementContent: View {
             }
             .background(Color.surfacePrimary)
             .cornerRadius(DesignSystem.CornerRadius.medium)
+            .padding(.horizontal, DesignSystem.Spacing.standard)
+
+            Spacer()
+
+            // Camera and gallery buttons
+            CameraButtonsView(
+                onCameraTap: onCameraTap,
+                onGalleryTap: onGalleryTap
+            )
+            .padding(.bottom, DesignSystem.Spacing.standard)
         }
+        .background(Color.backgroundSubtle)
     }
 }
