@@ -109,9 +109,8 @@ def sync_config():
         with open(android_gradle, 'r') as f:
             content = f.read()
 
-        # Update version info
+        # Update version info (versionCode is calculated dynamically from epoch in build.gradle.kts)
         content = re.sub(r'versionName = ".*?"', f'versionName = "{version}"', content)
-        content = re.sub(r'versionCode = \d+', f'versionCode = {version_code}', content)
         content = re.sub(
             r'buildConfigField\("String", "API_BASE_URL", "\\".*?\\""\)',
             f'buildConfigField("String", "API_BASE_URL", "\\"{api_url}\\"")',
@@ -126,7 +125,7 @@ def sync_config():
         with open(android_gradle, 'w') as f:
             f.write(content)
 
-        print_success(f"Updated Android version to {version} ({version_code})")
+        print_success(f"Updated Android version to {version}")
         print_success(f"Updated Android API URL to {api_url}")
         print_success(f"Updated Android RSS Feed URL to {rss_feed_url}")
 

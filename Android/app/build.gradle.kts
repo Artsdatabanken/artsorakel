@@ -14,8 +14,8 @@ android {
         applicationId = "no.artsdatabanken.orakel"
         minSdk = 24
         targetSdk = 36
-        versionCode = (System.currentTimeMillis() / 1000 / 100).toInt()
-        versionName = "4.0.0"  // Centralized version number
+        versionCode = (System.currentTimeMillis() / 1000).toInt()
+        versionName = "4.0.1"  // Centralized version number
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
