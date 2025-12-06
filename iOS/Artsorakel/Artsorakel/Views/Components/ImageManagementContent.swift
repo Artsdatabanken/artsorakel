@@ -103,11 +103,11 @@ struct ImageManagementContent: View {
                     Text(localizationManager.localize("identify", comment: "Identify"))
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(Color.surfacePrimary)
-                        .frame(height: 56)
                         .padding(.horizontal, 22)
+                        .padding(.vertical, 10)
                 }
                 .background(Color.surfaceAccent)
-                .cornerRadius(28)
+                .cornerRadius(20)
                 .padding(.top, DesignSystem.Spacing.xxLarge)
                 .padding(.bottom, DesignSystem.Spacing.xLarge)
             }

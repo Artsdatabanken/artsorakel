@@ -32,8 +32,8 @@ struct ResultsView: View {
         HStack(spacing: 0) {
             Button(action: onReset) {
                 SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                    .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
             }
-            .frame(width: DesignSystem.ButtonSize.standard, height: 60)
             .padding(.leading, DesignSystem.Spacing.standard)
 
             Spacer()
@@ -72,14 +72,14 @@ struct ResultsView: View {
                                         .resizable()
                                         .aspectRatio(contentMode: .fill)
                                         .frame(width: 90, height: 90)
-                                        .cornerRadius(DesignSystem.CornerRadius.small)
+                                        .cornerRadius(DesignSystem.CornerRadius.medium)
                                         .clipped()
                                 }
                             }
 
                             Button(action: onAddImage) {
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
                                         .strokeBorder(Color.borderAccent, style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
                                         .frame(width: 90, height: 90)
 
@@ -109,15 +109,15 @@ struct ResultsView: View {
             Text(localizationManager.localize("reset", comment: "Reset"))
                 .font(DesignSystem.Typography.body())
                 .foregroundColor(Color.textAccent)
-                .padding(.horizontal, DesignSystem.Spacing.large)
-                .padding(.vertical, DesignSystem.Spacing.standard)
+                .padding(.horizontal, 22)
+                .padding(.vertical, 10)
         }
         .background(Color.surfacePrimary)
         .overlay(
-            RoundedRectangle(cornerRadius: 28)
+            RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.borderAccent, lineWidth: 2)
         )
-        .cornerRadius(28)
+        .cornerRadius(20)
         .padding(.vertical, DesignSystem.Spacing.standard)
         .shadow(radius: 8)
     }

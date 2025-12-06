@@ -20,8 +20,8 @@ struct SpeciesDetailView: View {
                 // Back button
                 Button(action: onClose) {
                     SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                 }
-                .frame(width: DesignSystem.ButtonSize.standard, height: 60)
                 .padding(.leading, DesignSystem.Spacing.standard)
 
                 Spacer()
@@ -147,21 +147,23 @@ struct SpeciesDetailView: View {
                     .background(Color.backgroundSubtle)
 
                     // Category Badges
-                    if result.redListCategory != nil || result.invasiveCategory != nil {
-                        HStack(spacing: DesignSystem.Spacing.small) {
-                            if let redListCategory = result.redListCategory {
+                    if redListColor(for: result.redListCategory) != nil || invasiveColor(for: result.invasiveCategory) != nil {
+                        HStack(spacing: DesignSystem.Spacing.standard) {
+                            if let redListCategory = result.redListCategory,
+                               let color = redListColor(for: redListCategory) {
                                 CategoryBadge(
                                     code: redListCategory,
                                     name: localizationManager.localize("redlist_\(redListCategory.lowercased())", comment: ""),
-                                    color: redListColor(for: redListCategory)
+                                    color: color
                                 )
                             }
 
-                            if let invasiveCategory = result.invasiveCategory {
+                            if let invasiveCategory = result.invasiveCategory,
+                               let color = invasiveColor(for: invasiveCategory) {
                                 CategoryBadge(
                                     code: invasiveCategory,
                                     name: localizationManager.localize("invasive_\(invasiveCategory.lowercased())", comment: ""),
-                                    color: invasiveColor(for: invasiveCategory)
+                                    color: color
                                 )
                             }
 
@@ -206,14 +208,14 @@ struct SpeciesDetailView: View {
                         Button(action: {
                             UIApplication.shared.open(url)
                         }) {
-                            HStack {
+                            HStack(spacing: 8) {
                                 Text(readMoreText)
                                     .font(DesignSystem.Typography.subheadline())
                                     .foregroundColor(Color.textAccent)
-                                Spacer()
                                 SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
                                     .frame(width: 16, height: 16)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.standard)
                         }
                     }
@@ -268,14 +270,14 @@ struct SpeciesDetailView: View {
                                 UIApplication.shared.open(url)
                             }
                         }) {
-                            HStack {
+                            HStack(spacing: 8) {
                                 Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no"))
                                     .font(DesignSystem.Typography.subheadline())
                                     .foregroundColor(Color.textAccent)
-                                Spacer()
                                 SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
                                     .frame(width: 16, height: 16)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.standard)
                         }
                         .padding(.top, DesignSystem.Spacing.standard)
@@ -346,7 +348,8 @@ struct SpeciesDetailView: View {
         return nil
     }
 
-    private func redListColor(for category: String) -> Color {
+    private func redListColor(for category: String?) -> Color? {
+        guard let category = category else { return nil }
         switch category.uppercased() {
         case "CR": return Color(red: 152/255, green: 25/255, blue: 25/255)
         case "EN": return Color(red: 217/255, green: 15/255, blue: 40/255)
@@ -354,18 +357,19 @@ struct SpeciesDetailView: View {
         case "NT": return Color(red: 238/255, green: 108/255, blue: 38/255)
         case "DD": return Color(red: 246/255, green: 166/255, blue: 31/255)
         case "LC": return Color(red: 97/255, green: 190/255, blue: 179/255)
-        default: return Color.gray
+        default: return nil
         }
     }
 
-    private func invasiveColor(for category: String) -> Color {
+    private func invasiveColor(for category: String?) -> Color? {
+        guard let category = category else { return nil }
         switch category.uppercased() {
         case "SE": return Color(red: 79/255, green: 15/255, blue: 82/255)
         case "HI": return Color(red: 45/255, green: 64/255, blue: 114/255)
         case "PH": return Color(red: 41/255, green: 100/255, blue: 114/255)
         case "LO": return Color(red: 92/255, green: 157/255, blue: 148/255)
         case "NK": return Color(red: 148/255, green: 164/255, blue: 97/255)
-        default: return Color.gray
+        default: return nil
         }
     }
 }
@@ -376,20 +380,24 @@ struct CategoryBadge: View {
     let color: Color
 
     var body: some View {
-        HStack(spacing: 4) {
-            Text(code.uppercased())
-                .font(DesignSystem.Typography.caption())
-                .fontWeight(.bold)
-                .foregroundColor(.white)
+        HStack(spacing: 8) {
+            // Round circle with code
+            ZStack {
+                Circle()
+                    .fill(color)
+                    .frame(width: 32, height: 32)
 
+                Text(code.uppercased())
+                    .font(DesignSystem.Typography.caption())
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+
+            // Label outside the circle
             Text(name)
-                .font(DesignSystem.Typography.caption())
-                .foregroundColor(.white)
+                .font(DesignSystem.Typography.body())
+                .foregroundColor(Color.textPrimary)
         }
-        .padding(.horizontal, DesignSystem.Spacing.small)
-        .padding(.vertical, 4)
-        .background(color)
-        .cornerRadius(4)
     }
 }
 
