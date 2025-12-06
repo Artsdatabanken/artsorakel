@@ -133,19 +133,16 @@ struct MainScreenView: View {
 
             if showSettings {
                 SettingsView(isPresented: $showSettings, showMenuDrawer: $isMenuOpen)
-                    .transition(.move(edge: .trailing))
                     .zIndex(1)
             }
 
             if showAbout {
                 AboutView(isPresented: $showAbout, showMenuDrawer: $isMenuOpen)
-                    .transition(.move(edge: .trailing))
                     .zIndex(1)
             }
 
             if showFAQ {
                 FAQView(isPresented: $showFAQ, showMenuDrawer: $isMenuOpen)
-                    .transition(.move(edge: .trailing))
                     .zIndex(1)
             }
 
@@ -180,7 +177,6 @@ struct MainScreenView: View {
                     },
                     isMenuOpen: $isMenuOpen
                 )
-                .transition(.move(edge: .trailing))
                 .zIndex(2)
             }
 
@@ -194,7 +190,6 @@ struct MainScreenView: View {
                     },
                     isMenuOpen: $isMenuOpen
                 )
-                .transition(.move(edge: .trailing))
                 .zIndex(2.5)
             }
 
