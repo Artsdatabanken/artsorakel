@@ -9,9 +9,9 @@ struct HistoryStackView: View {
     var body: some View {
         if let topItem = historyStorage.history.first {
             VStack(alignment: .leading, spacing: 8) {
-                // Header
+                // Header - 18sp, chivo_bold, text_primary
                 Text(localizationManager.localize("identification_history", comment: "History"))
-                    .font(DesignSystem.Typography.bodyBold())
+                    .font(.custom("Chivo-Bold", size: 18))
                     .foregroundColor(Color.textPrimary)
 
                 // Stack of cards - dummies rendered first (behind), then real card on top
@@ -63,62 +63,66 @@ struct HistoryCardView: View {
     let item: IdentificationHistory
 
     var body: some View {
-        HStack(spacing: DesignSystem.Spacing.standard) {
-            // Thumbnail
+        HStack(spacing: 0) {
+            // Thumbnail - 87x87dp
             if let firstPath = item.imagePaths.first,
                let image = HistoryStorage.shared.loadImage(at: firstPath) {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 64, height: 64)
-                    .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small))
+                    .frame(width: 87, height: 87)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
             } else {
-                RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
+                RoundedRectangle(cornerRadius: 8)
                     .fill(Color.surfaceSubtle)
-                    .frame(width: 64, height: 64)
+                    .frame(width: 87, height: 87)
             }
 
-            // Species info
-            VStack(alignment: .leading, spacing: 4) {
+            // Species info - paddingHorizontal 12dp
+            VStack(alignment: .leading, spacing: 0) {
                 // Name display
                 let languageCode = localizationManager.currentLanguage == "system"
                     ? Locale.current.languageCode ?? "en"
                     : localizationManager.currentLanguage
 
                 if let vernacularName = item.getVernacularName(for: languageCode), !vernacularName.isEmpty {
+                    // Vernacular name: 21sp, text_accent, bold
                     Text(vernacularName.prefix(1).capitalized + vernacularName.dropFirst())
-                        .font(DesignSystem.Typography.bodyBold())
-                        .foregroundColor(Color.textPrimary)
+                        .font(.custom("Chivo-Bold", size: 21))
+                        .foregroundColor(Color.textAccent)
                         .lineLimit(1)
 
                     if let scientificName = item.bestMatchScientificName {
+                        // Scientific name: 14sp, text_secondary, italic, marginTop 2dp
                         Text(scientificName)
-                            .font(DesignSystem.Typography.caption())
-                            .italic()
-                            .foregroundColor(Color.textPrimary)
+                            .font(.custom("Chivo-Italic", size: 14))
+                            .foregroundColor(Color.textSecondary)
                             .lineLimit(1)
+                            .padding(.top, 2)
                     }
                 } else if let scientificName = item.bestMatchScientificName {
                     Text(scientificName)
-                        .font(DesignSystem.Typography.bodyBold())
+                        .font(.custom("Chivo-Bold", size: 21))
                         .italic()
-                        .foregroundColor(Color.textPrimary)
+                        .foregroundColor(Color.textAccent)
                         .lineLimit(1)
                 }
 
-                // Timestamp
+                // Timestamp: 12sp, text_secondary, marginTop 4dp
                 Text(formatDate(item.timestamp))
-                    .font(DesignSystem.Typography.caption())
+                    .font(.custom("Chivo-Regular", size: 12))
                     .foregroundColor(Color.textSecondary)
+                    .padding(.top, 4)
             }
+            .padding(.horizontal, 12)
 
             Spacer()
 
-            // Chevron
-            SVGWebView(svgName: "ic_chevron_right", width: DesignSystem.IconSize.small, height: DesignSystem.IconSize.small, tintColor: .textPrimary)
-                .frame(width: DesignSystem.IconSize.small, height: DesignSystem.IconSize.small)
+            // Chevron - 36x36dp, tint surface_brand_1b
+            SVGWebView(svgName: "ic_chevron_right", width: 36, height: 36, tintColor: .surfaceBrand1b)
+                .frame(width: 36, height: 36)
         }
-        .padding(DesignSystem.Spacing.standard)
+        .padding(6) // Card padding 6dp
         .background(Color.surfacePrimary)
         .cornerRadius(12)
         .overlay(
