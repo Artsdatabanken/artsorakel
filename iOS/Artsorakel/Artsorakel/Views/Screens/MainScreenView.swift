@@ -72,7 +72,15 @@ struct MainScreenView: View {
                             .padding(.vertical, DesignSystem.Spacing.standard)
                             .multilineTextAlignment(.center)
 
-                        // History stack (when there's history and no images selected)
+                        ZStack {
+                            Color.backgroundSubtle
+                                .ignoresSafeArea()
+
+                            AvatarView()
+                                .padding(DesignSystem.Spacing.xxLarge)
+                        }
+
+                        // History stack (when there's history and no images selected) - below avatar
                         if croppedImages.isEmpty && !historyStorage.history.isEmpty {
                             HistoryStackView(
                                 historyStorage: historyStorage,
@@ -80,14 +88,6 @@ struct MainScreenView: View {
                                     showExpandedHistory = true
                                 }
                             )
-                        }
-
-                        ZStack {
-                            Color.backgroundSubtle
-                                .ignoresSafeArea()
-
-                            AvatarView()
-                                .padding(DesignSystem.Spacing.xxLarge)
                         }
 
                         CameraButtonsView(

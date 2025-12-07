@@ -7,37 +7,51 @@ struct HistoryStackView: View {
     let onTap: () -> Void
 
     var body: some View {
-        let recentHistory = historyStorage.getRecentHistory(limit: 3)
+        if let topItem = historyStorage.history.first {
+            VStack(alignment: .leading, spacing: 8) {
+                // Header
+                Text(localizationManager.localize("identification_history", comment: "History"))
+                    .font(DesignSystem.Typography.bodyBold())
+                    .foregroundColor(Color.textPrimary)
 
-        if !recentHistory.isEmpty {
-            Button(action: onTap) {
-                ZStack {
-                    // Background cards for stack effect (showing there's more)
-                    if recentHistory.count >= 3 {
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .fill(Color.surfacePrimary)
-                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-                            .offset(y: 8)
-                            .padding(.horizontal, 8)
-                    }
+                // Stack of cards - dummies rendered first (behind), then real card on top
+                // Dummies are offset down so their bottom edge peeks out
+                Button(action: onTap) {
+                    HistoryCardView(item: topItem)
+                        .background(
+                            ZStack(alignment: .top) {
+                                // Dummy card 2 (furthest back, most offset, narrowest)
+                                if historyStorage.history.count >= 3 {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.surfacePrimary)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color.borderDefault, lineWidth: 1)
+                                        )
+                                        .padding(.horizontal, 16)
+                                        .offset(y: 12)
+                                }
 
-                    if recentHistory.count >= 2 {
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                            .fill(Color.surfacePrimary)
-                            .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
-                            .offset(y: 4)
-                            .padding(.horizontal, 4)
-                    }
-
-                    // Top card with actual content
-                    if let topItem = recentHistory.first {
-                        HistoryCardView(item: topItem)
-                    }
+                                // Dummy card 1 (middle, less offset)
+                                if historyStorage.history.count >= 2 {
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(Color.surfacePrimary)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12)
+                                                .stroke(Color.borderDefault, lineWidth: 1)
+                                        )
+                                        .padding(.horizontal, 8)
+                                        .offset(y: 6)
+                                }
+                            }
+                        )
                 }
+                .buttonStyle(PlainButtonStyle())
+                // Add bottom padding to account for dummy cards peeking out
+                .padding(.bottom, historyStorage.history.count >= 3 ? 12 : (historyStorage.history.count >= 2 ? 6 : 0))
             }
-            .buttonStyle(PlainButtonStyle())
             .padding(.horizontal, DesignSystem.Spacing.standard)
-            .padding(.bottom, DesignSystem.Spacing.small)
+            .padding(.bottom, DesignSystem.Spacing.standard)
         }
     }
 }
@@ -62,10 +76,6 @@ struct HistoryCardView: View {
                 RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
                     .fill(Color.surfaceSubtle)
                     .frame(width: 64, height: 64)
-                    .overlay(
-                        SVGWebView(svgName: "ic_image_placeholder", width: 32, height: 32, tintColor: .textPrimary)
-                            .frame(width: 32, height: 32)
-                    )
             }
 
             // Species info
@@ -110,7 +120,11 @@ struct HistoryCardView: View {
         }
         .padding(DesignSystem.Spacing.standard)
         .background(Color.surfacePrimary)
-        .cornerRadius(DesignSystem.CornerRadius.medium)
+        .cornerRadius(12)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(Color.borderDefault, lineWidth: 1)
+        )
         .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
     }
 
