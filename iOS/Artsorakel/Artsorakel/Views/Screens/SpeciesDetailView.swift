@@ -214,14 +214,15 @@ struct SpeciesDetailView: View {
                         Button(action: {
                             UIApplication.shared.open(url)
                         }) {
-                            HStack(spacing: 8) {
+                            HStack(alignment: .center, spacing: 8) {
                                 Text(readMoreText)
                                     .font(DesignSystem.Typography.subheadline())
                                     .foregroundColor(Color.textAccent)
+                                    .multilineTextAlignment(.leading)
+                                Spacer()
                                 SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
                                     .frame(width: 16, height: 16)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.standard)
                         }
                     }
@@ -274,7 +275,7 @@ struct SpeciesDetailView: View {
                         Button(action: {
                             showReportDialog = true
                         }) {
-                            HStack(spacing: 8) {
+                            HStack(alignment: .center, spacing: 8) {
                                 if isUploading {
                                     ProgressView()
                                         .progressViewStyle(CircularProgressViewStyle(tint: Color.textAccent))
@@ -286,11 +287,14 @@ struct SpeciesDetailView: View {
                                     Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no"))
                                         .font(DesignSystem.Typography.subheadline())
                                         .foregroundColor(Color.textAccent)
+                                        .multilineTextAlignment(.leading)
+                                }
+                                Spacer()
+                                if !isUploading {
                                     SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
                                         .frame(width: 16, height: 16)
                                 }
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.standard)
                         }
                         .disabled(isUploading)

@@ -5,9 +5,11 @@ struct SettingsView: View {
     @Binding var showMenuDrawer: Bool
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var localizationManager: LocalizationManager
+    @StateObject private var historyStorage = HistoryStorage.shared
     @AppStorage("selectedTheme") private var selectedTheme: String = "system"
     @AppStorage("saveHistory") private var saveHistory: Bool = true
     @AppStorage("useLocation") private var useLocation: Bool = true
+    @State private var showClearHistoryConfirmation: Bool = false
 
     var body: some View {
         ZStack {
@@ -24,8 +26,8 @@ struct SettingsView: View {
                             isPresented = false
                         }
                     }) {
-                            SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium, tintColor: .textAccent)
-                                .frame(width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium)
+                            SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                                .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                        
                     }
                     .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
@@ -175,33 +177,67 @@ struct SettingsView: View {
                         SettingsToggleView(
                             title: localizationManager.localize("save_history", comment: "Save history"),
                             description: localizationManager.localize("save_history_desc", comment: "Keep identification results in device history"),
-                            isOn: $saveHistory,
-                            isDisabled: true
+                            isOn: $saveHistory
                         )
 
                         Button(action: {
-                            // Disabled for now
+                            showClearHistoryConfirmation = true
                         }) {
                             HStack(spacing: 8) {
-                                    SVGWebView(svgName: "ic_delete", width: 20, height: 20, tintColor: Color(red: 0.8, green: 0.2, blue: 0.2))
-                                        .frame(width: DesignSystem.ComponentSize.radioButtonSize, height: DesignSystem.ComponentSize.radioButtonSize)
+                                SVGWebView(svgName: "ic_delete", width: 18, height: 18, tintColor: Color.alertDangerBorderPrimary)
+                                    .frame(width: 18, height: 18)
 
                                 Text(localizationManager.localize("clear_history", comment: "Clear history"))
                                     .font(DesignSystem.Typography.body())
-                                    .foregroundColor(Color(red: 0.8, green: 0.2, blue: 0.2))
+                                    .foregroundColor(Color.alertDangerTextPrimary)
                             }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: DesignSystem.ButtonSize.standard)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
                             .background(Color.surfacePrimary)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 24)
-                                    .stroke(Color(red: 0.8, green: 0.2, blue: 0.2), lineWidth: 2)
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.alertDangerBorderPrimary, lineWidth: 2)
                             )
-                            .cornerRadius(DesignSystem.CornerRadius.large)
+                            .cornerRadius(20)
                         }
-                        .disabled(true)
-                        .opacity(DesignSystem.Opacity.disabled)
                         .padding(.top, DesignSystem.Spacing.medium)
+                        .padding(.bottom, DesignSystem.Spacing.xLarge)
+
+                        // Divider
+                        SectionDivider()
+
+                        // Permissions Section
+                        Text(localizationManager.localize("permissions_title", comment: "Permissions"))
+                            .font(DesignSystem.Typography.subheadlineBold())
+                            .foregroundColor(Color.textPrimary)
+                            .padding(.bottom, DesignSystem.Spacing.medium)
+
+                        PermissionRowView(
+                            title: localizationManager.localize("permission_camera", comment: "Camera"),
+                            status: localizationManager.localize("permission_not_granted", comment: "Not granted"),
+                            buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
+                            action: {
+                                // TODO: Open app settings
+                            }
+                        )
+
+                        PermissionRowView(
+                            title: localizationManager.localize("permission_location", comment: "Location"),
+                            status: localizationManager.localize("permission_not_granted", comment: "Not granted"),
+                            buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
+                            action: {
+                                // TODO: Open app settings
+                            }
+                        )
+
+                        PermissionRowView(
+                            title: localizationManager.localize("permission_photos", comment: "Photos"),
+                            status: localizationManager.localize("permission_not_granted", comment: "Not granted"),
+                            buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
+                            action: {
+                                // TODO: Open app settings
+                            }
+                        )
                     }
                     .padding(DesignSystem.Spacing.large)
                     .padding(.bottom, DesignSystem.Spacing.huge)
@@ -209,6 +245,44 @@ struct SettingsView: View {
                 .background(Color.backgroundSubtle)
             }
         }
+        .alert(localizationManager.localize("clear_history", comment: "Clear history"), isPresented: $showClearHistoryConfirmation) {
+            Button(localizationManager.localize("cancel", comment: "Cancel"), role: .cancel) { }
+            Button(localizationManager.localize("clear", comment: "Clear"), role: .destructive) {
+                historyStorage.deleteAllHistory()
+            }
+        } message: {
+            Text(localizationManager.localize("clear_history_confirmation_message", comment: "Are you sure you want to clear your history?"))
+        }
+    }
+}
+
+struct PermissionRowView: View {
+    let title: String
+    let status: String
+    let buttonText: String
+    let action: () -> Void
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(DesignSystem.Typography.body())
+                    .foregroundColor(Color.textPrimary)
+
+                Text(status)
+                    .font(DesignSystem.Typography.caption())
+                    .foregroundColor(Color.textSecondary)
+            }
+
+            Spacer()
+
+            Button(action: action) {
+                Text(buttonText)
+                    .font(DesignSystem.Typography.body())
+                    .foregroundColor(Color.textAccent)
+            }
+        }
+        .padding(.vertical, DesignSystem.Spacing.small)
     }
 }
 
@@ -319,11 +393,20 @@ struct MaterialToggleStyle: ToggleStyle {
                         .stroke(Color.surfaceAccent, lineWidth: configuration.isOn ? 0 : 2)
                 )
                 .overlay(
-                    Circle()
-                        .fill(Color.surfaceAccent)
-                        .frame(width: configuration.isOn ? 24 : 16, height: configuration.isOn ? 24 : 16)
-                        .offset(x: configuration.isOn ? 10 : -12)
-                        .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+                    ZStack {
+                        Circle()
+                            .fill(Color.surfaceAccent)
+                            .frame(width: configuration.isOn ? 24 : 16, height: configuration.isOn ? 24 : 16)
+                            .shadow(color: Color.black.opacity(0.2), radius: 2, x: 0, y: 1)
+
+                        // Checkmark when on
+                        if configuration.isOn {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundColor(Color.surfacePrimary)
+                        }
+                    }
+                    .offset(x: configuration.isOn ? 10 : -12)
                 )
                 .onTapGesture {
                     withAnimation(.easeInOut(duration: 0.2)) {

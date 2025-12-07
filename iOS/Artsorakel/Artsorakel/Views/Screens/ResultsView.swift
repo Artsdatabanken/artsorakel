@@ -41,6 +41,13 @@ struct ResultsView: View {
     private func historicalIndicator(date: Date) -> some View {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd. MMM yyyy"
+
+        // Use the app's selected language for date formatting
+        let languageCode = localizationManager.currentLanguage == "system"
+            ? (Locale.current.languageCode ?? "en")
+            : localizationManager.currentLanguage
+        formatter.locale = Locale(identifier: languageCode)
+
         let dateString = formatter.string(from: date)
 
         // Replace format specifier from localization

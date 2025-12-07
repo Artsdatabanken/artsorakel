@@ -22,8 +22,8 @@ struct AboutView: View {
                             isPresented = false
                         }
                     }) {
-                            SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium, tintColor: .textAccent)
-                                .frame(width: DesignSystem.IconSize.medium, height: DesignSystem.IconSize.medium)
+                            SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                                .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                         
                     }
                     .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)

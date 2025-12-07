@@ -55,7 +55,7 @@ struct ExpandedHistoryView: View {
 
                 // Content
                 ScrollView {
-                    LazyVStack(spacing: DesignSystem.Spacing.small) {
+                    LazyVStack(spacing: 6) { // 6dp to match Android's 3dp vertical margin per card
                         ForEach(historyStorage.history) { item in
                             ExpandedHistoryRow(
                                 item: item,

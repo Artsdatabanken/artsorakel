@@ -53,6 +53,16 @@ struct MainScreenView: View {
     @State private var currentIdentificationTimestamp: Date?
     @State private var isViewingHistoricalResults = false
 
+    // Overlay z-index tracking - each overlay gets assigned a zIndex when opened
+    // so the most recently opened overlay appears on top
+    @State private var nextZIndex: Double = 1.0
+    @State private var settingsZIndex: Double = 0
+    @State private var aboutZIndex: Double = 0
+    @State private var faqZIndex: Double = 0
+    @State private var resultsZIndex: Double = 0
+    @State private var speciesDetailZIndex: Double = 0
+    @State private var expandedHistoryZIndex: Double = 0
+
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -152,17 +162,17 @@ struct MainScreenView: View {
 
             if showSettings {
                 SettingsView(isPresented: $showSettings, showMenuDrawer: $isMenuOpen)
-                    .zIndex(1)
+                    .zIndex(settingsZIndex)
             }
 
             if showAbout {
                 AboutView(isPresented: $showAbout, showMenuDrawer: $isMenuOpen)
-                    .zIndex(1)
+                    .zIndex(aboutZIndex)
             }
 
             if showFAQ {
                 FAQView(isPresented: $showFAQ, showMenuDrawer: $isMenuOpen)
-                    .zIndex(1)
+                    .zIndex(faqZIndex)
             }
 
             // Results overlay (like settings/about/faq)
@@ -217,7 +227,7 @@ struct MainScreenView: View {
                     },
                     isMenuOpen: $isMenuOpen
                 )
-                .zIndex(2.5)
+                .zIndex(resultsZIndex)
             }
 
             // Species detail overlay
@@ -234,7 +244,7 @@ struct MainScreenView: View {
                     },
                     isMenuOpen: $isMenuOpen
                 )
-                .zIndex(3)
+                .zIndex(speciesDetailZIndex)
             }
 
             // Expanded history overlay
@@ -248,11 +258,11 @@ struct MainScreenView: View {
                         // Don't close expanded history - it stays beneath results view
                     }
                 )
-                .zIndex(2)
+                .zIndex(expandedHistoryZIndex)
             }
 
             MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
-                .zIndex(3)
+                .zIndex(100) // Menu drawer always on top
         }
         .fullScreenCover(item: $imageToCrop) { identifiableImage in
             let capturedRecropContext = recropContext
@@ -325,6 +335,43 @@ struct MainScreenView: View {
                 },
                 onUnavailable: nil
             )
+        }
+        // Assign zIndex when overlays open so the most recent one is on top
+        .onChange(of: showSettings) { newValue in
+            if newValue {
+                settingsZIndex = nextZIndex
+                nextZIndex += 1
+            }
+        }
+        .onChange(of: showAbout) { newValue in
+            if newValue {
+                aboutZIndex = nextZIndex
+                nextZIndex += 1
+            }
+        }
+        .onChange(of: showFAQ) { newValue in
+            if newValue {
+                faqZIndex = nextZIndex
+                nextZIndex += 1
+            }
+        }
+        .onChange(of: showExpandedHistory) { newValue in
+            if newValue {
+                expandedHistoryZIndex = nextZIndex
+                nextZIndex += 1
+            }
+        }
+        .onChange(of: identificationResults) { newValue in
+            if newValue != nil {
+                resultsZIndex = nextZIndex
+                nextZIndex += 1
+            }
+        }
+        .onChange(of: selectedResult) { newValue in
+            if newValue != nil {
+                speciesDetailZIndex = nextZIndex
+                nextZIndex += 1
+            }
         }
     }
 
