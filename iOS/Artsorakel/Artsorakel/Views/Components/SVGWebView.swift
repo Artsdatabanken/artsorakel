@@ -13,6 +13,7 @@ struct SVGWebView: UIViewRepresentable {
         webView.backgroundColor = .clear
         webView.scrollView.isScrollEnabled = false
         webView.isOpaque = false
+        webView.isUserInteractionEnabled = false // Don't intercept touches - let parent handle them
         return webView
     }
 
