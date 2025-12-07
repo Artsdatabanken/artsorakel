@@ -285,6 +285,41 @@ def sync_images():
                 shutil.copy(svg, ios_vectors)
                 print_success(f"Copied vector {svg.name} to iOS Resources/Vectors")
 
+        # Copy PDF files as iOS image assets (for inline use with Text)
+        assets_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Assets.xcassets'
+        assets_dir.mkdir(parents=True, exist_ok=True)
+
+        for pdf in vectors_dir.glob('*.pdf'):
+            # Create imageset directory
+            imageset_name = pdf.stem  # e.g., "ic_external_link"
+            imageset_dir = assets_dir / f'{imageset_name}.imageset'
+            imageset_dir.mkdir(parents=True, exist_ok=True)
+
+            # Copy the PDF file
+            shutil.copy(pdf, imageset_dir / pdf.name)
+
+            # Create Contents.json with template rendering and preserve vector data
+            contents = {
+                "images": [
+                    {
+                        "filename": pdf.name,
+                        "idiom": "universal"
+                    }
+                ],
+                "info": {
+                    "author": "xcode",
+                    "version": 1
+                },
+                "properties": {
+                    "preserves-vector-representation": True,
+                    "template-rendering-intent": "template"
+                }
+            }
+
+            contents_file = imageset_dir / 'Contents.json'
+            contents_file.write_text(json.dumps(contents, indent=2))
+            print_success(f"Created iOS image asset {imageset_name} from PDF")
+
 
 def check_svg_for_transforms(svg_file: Path) -> bool:
     """Check if SVG contains transform attributes"""

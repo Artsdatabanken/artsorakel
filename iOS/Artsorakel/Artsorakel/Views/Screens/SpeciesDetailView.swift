@@ -214,16 +214,12 @@ struct SpeciesDetailView: View {
                         Button(action: {
                             UIApplication.shared.open(url)
                         }) {
-                            HStack(alignment: .center, spacing: 8) {
-                                Text(readMoreText)
-                                    .font(DesignSystem.Typography.subheadline())
-                                    .foregroundColor(Color.textAccent)
-                                    .multilineTextAlignment(.leading)
-                                Spacer()
-                                SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
-                                    .frame(width: 16, height: 16)
-                            }
-                            .padding(DesignSystem.Spacing.standard)
+                            (Text(readMoreText) + Text(" ") + Text(Image("ic_external_link")))
+                                .font(DesignSystem.Typography.subheadline())
+                                .foregroundColor(Color.textAccent)
+                                .multilineTextAlignment(.leading)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(DesignSystem.Spacing.standard)
                         }
                     }
 
@@ -275,24 +271,23 @@ struct SpeciesDetailView: View {
                         Button(action: {
                             showReportDialog = true
                         }) {
-                            HStack(alignment: .center, spacing: 8) {
+                            Group {
                                 if isUploading {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: Color.textAccent))
-                                        .scaleEffect(0.8)
-                                    Text(localizationManager.localize("report_uploading", comment: "Uploading..."))
-                                        .font(DesignSystem.Typography.subheadline())
-                                        .foregroundColor(Color.textAccent)
+                                    HStack(spacing: 8) {
+                                        ProgressView()
+                                            .progressViewStyle(CircularProgressViewStyle(tint: Color.textAccent))
+                                            .scaleEffect(0.8)
+                                        Text(localizationManager.localize("report_uploading", comment: "Uploading..."))
+                                            .font(DesignSystem.Typography.subheadline())
+                                            .foregroundColor(Color.textAccent)
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                                 } else {
-                                    Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no"))
+                                    (Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no")) + Text(" ") + Text(Image("ic_external_link")))
                                         .font(DesignSystem.Typography.subheadline())
                                         .foregroundColor(Color.textAccent)
                                         .multilineTextAlignment(.leading)
-                                }
-                                Spacer()
-                                if !isUploading {
-                                    SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
-                                        .frame(width: 16, height: 16)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
                                 }
                             }
                             .padding(DesignSystem.Spacing.standard)
