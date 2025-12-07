@@ -173,12 +173,26 @@ struct MainScreenView: View {
                     isHistorical: isViewingHistoricalResults,
                     historicalDate: isViewingHistoricalResults ? currentIdentificationTimestamp : nil,
                     onReset: {
-                        identificationResults = nil
-                        croppedImages = []
-                        isViewingHistoricalResults = false
-                        currentUploadId = nil
-                        currentUploadSecret = nil
-                        currentIdentificationTimestamp = nil
+                        // If viewing historical results from expanded history, just close results
+                        // to reveal the expanded history beneath
+                        if isViewingHistoricalResults && showExpandedHistory {
+                            identificationResults = nil
+                            croppedImages = []
+                            isViewingHistoricalResults = false
+                            currentUploadId = nil
+                            currentUploadSecret = nil
+                            currentIdentificationTimestamp = nil
+                            // showExpandedHistory stays true - user returns to history list
+                        } else {
+                            // Fresh results or not from history - go back to main screen
+                            identificationResults = nil
+                            croppedImages = []
+                            isViewingHistoricalResults = false
+                            currentUploadId = nil
+                            currentUploadSecret = nil
+                            currentIdentificationTimestamp = nil
+                            showExpandedHistory = false
+                        }
                     },
                     onAddImage: {
                         // Dismiss results and show image picker based on last method used
@@ -203,7 +217,7 @@ struct MainScreenView: View {
                     },
                     isMenuOpen: $isMenuOpen
                 )
-                .zIndex(2)
+                .zIndex(2.5)
             }
 
             // Species detail overlay
@@ -220,7 +234,7 @@ struct MainScreenView: View {
                     },
                     isMenuOpen: $isMenuOpen
                 )
-                .zIndex(2.5)
+                .zIndex(3)
             }
 
             // Expanded history overlay
@@ -231,7 +245,7 @@ struct MainScreenView: View {
                     isMenuOpen: $isMenuOpen,
                     onSelectItem: { item in
                         loadHistoryResults(item)
-                        showExpandedHistory = false
+                        // Don't close expanded history - it stays beneath results view
                     }
                 )
                 .zIndex(2)

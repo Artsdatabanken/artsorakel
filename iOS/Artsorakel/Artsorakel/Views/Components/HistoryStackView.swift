@@ -86,9 +86,9 @@ struct HistoryCardView: View {
                     : localizationManager.currentLanguage
 
                 if let vernacularName = item.getVernacularName(for: languageCode), !vernacularName.isEmpty {
-                    // Vernacular name: 21sp, text_accent, bold
+                    // Vernacular name: 18sp (matching results cards), text_accent, bold
                     Text(vernacularName.prefix(1).capitalized + vernacularName.dropFirst())
-                        .font(.custom("Chivo-Bold", size: 21))
+                        .font(DesignSystem.Typography.title())
                         .foregroundColor(Color.textAccent)
                         .lineLimit(1)
 
@@ -102,7 +102,7 @@ struct HistoryCardView: View {
                     }
                 } else if let scientificName = item.bestMatchScientificName {
                     Text(scientificName)
-                        .font(.custom("Chivo-Bold", size: 21))
+                        .font(DesignSystem.Typography.title())
                         .italic()
                         .foregroundColor(Color.textAccent)
                         .lineLimit(1)
@@ -135,6 +135,13 @@ struct HistoryCardView: View {
     private func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd. MMM yyyy"
+
+        // Use the app's selected language for date formatting
+        let languageCode = localizationManager.currentLanguage == "system"
+            ? (Locale.current.languageCode ?? "en")
+            : localizationManager.currentLanguage
+        formatter.locale = Locale(identifier: languageCode)
+
         return formatter.string(from: date)
     }
 }
