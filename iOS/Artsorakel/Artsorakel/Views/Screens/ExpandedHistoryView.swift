@@ -112,7 +112,7 @@ struct ExpandedHistoryView: View {
     }
 }
 
-/// Individual row in expanded history list
+/// Individual row in expanded history list - reuses HistoryCardView
 struct ExpandedHistoryRow: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     let item: IdentificationHistory
@@ -135,74 +135,13 @@ struct ExpandedHistoryRow: View {
                     .frame(width: 80)
                     .frame(maxHeight: .infinity)
                     .background(Color.alertDangerBorderPrimary)
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
+                    .cornerRadius(12)
                 }
             }
 
-            // Main content
+            // Main content - reuse HistoryCardView
             Button(action: onTap) {
-                HStack(spacing: DesignSystem.Spacing.standard) {
-                    // Thumbnail
-                    if let firstPath = item.imagePaths.first,
-                       let image = HistoryStorage.shared.loadImage(at: firstPath) {
-                        Image(uiImage: image)
-                            .resizable()
-                            .aspectRatio(contentMode: .fill)
-                            .frame(width: 64, height: 64)
-                            .clipShape(RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small))
-                    } else {
-                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.small)
-                            .fill(Color.surfaceSubtle)
-                            .frame(width: 64, height: 64)
-                            .overlay(
-                                SVGWebView(svgName: "ic_image_placeholder", width: 32, height: 32, tintColor: .textPrimary)
-                                    .frame(width: 32, height: 32)
-                            )
-                    }
-
-                    // Species info
-                    VStack(alignment: .leading, spacing: 4) {
-                        let languageCode = localizationManager.currentLanguage == "system"
-                            ? Locale.current.languageCode ?? "en"
-                            : localizationManager.currentLanguage
-
-                        if let vernacularName = item.getVernacularName(for: languageCode), !vernacularName.isEmpty {
-                            Text(vernacularName.prefix(1).capitalized + vernacularName.dropFirst())
-                                .font(DesignSystem.Typography.bodyBold())
-                                .foregroundColor(Color.textPrimary)
-                                .lineLimit(1)
-
-                            if let scientificName = item.bestMatchScientificName {
-                                Text(scientificName)
-                                    .font(DesignSystem.Typography.caption())
-                                    .italic()
-                                    .foregroundColor(Color.textPrimary)
-                                    .lineLimit(1)
-                            }
-                        } else if let scientificName = item.bestMatchScientificName {
-                            Text(scientificName)
-                                .font(DesignSystem.Typography.bodyBold())
-                                .italic()
-                                .foregroundColor(Color.textPrimary)
-                                .lineLimit(1)
-                        }
-
-                        // Timestamp
-                        Text(formatDate(item.timestamp))
-                            .font(DesignSystem.Typography.caption())
-                            .foregroundColor(Color.textSecondary)
-                    }
-
-                    Spacer()
-
-                    // Chevron
-                    SVGWebView(svgName: "ic_chevron_right", width: DesignSystem.IconSize.small, height: DesignSystem.IconSize.small, tintColor: .textPrimary)
-                        .frame(width: DesignSystem.IconSize.small, height: DesignSystem.IconSize.small)
-                }
-                .padding(DesignSystem.Spacing.standard)
-                .background(Color.surfacePrimary)
-                .cornerRadius(DesignSystem.CornerRadius.medium)
-                .shadow(color: Color.black.opacity(0.05), radius: 2, x: 0, y: 1)
+                HistoryCardView(item: item)
             }
             .buttonStyle(PlainButtonStyle())
             .offset(x: offset)
@@ -228,11 +167,5 @@ struct ExpandedHistoryRow: View {
                     }
             )
         }
-    }
-
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd. MMM yyyy"
-        return formatter.string(from: date)
     }
 }
