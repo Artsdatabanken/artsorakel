@@ -1,4 +1,6 @@
 import SwiftUI
+import AVFoundation
+import CoreLocation
 
 struct SettingsView: View {
     @Binding var isPresented: Bool
@@ -10,6 +12,10 @@ struct SettingsView: View {
     @AppStorage("saveHistory") private var saveHistory: Bool = true
     @AppStorage("useLocation") private var useLocation: Bool = true
     @State private var showClearHistoryConfirmation: Bool = false
+
+    // Permission states
+    @State private var cameraPermission: PermissionStatus = .notDetermined
+    @State private var locationPermission: PermissionStatus = .notDetermined
 
     var body: some View {
         ZStack {
@@ -214,29 +220,16 @@ struct SettingsView: View {
 
                         PermissionRowView(
                             title: localizationManager.localize("permission_camera", comment: "Camera"),
-                            status: localizationManager.localize("permission_not_granted", comment: "Not granted"),
+                            status: permissionStatusText(cameraPermission),
                             buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
-                            action: {
-                                // TODO: Open app settings
-                            }
+                            action: openAppSettings
                         )
 
                         PermissionRowView(
                             title: localizationManager.localize("permission_location", comment: "Location"),
-                            status: localizationManager.localize("permission_not_granted", comment: "Not granted"),
+                            status: permissionStatusText(locationPermission),
                             buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
-                            action: {
-                                // TODO: Open app settings
-                            }
-                        )
-
-                        PermissionRowView(
-                            title: localizationManager.localize("permission_photos", comment: "Photos"),
-                            status: localizationManager.localize("permission_not_granted", comment: "Not granted"),
-                            buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
-                            action: {
-                                // TODO: Open app settings
-                            }
+                            action: openAppSettings
                         )
                     }
                     .padding(DesignSystem.Spacing.large)
@@ -244,6 +237,9 @@ struct SettingsView: View {
                 }
                 .background(Color.backgroundSubtle)
             }
+        }
+        .onAppear {
+            checkPermissions()
         }
         .alert(localizationManager.localize("clear_history", comment: "Clear history"), isPresented: $showClearHistoryConfirmation) {
             Button(localizationManager.localize("cancel", comment: "Cancel"), role: .cancel) { }
@@ -254,6 +250,54 @@ struct SettingsView: View {
             Text(localizationManager.localize("clear_history_confirmation_message", comment: "Are you sure you want to clear your history?"))
         }
     }
+
+    private func checkPermissions() {
+        // Check camera permission
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            cameraPermission = .granted
+        case .denied, .restricted:
+            cameraPermission = .denied
+        case .notDetermined:
+            cameraPermission = .notDetermined
+        @unknown default:
+            cameraPermission = .notDetermined
+        }
+
+        // Check location permission
+        let locationStatus = CLLocationManager().authorizationStatus
+        switch locationStatus {
+        case .authorizedWhenInUse, .authorizedAlways:
+            locationPermission = .granted
+        case .denied, .restricted:
+            locationPermission = .denied
+        case .notDetermined:
+            locationPermission = .notDetermined
+        @unknown default:
+            locationPermission = .notDetermined
+        }
+    }
+
+    private func permissionStatusText(_ status: PermissionStatus) -> String {
+        switch status {
+        case .granted:
+            return localizationManager.localize("permission_granted", comment: "Granted")
+        case .denied, .notDetermined:
+            return localizationManager.localize("permission_not_granted", comment: "Not granted")
+        }
+    }
+
+    private func openAppSettings() {
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
+    }
+}
+
+enum PermissionStatus {
+    case granted
+    case denied
+    case notDetermined
 }
 
 struct PermissionRowView: View {

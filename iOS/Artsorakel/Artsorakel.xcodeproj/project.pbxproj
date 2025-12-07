@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6CFAD34F2EE639FB00E4FB1E /* ShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 6CFAD3452EE639FB00E4FB1E /* ShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		6C7616C82E69B9E60004711E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,13 +25,45 @@
 			remoteGlobalIDString = 6C7616B92E69B9E50004711E;
 			remoteInfo = Artsorakel;
 		};
+		6CFAD34D2EE639FB00E4FB1E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 6C7616B22E69B9E50004711E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 6CFAD3442EE639FB00E4FB1E;
+			remoteInfo = ShareExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6CFAD3542EE639FB00E4FB1E /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				6CFAD34F2EE639FB00E4FB1E /* ShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6C7616BA2E69B9E50004711E /* Artsorakel.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Artsorakel.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C7616C72E69B9E60004711E /* ArtsorakelTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtsorakelTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		6C7616D12E69B9E60004711E /* ArtsorakelUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtsorakelUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		6CFAD3452EE639FB00E4FB1E /* ShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		6CFAD3502EE639FB00E4FB1E /* Exceptions for "ShareExtension" folder in "ShareExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 6CFAD3442EE639FB00E4FB1E /* ShareExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		6C7616BC2E69B9E50004711E /* Artsorakel */ = {
@@ -43,6 +79,14 @@
 		6C7616D42E69B9E60004711E /* ArtsorakelUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ArtsorakelUITests;
+			sourceTree = "<group>";
+		};
+		6CFAD3462EE639FB00E4FB1E /* ShareExtension */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				6CFAD3502EE639FB00E4FB1E /* Exceptions for "ShareExtension" folder in "ShareExtension" target */,
+			);
+			path = ShareExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +113,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6CFAD3422EE639FB00E4FB1E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +129,7 @@
 				6C7616BC2E69B9E50004711E /* Artsorakel */,
 				6C7616CA2E69B9E60004711E /* ArtsorakelTests */,
 				6C7616D42E69B9E60004711E /* ArtsorakelUITests */,
+				6CFAD3462EE639FB00E4FB1E /* ShareExtension */,
 				6C7616BB2E69B9E50004711E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +140,7 @@
 				6C7616BA2E69B9E50004711E /* Artsorakel.app */,
 				6C7616C72E69B9E60004711E /* ArtsorakelTests.xctest */,
 				6C7616D12E69B9E60004711E /* ArtsorakelUITests.xctest */,
+				6CFAD3452EE639FB00E4FB1E /* ShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,10 +155,12 @@
 				6C7616B62E69B9E50004711E /* Sources */,
 				6C7616B72E69B9E50004711E /* Frameworks */,
 				6C7616B82E69B9E50004711E /* Resources */,
+				6CFAD3542EE639FB00E4FB1E /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6CFAD34E2EE639FB00E4FB1E /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				6C7616BC2E69B9E50004711E /* Artsorakel */,
@@ -163,6 +218,28 @@
 			productReference = 6C7616D12E69B9E60004711E /* ArtsorakelUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		6CFAD3442EE639FB00E4FB1E /* ShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6CFAD3512EE639FB00E4FB1E /* Build configuration list for PBXNativeTarget "ShareExtension" */;
+			buildPhases = (
+				6CFAD3412EE639FB00E4FB1E /* Sources */,
+				6CFAD3422EE639FB00E4FB1E /* Frameworks */,
+				6CFAD3432EE639FB00E4FB1E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				6CFAD3462EE639FB00E4FB1E /* ShareExtension */,
+			);
+			name = ShareExtension;
+			packageProductDependencies = (
+			);
+			productName = ShareExtension;
+			productReference = 6CFAD3452EE639FB00E4FB1E /* ShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -183,6 +260,9 @@
 					6C7616D02E69B9E60004711E = {
 						CreatedOnToolsVersion = 16.4;
 						TestTargetID = 6C7616B92E69B9E50004711E;
+					};
+					6CFAD3442EE639FB00E4FB1E = {
+						CreatedOnToolsVersion = 16.4;
 					};
 				};
 			};
@@ -208,6 +288,7 @@
 				6C7616B92E69B9E50004711E /* Artsorakel */,
 				6C7616C62E69B9E60004711E /* ArtsorakelTests */,
 				6C7616D02E69B9E60004711E /* ArtsorakelUITests */,
+				6CFAD3442EE639FB00E4FB1E /* ShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -228,6 +309,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		6C7616CF2E69B9E60004711E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6CFAD3432EE639FB00E4FB1E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -258,6 +346,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		6CFAD3412EE639FB00E4FB1E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -270,6 +365,11 @@
 			isa = PBXTargetDependency;
 			target = 6C7616B92E69B9E50004711E /* Artsorakel */;
 			targetProxy = 6C7616D22E69B9E60004711E /* PBXContainerItemProxy */;
+		};
+		6CFAD34E2EE639FB00E4FB1E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 6CFAD3442EE639FB00E4FB1E /* ShareExtension */;
+			targetProxy = 6CFAD34D2EE639FB00E4FB1E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -400,6 +500,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Artsorakel/Artsorakel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6FPZL6H72M;
@@ -424,6 +525,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Artsorakel/Artsorakel.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6FPZL6H72M;
@@ -515,6 +617,60 @@
 			};
 			name = Release;
 		};
+		6CFAD3522EE639FB00E4FB1E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6FPZL6H72M;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Artsorakel;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = no.artsdatabanken.orakel.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		6CFAD3532EE639FB00E4FB1E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShareExtension/ShareExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6FPZL6H72M;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Artsorakel;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = no.artsdatabanken.orakel.ShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -550,6 +706,15 @@
 			buildConfigurations = (
 				6C7616E22E69B9E60004711E /* Debug */,
 				6C7616E32E69B9E60004711E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6CFAD3512EE639FB00E4FB1E /* Build configuration list for PBXNativeTarget "ShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6CFAD3522EE639FB00E4FB1E /* Debug */,
+				6CFAD3532EE639FB00E4FB1E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

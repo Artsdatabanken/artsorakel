@@ -37,6 +37,19 @@
 		<string>chivo_italic.ttf</string>
 		<string>chivo_bolditalic.ttf</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>no.artsdatabanken.orakel</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>artsorakel</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

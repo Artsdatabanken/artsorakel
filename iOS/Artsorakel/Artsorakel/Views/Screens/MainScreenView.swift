@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreLocation
+import Combine
 
 // Wrapper to make UIImage identifiable for sheet presentation
 struct IdentifiableImage: Identifiable {
@@ -23,10 +24,42 @@ struct CroppedImageData: Identifiable {
     }
 }
 
+// Helper class to request location permission before opening camera
+class LocationPermissionHelper: NSObject, ObservableObject, CLLocationManagerDelegate {
+    private let locationManager = CLLocationManager()
+    private var permissionCallback: (() -> Void)?
+
+    override init() {
+        super.init()
+        locationManager.delegate = self
+    }
+
+    func requestPermissionThenExecute(_ callback: @escaping () -> Void) {
+        let status = locationManager.authorizationStatus
+        if status == .notDetermined {
+            permissionCallback = callback
+            locationManager.requestWhenInUseAuthorization()
+        } else {
+            callback()
+        }
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if manager.authorizationStatus != .notDetermined {
+            DispatchQueue.main.async {
+                self.permissionCallback?()
+                self.permissionCallback = nil
+            }
+        }
+    }
+}
+
 struct MainScreenView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.scenePhase) var scenePhase
     @EnvironmentObject var localizationManager: LocalizationManager
     @StateObject private var historyStorage = HistoryStorage.shared
+    @StateObject private var locationHelper = LocationPermissionHelper()
     @State private var showCamera = false
     @State private var showGallery = false
     @State private var isMenuOpen = false
@@ -102,8 +135,7 @@ struct MainScreenView: View {
 
                         CameraButtonsView(
                             onCameraTap: {
-                                lastInputMethodIsCamera = true
-                                showCamera = true
+                                openCamera()
                             },
                             onGalleryTap: {
                                 lastInputMethodIsCamera = false
@@ -123,7 +155,7 @@ struct MainScreenView: View {
                             },
                             onAddImage: {
                                 if lastInputMethodIsCamera {
-                                    showCamera = true
+                                    openCamera()
                                 } else {
                                     showGallery = true
                                 }
@@ -138,8 +170,7 @@ struct MainScreenView: View {
                                 identifySpecies()
                             },
                             onCameraTap: {
-                                lastInputMethodIsCamera = true
-                                showCamera = true
+                                openCamera()
                             },
                             onGalleryTap: {
                                 lastInputMethodIsCamera = false
@@ -209,7 +240,7 @@ struct MainScreenView: View {
                         identificationResults = nil
                         isViewingHistoricalResults = false
                         if lastInputMethodIsCamera {
-                            showCamera = true
+                            openCamera()
                         } else {
                             showGallery = true
                         }
@@ -372,6 +403,39 @@ struct MainScreenView: View {
                 speciesDetailZIndex = nextZIndex
                 nextZIndex += 1
             }
+        }
+        .onAppear {
+            checkForSharedImage()
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .active {
+                checkForSharedImage()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .sharedImageReceived)) { _ in
+            checkForSharedImage()
+        }
+    }
+
+    private func checkForSharedImage() {
+        guard let (image, location) = SharedImageHandler.shared.loadPendingSharedImage() else {
+            return
+        }
+
+        // Clear the pending image so we don't process it again
+        SharedImageHandler.shared.clearPendingSharedImage()
+
+        // Set the image for cropping (same flow as camera/gallery)
+        lastInputMethodIsCamera = false
+        imageToCrop = IdentifiableImage(image: image, location: location)
+    }
+
+    private func openCamera() {
+        lastInputMethodIsCamera = true
+        // Request location permission before opening camera so the dialog
+        // appears before the camera UI, not over it
+        locationHelper.requestPermissionThenExecute {
+            showCamera = true
         }
     }
 
