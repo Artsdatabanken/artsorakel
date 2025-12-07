@@ -20,8 +20,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // Default BuildConfig values for all variants
-        buildConfigField("String", "API_BASE_URL", "\"https://ai.artsdatabanken.no/\"")
-        buildConfigField("String", "RSS_FEED_URL", "\"https://ai.artsdatabanken.no/rss\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://ai.test.artsdatabanken.no/\"")
+        buildConfigField("String", "RSS_FEED_URL", "\"https://ai.test.artsdatabanken.no/rss\"")
         buildConfigField("boolean", "IS_RELEASE_BUILD", "false")  // Default to non-release
         buildConfigField("boolean", "ENABLE_LOGGING", "false")
         buildConfigField("long", "NETWORK_TIMEOUT_SECONDS", "60L")

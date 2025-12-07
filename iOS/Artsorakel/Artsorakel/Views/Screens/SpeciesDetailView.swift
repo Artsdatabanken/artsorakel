@@ -5,12 +5,18 @@ struct SpeciesDetailView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     let result: PredictionResult
     let images: [CroppedImageData]
+    var uploadId: String?
+    var uploadSecret: String?
+    var identificationTimestamp: Date?
+    var isHistorical: Bool = false
     let onClose: () -> Void
     @Binding var isMenuOpen: Bool
     @State private var currentImageIndex = 0
     @State private var showSettings = false
     @State private var showAbout = false
     @State private var showFAQ = false
+    @State private var isUploading = false
+    @State private var showReportDialog = false
 
     var body: some View {
         ZStack {
@@ -266,20 +272,28 @@ struct SpeciesDetailView: View {
                        result.modelInfo?.country == "NO" || result.modelInfo?.country == "Norway" {
 
                         Button(action: {
-                            if let url = URL(string: "https://mobil.artsobservasjoner.no/#/?scientificnameid=\(extractedId)%26") {
-                                UIApplication.shared.open(url)
-                            }
+                            showReportDialog = true
                         }) {
                             HStack(spacing: 8) {
-                                Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no"))
-                                    .font(DesignSystem.Typography.subheadline())
-                                    .foregroundColor(Color.textAccent)
-                                SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
-                                    .frame(width: 16, height: 16)
+                                if isUploading {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: Color.textAccent))
+                                        .scaleEffect(0.8)
+                                    Text(localizationManager.localize("report_uploading", comment: "Uploading..."))
+                                        .font(DesignSystem.Typography.subheadline())
+                                        .foregroundColor(Color.textAccent)
+                                } else {
+                                    Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no"))
+                                        .font(DesignSystem.Typography.subheadline())
+                                        .foregroundColor(Color.textAccent)
+                                    SVGWebView(svgName: "ic_external_link", width: 16, height: 16, tintColor: .textAccent)
+                                        .frame(width: 16, height: 16)
+                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(DesignSystem.Spacing.standard)
                         }
+                        .disabled(isUploading)
                         .padding(.top, DesignSystem.Spacing.standard)
                     }
 
@@ -309,6 +323,70 @@ struct SpeciesDetailView: View {
 
         MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
             .zIndex(3)
+        }
+        .alert(localizationManager.localize("report_dialog_title", comment: "Report observation"), isPresented: $showReportDialog) {
+            Button(localizationManager.localize("cancel", comment: "Cancel"), role: .cancel) { }
+            Button(localizationManager.localize("report_dialog_continue", comment: "Continue")) {
+                uploadImagesAndReport()
+            }
+        } message: {
+            Text(localizationManager.localize("report_dialog_message", comment: "You will be redirected to artsobservasjoner.no"))
+        }
+    }
+
+    private func uploadImagesAndReport() {
+        guard let extractedId = extractIdAfterColon(result.id) else { return }
+
+        // Check if we have fresh upload credentials (less than 25 minutes old)
+        if let uploadId = uploadId,
+           let uploadSecret = uploadSecret,
+           let timestamp = identificationTimestamp {
+            let ageMinutes = Date().timeIntervalSince(timestamp) / 60
+            if ageMinutes < 25 {
+                // Upload credentials are fresh, use them directly
+                openReportUrl(scientificNameId: extractedId, imageId: uploadId, password: uploadSecret)
+                return
+            }
+        }
+
+        // Upload credentials are stale or not available, need to get new ones
+        let imagesToUpload = images.map { $0.image }
+
+        if imagesToUpload.isEmpty {
+            // No images, open URL without image reference
+            openReportUrl(scientificNameId: extractedId, imageId: nil, password: nil)
+            return
+        }
+
+        isUploading = true
+
+        Task {
+            do {
+                let response = try await SpeciesAPIService.shared.saveImagesForReport(images: imagesToUpload)
+
+                await MainActor.run {
+                    isUploading = false
+                    openReportUrl(scientificNameId: extractedId, imageId: response.id, password: response.password)
+                }
+            } catch {
+                await MainActor.run {
+                    isUploading = false
+                    // Open URL without image reference on failure
+                    openReportUrl(scientificNameId: extractedId, imageId: nil, password: nil)
+                }
+            }
+        }
+    }
+
+    private func openReportUrl(scientificNameId: String, imageId: String?, password: String?) {
+        var urlString = "https://mobil.artsobservasjoner.no/contribute/submit-sightings?ReportByScientificName=\(scientificNameId)"
+
+        if let imageId = imageId, let password = password {
+            urlString += "&id=\(imageId)&password=\(password)"
+        }
+
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
         }
     }
 

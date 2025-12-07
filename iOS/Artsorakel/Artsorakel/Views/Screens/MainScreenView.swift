@@ -26,6 +26,7 @@ struct CroppedImageData: Identifiable {
 struct MainScreenView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var localizationManager: LocalizationManager
+    @StateObject private var historyStorage = HistoryStorage.shared
     @State private var showCamera = false
     @State private var showGallery = false
     @State private var isMenuOpen = false
@@ -43,6 +44,14 @@ struct MainScreenView: View {
     @State private var identificationTask: Task<Void, Never>?
     @State private var recropFromResults = false
     @State private var selectedResult: PredictionResult?
+
+    // History-related state
+    @State private var showExpandedHistory = false
+    @State private var selectedHistoryItem: IdentificationHistory?
+    @State private var currentUploadId: String?
+    @State private var currentUploadSecret: String?
+    @State private var currentIdentificationTimestamp: Date?
+    @State private var isViewingHistoricalResults = false
 
     var body: some View {
         ZStack {
@@ -62,6 +71,16 @@ struct MainScreenView: View {
                             .padding(.horizontal, DesignSystem.Spacing.extraHuge)
                             .padding(.vertical, DesignSystem.Spacing.standard)
                             .multilineTextAlignment(.center)
+
+                        // History stack (when there's history and no images selected)
+                        if croppedImages.isEmpty && !historyStorage.history.isEmpty {
+                            HistoryStackView(
+                                historyStorage: historyStorage,
+                                onTap: {
+                                    showExpandedHistory = true
+                                }
+                            )
+                        }
 
                         ZStack {
                             Color.backgroundSubtle
@@ -151,13 +170,20 @@ struct MainScreenView: View {
                 ResultsView(
                     results: results,
                     images: croppedImages,
+                    isHistorical: isViewingHistoricalResults,
+                    historicalDate: isViewingHistoricalResults ? currentIdentificationTimestamp : nil,
                     onReset: {
                         identificationResults = nil
                         croppedImages = []
+                        isViewingHistoricalResults = false
+                        currentUploadId = nil
+                        currentUploadSecret = nil
+                        currentIdentificationTimestamp = nil
                     },
                     onAddImage: {
                         // Dismiss results and show image picker based on last method used
                         identificationResults = nil
+                        isViewingHistoricalResults = false
                         if lastInputMethodIsCamera {
                             showCamera = true
                         } else {
@@ -185,12 +211,30 @@ struct MainScreenView: View {
                 SpeciesDetailView(
                     result: result,
                     images: croppedImages,
+                    uploadId: currentUploadId,
+                    uploadSecret: currentUploadSecret,
+                    identificationTimestamp: currentIdentificationTimestamp,
+                    isHistorical: isViewingHistoricalResults,
                     onClose: {
                         selectedResult = nil
                     },
                     isMenuOpen: $isMenuOpen
                 )
                 .zIndex(2.5)
+            }
+
+            // Expanded history overlay
+            if showExpandedHistory {
+                ExpandedHistoryView(
+                    historyStorage: historyStorage,
+                    isPresented: $showExpandedHistory,
+                    isMenuOpen: $isMenuOpen,
+                    onSelectItem: { item in
+                        loadHistoryResults(item)
+                        showExpandedHistory = false
+                    }
+                )
+                .zIndex(2)
             }
 
             MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
@@ -272,6 +316,7 @@ struct MainScreenView: View {
 
     private func identifySpecies() {
         isIdentifying = true
+        isViewingHistoricalResults = false
 
         identificationTask = Task {
             do {
@@ -279,11 +324,22 @@ struct MainScreenView: View {
                 // Use the most recent image that has coordinates
                 let location = croppedImages.last(where: { $0.location != nil })?.location
 
-                let results = try await SpeciesAPIService.shared.identifySpecies(images: images, location: location)
+                let result = try await SpeciesAPIService.shared.identifySpecies(images: images, location: location)
 
                 await MainActor.run {
                     isIdentifying = false
-                    identificationResults = results
+                    identificationResults = result.predictions
+                    currentUploadId = result.uploadId
+                    currentUploadSecret = result.uploadSecret
+                    currentIdentificationTimestamp = result.timestamp
+
+                    // Save to history
+                    historyStorage.saveIdentification(
+                        results: result.predictions,
+                        images: images,
+                        uploadId: result.uploadId,
+                        uploadSecret: result.uploadSecret
+                    )
                 }
             } catch {
                 await MainActor.run {
@@ -293,6 +349,29 @@ struct MainScreenView: View {
                 }
             }
         }
+    }
+
+    private func loadHistoryResults(_ item: IdentificationHistory) {
+        // Parse the stored JSON results
+        let predictions = historyStorage.parseResultsFromJson(item.allResults)
+
+        guard !predictions.isEmpty else { return }
+
+        // Load images from history
+        let historyImages = item.imagePaths.compactMap { path -> CroppedImageData? in
+            guard let image = historyStorage.loadImage(at: path) else { return nil }
+            return CroppedImageData(image: image, originalImage: image, location: nil)
+        }
+
+        // Mark as viewing historical results
+        isViewingHistoricalResults = true
+
+        // Set the display state
+        croppedImages = historyImages
+        identificationResults = predictions
+        currentUploadId = item.uploadId
+        currentUploadSecret = item.uploadSecret
+        currentIdentificationTimestamp = item.timestamp
     }
 }
 

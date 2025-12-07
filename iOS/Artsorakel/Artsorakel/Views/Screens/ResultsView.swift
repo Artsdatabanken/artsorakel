@@ -5,6 +5,8 @@ struct ResultsView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     let results: [PredictionResult]
     let images: [CroppedImageData]
+    var isHistorical: Bool = false
+    var historicalDate: Date? = nil
     let onReset: () -> Void
     let onAddImage: () -> Void
     let onImageTap: (CroppedImageData) -> Void
@@ -19,6 +21,11 @@ struct ResultsView: View {
                 .frame(height: DesignSystem.ComponentSize.dividerHeight)
                 .background(Color.borderDefault)
 
+            // Historical indicator
+            if isHistorical, let date = historicalDate {
+                historicalIndicator(date: date)
+            }
+
             imagesSection
 
             resultsListView
@@ -26,6 +33,29 @@ struct ResultsView: View {
             resetButton
         }
         .background(Color.backgroundSubtle)
+    }
+
+    private func historicalIndicator(date: Date) -> some View {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd. MMM yyyy"
+        let dateString = formatter.string(from: date)
+
+        // Replace format specifier from localization
+        let formatString = localizationManager.localize("historical_result_from", comment: "")
+            .replacingOccurrences(of: "%1$s", with: "%@")
+        let text = String(format: formatString, dateString)
+
+        return HStack {
+            SVGWebView(svgName: "ic_history", width: 16, height: 16, tintColor: .textSecondary)
+                .frame(width: 16, height: 16)
+            Text(text)
+                .font(DesignSystem.Typography.caption())
+                .foregroundColor(Color.textSecondary)
+            Spacer()
+        }
+        .padding(.horizontal, DesignSystem.Spacing.standard)
+        .padding(.vertical, DesignSystem.Spacing.small)
+        .background(Color.surfaceSecondary)
     }
 
     private var headerView: some View {

@@ -32,6 +32,14 @@ struct PredictionResult: Identifiable, Codable, Equatable {
 struct APIResponse: Codable {
     let predictions: [PredictionDTO]?
     let modelInfo: ModelInfoDTO?
+    let uploadId: String?
+    let uploadSecret: String?
+}
+
+/// Response from the /save endpoint containing image reference data
+struct SaveImageResponse: Codable {
+    let id: String
+    let password: String
 }
 
 struct ModelInfoDTO: Codable {

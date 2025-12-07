@@ -33,10 +33,15 @@ struct AppConfig {
             guard let path = possiblePaths.compactMap({ $0 }).first,
                   let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let api = json["api"] as? [String: Any],
-                  let bearerTokens = api["bearerToken"] as? [String: String],
-                  let token = bearerTokens["ios"] else {
+                  let api = json["api"] as? [String: Any] else {
                 fatalError("Failed to load bearerToken from secrets.json. Make sure to run sync_resources.py first and that secrets.json exists.")
+            }
+
+            // Use test token if baseURL contains "test", otherwise use production token
+            let tokenKey = baseURL.contains(".test.") ? "bearerTokenTest" : "bearerToken"
+            guard let bearerTokens = api[tokenKey] as? [String: String],
+                  let token = bearerTokens["ios"] else {
+                fatalError("Failed to load \(tokenKey) from secrets.json.")
             }
             return token
         }()

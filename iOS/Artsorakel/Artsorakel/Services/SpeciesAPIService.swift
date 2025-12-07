@@ -3,6 +3,14 @@ import UIKit
 import CoreLocation
 import SwiftUI
 
+/// Result of species identification including upload credentials
+struct IdentificationResult {
+    let predictions: [PredictionResult]
+    let uploadId: String?
+    let uploadSecret: String?
+    let timestamp: Date
+}
+
 class SpeciesAPIService {
     static let shared = SpeciesAPIService()
 
@@ -14,8 +22,9 @@ class SpeciesAPIService {
 
     private init() {}
 
-    func identifySpecies(images: [UIImage], location: CLLocation?) async throws -> [PredictionResult] {
-        guard let url = URL(string: baseURL) else {
+    /// Identifies species from images and returns results with upload credentials
+    func identifySpecies(images: [UIImage], location: CLLocation?) async throws -> IdentificationResult {
+        guard let url = URL(string: baseURL + "identify") else {
             throw APIError.invalidURL
         }
 
@@ -87,7 +96,85 @@ class SpeciesAPIService {
         let apiResponse = try JSONDecoder().decode(APIResponse.self, from: data)
 
         // Map to domain models
-        return mapAPIResponseToPredictionResults(apiResponse)
+        let predictions = mapAPIResponseToPredictionResults(apiResponse)
+
+        return IdentificationResult(
+            predictions: predictions,
+            uploadId: apiResponse.uploadId,
+            uploadSecret: apiResponse.uploadSecret,
+            timestamp: Date()
+        )
+    }
+
+    /// Saves images to server for reporting (when upload credentials have expired)
+    func saveImagesForReport(images: [UIImage]) async throws -> SaveImageResponse {
+        guard let url = URL(string: baseURL + "save") else {
+            throw APIError.invalidURL
+        }
+
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer \(bearerToken)", forHTTPHeaderField: "Authorization")
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = timeout
+
+        // Create multipart form data
+        var body = Data()
+
+        // Add images
+        for (index, image) in images.enumerated() {
+            // Resize to 1024x1024 and compress
+            let resizedImage = resizeImage(image, maxDimension: 1024)
+            guard let imageData = resizedImage.jpegData(compressionQuality: 0.85) else { continue }
+
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"image\"; filename=\"image_\(index).jpg\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(imageData)
+            body.append("\r\n".data(using: .utf8)!)
+        }
+
+        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+
+        request.httpBody = body
+
+        // Make request
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw APIError.invalidResponse
+        }
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.httpError(statusCode: httpResponse.statusCode)
+        }
+
+        // Parse response
+        return try JSONDecoder().decode(SaveImageResponse.self, from: data)
+    }
+
+    private func resizeImage(_ image: UIImage, maxDimension: CGFloat) -> UIImage {
+        let originalWidth = image.size.width
+        let originalHeight = image.size.height
+
+        let scale = min(maxDimension / originalWidth, maxDimension / originalHeight)
+
+        // Don't upscale
+        if scale >= 1.0 {
+            return image
+        }
+
+        let newWidth = originalWidth * scale
+        let newHeight = originalHeight * scale
+        let newSize = CGSize(width: newWidth, height: newHeight)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: CGRect(origin: .zero, size: newSize))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage ?? image
     }
 
     func cancelIdentification() {
