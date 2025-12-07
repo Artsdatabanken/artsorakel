@@ -28,9 +28,9 @@ struct ExpandedHistoryView: View {
 
                     Spacer()
 
-                    // Title (centered)
+                    // Title (centered) - 18sp regular like Android
                     Text(localizationManager.localize("identification_history", comment: "History"))
-                        .font(DesignSystem.Typography.body())
+                        .font(DesignSystem.Typography.titleRegular())
                         .foregroundColor(Color.textPrimary)
 
                     Spacer()

@@ -89,6 +89,10 @@ struct DesignSystem {
             .custom(primaryFont, size: FontSize.title).weight(.bold)
         }
 
+        static func titleRegular() -> Font {
+            .custom(primaryFont, size: FontSize.title)
+        }
+
         static func titleLarge() -> Font {
             .custom(primaryFont, size: FontSize.titleLarge).weight(.bold)
         }

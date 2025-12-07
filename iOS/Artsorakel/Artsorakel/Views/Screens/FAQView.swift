@@ -43,7 +43,7 @@ struct FAQView: View {
 
                     // Title
                     Text(localizationManager.localize("faq", comment: "FAQ"))
-                        .font(DesignSystem.Typography.title())
+                        .font(DesignSystem.Typography.titleRegular())
                         .foregroundColor(Color.textPrimary)
                         .frame(maxWidth: .infinity)
 

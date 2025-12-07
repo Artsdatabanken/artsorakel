@@ -31,7 +31,7 @@ struct AboutView: View {
 
                     // Title
                     Text(localizationManager.localize("about", comment: "About"))
-                        .font(DesignSystem.Typography.title())
+                        .font(DesignSystem.Typography.titleRegular())
                         .foregroundColor(Color.textPrimary)
                         .frame(maxWidth: .infinity)
 

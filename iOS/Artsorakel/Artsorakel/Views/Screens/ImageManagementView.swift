@@ -25,7 +25,7 @@ struct ImageManagementView: View {
 
                     // Title
                     Text(localizationManager.localize("image_management", comment: "Image Management"))
-                        .font(DesignSystem.Typography.title())
+                        .font(DesignSystem.Typography.titleRegular())
                         .foregroundColor(Color.textPrimary)
                         .frame(maxWidth: .infinity)
 

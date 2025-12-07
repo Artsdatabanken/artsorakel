@@ -32,9 +32,9 @@ struct SpeciesDetailView: View {
 
                 Spacer()
 
-                // Title (centered)
+                // Title (centered) - 18sp regular like Android
                 Text(localizationManager.localize("details", comment: "Details"))
-                    .font(DesignSystem.Typography.body())
+                    .font(DesignSystem.Typography.titleRegular())
                     .foregroundColor(Color.textPrimary)
 
                 Spacer()

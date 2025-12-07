@@ -30,7 +30,10 @@ struct ResultsView: View {
 
             resultsListView
 
-            resetButton
+            // Only show reset button for new identifications
+            if !isHistorical {
+                resetButton
+            }
         }
         .background(Color.backgroundSubtle)
     }
@@ -45,17 +48,12 @@ struct ResultsView: View {
             .replacingOccurrences(of: "%1$s", with: "%@")
         let text = String(format: formatString, dateString)
 
-        return HStack {
-            SVGWebView(svgName: "ic_history", width: 16, height: 16, tintColor: .textSecondary)
-                .frame(width: 16, height: 16)
-            Text(text)
-                .font(DesignSystem.Typography.caption())
-                .foregroundColor(Color.textSecondary)
-            Spacer()
-        }
-        .padding(.horizontal, DesignSystem.Spacing.standard)
-        .padding(.vertical, DesignSystem.Spacing.small)
-        .background(Color.surfaceSecondary)
+        return Text(text)
+            .font(DesignSystem.Typography.caption())
+            .foregroundColor(Color.textSecondary)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DesignSystem.Spacing.small)
+            .background(Color.surfaceSecondary)
     }
 
     private var headerView: some View {
@@ -69,7 +67,7 @@ struct ResultsView: View {
             Spacer()
 
             Text(localizationManager.localize("results", comment: "Results"))
-                .font(DesignSystem.Typography.body())
+                .font(DesignSystem.Typography.titleRegular())
                 .foregroundColor(Color.textPrimary)
 
             Spacer()
@@ -96,7 +94,9 @@ struct ResultsView: View {
                         HStack(spacing: DesignSystem.Spacing.small) {
                             ForEach(images) { imageData in
                                 Button(action: {
-                                    onImageTap(imageData)
+                                    if !isHistorical {
+                                        onImageTap(imageData)
+                                    }
                                 }) {
                                     Image(uiImage: imageData.image)
                                         .resizable()
@@ -105,25 +105,31 @@ struct ResultsView: View {
                                         .cornerRadius(DesignSystem.CornerRadius.medium)
                                         .clipped()
                                 }
+                                .disabled(isHistorical)
                             }
 
-                            Button(action: onAddImage) {
-                                ZStack {
-                                    RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
-                                        .strokeBorder(Color.borderAccent, style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
-                                        .frame(width: 90, height: 90)
+                            // Only show add button for new identifications
+                            if !isHistorical {
+                                Button(action: onAddImage) {
+                                    ZStack {
+                                        RoundedRectangle(cornerRadius: DesignSystem.CornerRadius.medium)
+                                            .strokeBorder(Color.borderAccent, style: StrokeStyle(lineWidth: 2, dash: [4, 4]))
+                                            .frame(width: 90, height: 90)
 
-                                    SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
-                                        .frame(width: 24, height: 24)
+                                        SVGWebView(svgName: "ic_add", width: 24, height: 24, tintColor: .textAccent)
+                                            .frame(width: 24, height: 24)
+                                    }
+                                    .frame(width: 90, height: 90)
                                 }
-                                .frame(width: 90, height: 90)
+                                .id("addButton")
                             }
-                            .id("addButton")
                         }
-                        .padding(.horizontal, max(DesignSystem.Spacing.small, (geometry.size.width - DesignSystem.Spacing.small * 2 - CGFloat(images.count + 1) * 90 - CGFloat(images.count) * DesignSystem.Spacing.small) / 2))
+                        .padding(.horizontal, max(DesignSystem.Spacing.small, (geometry.size.width - DesignSystem.Spacing.small * 2 - CGFloat(isHistorical ? images.count : images.count + 1) * 90 - CGFloat(max(0, images.count - (isHistorical ? 1 : 0))) * DesignSystem.Spacing.small) / 2))
                     }
                     .onAppear {
-                        proxy.scrollTo("addButton", anchor: .trailing)
+                        if !isHistorical {
+                            proxy.scrollTo("addButton", anchor: .trailing)
+                        }
                     }
                 }
                 .padding(.horizontal, DesignSystem.Spacing.small)

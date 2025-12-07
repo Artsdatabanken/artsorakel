@@ -33,7 +33,7 @@ struct SettingsView: View {
 
                     // Title
                     Text(localizationManager.localize("settings", comment: "Settings"))
-                        .font(DesignSystem.Typography.title())
+                        .font(DesignSystem.Typography.titleRegular())
                         .foregroundColor(Color.textPrimary)
                         .frame(maxWidth: .infinity)
 
