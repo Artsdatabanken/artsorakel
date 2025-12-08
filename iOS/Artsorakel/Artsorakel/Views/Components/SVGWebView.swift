@@ -43,7 +43,9 @@ struct SVGWebView: UIViewRepresentable {
         var fillStyle = ""
         if let tintColor = tintColor {
             let uiColor = UIColor(tintColor)
-            let resolvedColor = uiColor.resolvedColor(with: webView.traitCollection)
+            // Use the colorScheme from environment to create the correct trait collection
+            let traitCollection = UITraitCollection(userInterfaceStyle: colorScheme == .dark ? .dark : .light)
+            let resolvedColor = uiColor.resolvedColor(with: traitCollection)
             var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
             resolvedColor.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
             let hexColor = String(format: "#%02X%02X%02X", Int(red * 255), Int(green * 255), Int(blue * 255))

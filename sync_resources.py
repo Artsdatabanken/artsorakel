@@ -1083,27 +1083,36 @@ def sync_app_icons():
         print("  🎨 Using ImageMagick to generate iOS app icons...")
 
         try:
-            # Generate light appearance icon
+            # For iOS, we need the icon larger than Android because iOS doesn't have safe-zone cropping
+            # The Android SVG has the icon sized for a ~66dp safe zone in 108dp canvas (61%)
+            # For iOS, we want the icon to fill ~85% of the canvas
+            # So we scale up by 85/61 ≈ 1.4x, meaning we render at 1024*1.4 = 1434 and crop center
+
+            # Generate light appearance icon - scale up and crop to get larger icon
             if light_svg.exists():
                 subprocess.run([
-                    'convert', '-background', '#495e2e', str(light_svg),
-                    '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
+                    'convert', '-background', '#495e2e', '-density', '300',
+                    str(light_svg), '-resize', '1434x1434',
+                    '-gravity', 'center', '-extent', '1024x1024',
                     str(ios_icon_dir / 'AppIcon.png')
                 ], check=True, capture_output=True)
                 print_success("Generated AppIcon.png (light appearance)")
 
             # Generate dark appearance icon
             subprocess.run([
-                'convert', '-background', '#495e2e', str(source_svg),
-                '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
+                'convert', '-background', '#495e2e', '-density', '300',
+                str(source_svg), '-resize', '1434x1434',
+                '-gravity', 'center', '-extent', '1024x1024',
                 str(ios_icon_dir / 'AppIcon~dark.png')
             ], check=True, capture_output=True)
             print_success("Generated AppIcon~dark.png (dark appearance)")
 
             # Generate tinted appearance icon
             subprocess.run([
-                'convert', str(source_svg), '-colorspace', 'Gray', '-negate',
-                '-background', '#495e2e', '-gravity', 'center', '-resize', '800x800', '-extent', '1024x1024',
+                'convert', '-density', '300', str(source_svg),
+                '-colorspace', 'Gray', '-negate',
+                '-background', '#495e2e', '-resize', '1434x1434',
+                '-gravity', 'center', '-extent', '1024x1024',
                 str(ios_icon_dir / 'AppIcon~tinted.png')
             ], check=True, capture_output=True)
             print_success("Generated AppIcon~tinted.png (tinted appearance)")
@@ -1159,15 +1168,18 @@ def sync_app_icons():
 
     elif has_rsvg:
         print("  🎨 Using rsvg-convert to generate iOS app icons...")
+        print_warning("rsvg-convert doesn't support the scaling needed for iOS icons")
+        print_warning("Install ImageMagick for proper iOS icon generation: brew install imagemagick")
 
         try:
-            # Generate light appearance
+            # Generate light appearance - rsvg-convert can't do the zoom+crop we need
+            # so the icon will be smaller than ideal
             if light_svg.exists():
                 subprocess.run([
                     'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#495e2e',
                     str(light_svg), '-o', str(ios_icon_dir / 'AppIcon.png')
                 ], check=True, capture_output=True)
-                print_success("Generated AppIcon.png (light appearance)")
+                print_success("Generated AppIcon.png (light appearance) - may be smaller than ideal")
 
             # Generate dark appearance
             subprocess.run([

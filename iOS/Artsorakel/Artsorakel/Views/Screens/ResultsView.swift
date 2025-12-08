@@ -204,19 +204,13 @@ struct ResultRow: View {
                             .frame(width: 64, height: 64)
                             .clipShape(Circle())
                     case .failure(_), .empty:
-                        Circle()
-                            .fill(Color.surfaceSubtle)
-                            .frame(width: 64, height: 64)
+                        SpeciesPlaceholderView(placeholderName: result.getPlaceholderName())
                     @unknown default:
-                        Circle()
-                            .fill(Color.surfaceSubtle)
-                            .frame(width: 64, height: 64)
+                        SpeciesPlaceholderView(placeholderName: result.getPlaceholderName())
                     }
                 }
             } else {
-                Circle()
-                    .fill(Color.surfaceSubtle)
-                    .frame(width: 64, height: 64)
+                SpeciesPlaceholderView(placeholderName: result.getPlaceholderName())
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -226,6 +220,7 @@ struct ResultRow: View {
                     Text(vernacularName.prefix(1).capitalized + vernacularName.dropFirst())
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(Color.surfaceAccent)
+                        .padding(.bottom, 2)
 
                     // Show scientific name below only if different from vernacular
                     if let scientificName = result.scientificName, scientificName != vernacularName {
@@ -240,6 +235,7 @@ struct ResultRow: View {
                         .font(DesignSystem.Typography.title())
                         .italic()
                         .foregroundColor(Color.surfaceAccent)
+                        .padding(.bottom, 2)
                 }
 
                 // Group name (if available)
@@ -319,5 +315,15 @@ struct CertaintyCircles: View {
         }
 
         return min(count, 5)
+    }
+}
+
+struct SpeciesPlaceholderView: View {
+    let placeholderName: String
+
+    var body: some View {
+        SVGWebView(svgName: placeholderName, width: 64, height: 64)
+            .frame(width: 64, height: 64)
+            .clipShape(Circle())
     }
 }

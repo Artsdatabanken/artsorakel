@@ -105,13 +105,13 @@ struct SpeciesDetailView: View {
                                         .frame(width: 80, height: 80)
                                         .clipShape(Circle())
                                 case .failure(_), .empty:
-                                    placeholderImage
+                                    SpeciesDetailPlaceholderView(placeholderName: result.getPlaceholderName())
                                 @unknown default:
-                                    placeholderImage
+                                    SpeciesDetailPlaceholderView(placeholderName: result.getPlaceholderName())
                                 }
                             }
                         } else {
-                            placeholderImage
+                            SpeciesDetailPlaceholderView(placeholderName: result.getPlaceholderName())
                         }
 
                         // Names Container
@@ -389,11 +389,6 @@ struct SpeciesDetailView: View {
         }
     }
 
-    private var placeholderImage: some View {
-        Circle()
-            .fill(Color.surfaceSubtle)
-            .frame(width: 80, height: 80)
-    }
 
     private func getCertaintyParameter() -> String {
         let languageCode = localizationManager.currentLanguage == "system"
@@ -472,6 +467,16 @@ struct CategoryBadge: View {
                 .font(DesignSystem.Typography.body())
                 .foregroundColor(Color.textPrimary)
         }
+    }
+}
+
+struct SpeciesDetailPlaceholderView: View {
+    let placeholderName: String
+
+    var body: some View {
+        SVGWebView(svgName: placeholderName, width: 80, height: 80)
+            .frame(width: 80, height: 80)
+            .clipShape(Circle())
     }
 }
 

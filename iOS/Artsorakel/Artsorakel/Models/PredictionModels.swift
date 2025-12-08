@@ -26,6 +26,53 @@ struct PredictionResult: Identifiable, Codable, Equatable {
     func getGroupName(for language: String) -> String? {
         return groupNames?[language]
     }
+
+    /// Get the placeholder SVG name based on the Norwegian group name
+    func getPlaceholderName() -> String {
+        let norwegianGroupName = groupNames?["nb"] ?? groupNames?["nn"] ?? ""
+        let normalized = norwegianGroupName.lowercased().trimmingCharacters(in: .whitespaces)
+
+        switch normalized {
+        case "karplanter":
+            return "placeholder_karplanter"
+        case "fugler":
+            return "placeholder_fugler"
+        case "pattedyr":
+            return "placeholder_pattedyr"
+        case "lav":
+            return "placeholder_lav"
+        case "sommerfugler":
+            return "placeholder_sommerfugler"
+        case "sopper":
+            return "placeholder_sopper"
+        case "nebbmunner":
+            return "placeholder_nebbmunner"
+        case "moser":
+            return "placeholder_moser"
+        case "bløtdyr":
+            return "placeholder_bløtdyr"
+        case "edderkoppdyr":
+            return "placeholder_edderkoppdyr"
+        case "nettvinger, kakerlakker, saksedyr":
+            return "placeholder_nettvinger_osv"
+        case "veps":
+            return "placeholder_veps"
+        case "biller":
+            return "placeholder_biller"
+        case "tovinger":
+            return "placeholder_tovinger"
+        case "fisker":
+            return "placeholder_fisker"
+        case "amfibier, reptiler":
+            return "placeholder_reptiler_osv"
+        case "døgnfluer, øyenstikkere, steinfluer, vårfluer":
+            return "placeholder_døgnfluer_osv"
+        case "armfotinger, pigghuder, kappedyr":
+            return "placeholder_pigghuder_osv"
+        default:
+            return "placeholder_generic"
+        }
+    }
 }
 
 // API Response structures

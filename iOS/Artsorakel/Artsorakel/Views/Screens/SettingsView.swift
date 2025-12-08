@@ -32,18 +32,19 @@ struct SettingsView: View {
                             isPresented = false
                         }
                     }) {
-                            SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
-                                .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-                       
+                        SVGWebView(svgName: "ic_arrow_back", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                            .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                     }
-                    .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
-                    .padding(.leading, DesignSystem.Spacing.small)
+                    .padding(.leading, DesignSystem.Spacing.standard)
+
+                    Spacer()
 
                     // Title
                     Text(localizationManager.localize("settings", comment: "Settings"))
                         .font(DesignSystem.Typography.titleRegular())
                         .foregroundColor(Color.textPrimary)
-                        .frame(maxWidth: .infinity)
+
+                    Spacer()
 
                     // Menu button
                     Button(action: {

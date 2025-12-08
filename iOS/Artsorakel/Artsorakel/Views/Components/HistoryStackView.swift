@@ -91,6 +91,7 @@ struct HistoryCardView: View {
                         .font(DesignSystem.Typography.title())
                         .foregroundColor(Color.textAccent)
                         .lineLimit(1)
+                        .padding(.bottom, 2)
 
                     if let scientificName = item.bestMatchScientificName {
                         // Scientific name: 14sp, text_secondary, italic, marginTop 2dp
@@ -106,6 +107,7 @@ struct HistoryCardView: View {
                         .italic()
                         .foregroundColor(Color.textAccent)
                         .lineLimit(1)
+                        .padding(.bottom, 2)
                 }
 
                 // Timestamp: 12sp, text_secondary, marginTop 4dp
