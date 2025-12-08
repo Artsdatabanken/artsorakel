@@ -425,6 +425,20 @@ struct MainScreenView: View {
         // Clear the pending image so we don't process it again
         SharedImageHandler.shared.clearPendingSharedImage()
 
+        // Close all overlays to ensure clean state when sharing
+        // (but keep croppedImages - we're adding a new image to it)
+        showSettings = false
+        showAbout = false
+        showFAQ = false
+        showExpandedHistory = false
+        identificationResults = nil
+        selectedResult = nil
+        isMenuOpen = false
+        isViewingHistoricalResults = false
+        currentUploadId = nil
+        currentUploadSecret = nil
+        currentIdentificationTimestamp = nil
+
         // Set the image for cropping (same flow as camera/gallery)
         lastInputMethodIsCamera = false
         imageToCrop = IdentifiableImage(image: image, location: location)
@@ -512,7 +526,7 @@ struct HeaderView: View {
                     .padding(.leading, DesignSystem.Spacing.standard)
             }
 
-            SVGWebView(svgName: "chevron_separator", width: DesignSystem.ButtonSize.standard, height: DesignSystem.ComponentSize.headerHeight, tintColor: .borderDefault)
+            SVGWebView(svgName: "chevron_separator", width: DesignSystem.ButtonSize.standard, height: DesignSystem.ComponentSize.headerHeight, tintColor: .backgroundStrong)
                 .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ComponentSize.headerHeight)
 
             Text("Artsorakel")

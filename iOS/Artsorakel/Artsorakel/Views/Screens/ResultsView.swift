@@ -193,10 +193,31 @@ struct ResultRow: View {
             : localizationManager.currentLanguage
 
         HStack(spacing: 0) {
-            // Placeholder for image (64x64)
-            Circle()
-                .fill(Color.surfaceSubtle)
-                .frame(width: 64, height: 64)
+            // Species thumbnail (64x64)
+            if let pictureUrl = result.pictureUrl, let url = URL(string: pictureUrl) {
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 64, height: 64)
+                            .clipShape(Circle())
+                    case .failure(_), .empty:
+                        Circle()
+                            .fill(Color.surfaceSubtle)
+                            .frame(width: 64, height: 64)
+                    @unknown default:
+                        Circle()
+                            .fill(Color.surfaceSubtle)
+                            .frame(width: 64, height: 64)
+                    }
+                }
+            } else {
+                Circle()
+                    .fill(Color.surfaceSubtle)
+                    .frame(width: 64, height: 64)
+            }
 
             VStack(alignment: .leading, spacing: 4) {
                 // Vernacular name or scientific name as header

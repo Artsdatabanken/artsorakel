@@ -41,12 +41,10 @@ struct AboutView: View {
                             showMenuDrawer = true
                         }
                     }) {
-                            SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
-                                .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-                       
+                        SVGWebView(svgName: "ic_menu", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                            .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
                     }
-                    .frame(width: DesignSystem.ButtonSize.standard, height: DesignSystem.ButtonSize.standard)
-                    .padding(.trailing, DesignSystem.Spacing.small)
+                    .padding(.trailing, DesignSystem.Spacing.standard)
                 }
                 .frame(height: DesignSystem.ComponentSize.headerHeight)
                 .background(Color.backgroundDefault)
