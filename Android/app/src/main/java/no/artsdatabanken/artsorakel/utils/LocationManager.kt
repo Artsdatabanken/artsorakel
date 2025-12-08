@@ -159,35 +159,210 @@ class LocationManager(private val context: Context) {
     }
 
     /**
-     * Try to query MediaStore directly for location data. This can work when we have
-     * READ_MEDIA_IMAGES permission even if the sharing app redacted the EXIF data.
+     * Try to get location from MediaStore by finding the original file and reading its EXIF.
+     * Uses setRequireOriginal() to bypass Android's location redaction.
      */
-    @Suppress("DEPRECATION")
     private fun tryGetLocationFromMediaStore(uri: Uri): GeoLocation? {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
 
         try {
-            // For document URIs, try to extract the media ID
+            // For non-picker URIs, try to extract the media ID and read EXIF directly
             val mediaId = getMediaIdFromUri(uri)
             if (mediaId != null) {
+                logD("LocationManager", "Got media ID: $mediaId")
                 val mediaUri = ContentUris.withAppendedId(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     mediaId
                 )
-                return queryMediaStoreForLocation(mediaUri)
+                val location = readLocationFromMediaStoreUri(mediaUri)
+                if (location != null) return location
             }
 
-            // Try direct query on the URI
-            return queryMediaStoreForLocation(uri)
+            // Fallback: find image in MediaStore by matching file size
+            logD("LocationManager", "Trying file size matching fallback")
+            return findImageInMediaStoreBySize(uri)
         } catch (e: Exception) {
             logE("LocationManager", "MediaStore query failed", e)
             return null
         }
     }
 
+    /**
+     * Find an image in MediaStore by matching various attributes, then get its location.
+     * This works when the picker URI doesn't expose the media ID.
+     */
+    @Suppress("DEPRECATION")
+    private fun findImageInMediaStoreBySize(uri: Uri): GeoLocation? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+
+        try {
+            // First try to get display name from the picker URI
+            var displayName: String? = null
+            var fileSize: Long? = null
+
+            context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    val nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                    val sizeIndex = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+                    if (nameIndex >= 0) {
+                        displayName = cursor.getString(nameIndex)
+                    }
+                    if (sizeIndex >= 0) {
+                        fileSize = cursor.getLong(sizeIndex)
+                    }
+                }
+            }
+
+            // Fallback to getting size from file descriptor
+            if (fileSize == null) {
+                fileSize = context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                    it.statSize
+                }
+            }
+
+            logD("LocationManager", "Looking for image: name=$displayName, size=$fileSize bytes")
+
+            // Try to find by display name first (more reliable than size for edited images)
+            if (displayName != null) {
+                val location = findByDisplayName(displayName!!)
+                if (location != null) return location
+            }
+
+            // Fall back to size matching
+            if (fileSize != null) {
+                val location = findBySize(fileSize!!)
+                if (location != null) return location
+            }
+
+        } catch (e: Exception) {
+            logE("LocationManager", "Image matching failed", e)
+        }
+
+        return null
+    }
+
+    private fun findByDisplayName(displayName: String): GeoLocation? {
+        logD("LocationManager", "Searching MediaStore by display name: $displayName")
+
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.DISPLAY_NAME
+        )
+
+        val selection = "${MediaStore.Images.Media.DISPLAY_NAME} = ?"
+        val selectionArgs = arrayOf(displayName)
+
+        context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor ->
+            logD("LocationManager", "Found ${cursor.count} images with matching name")
+
+            while (cursor.moveToNext()) {
+                val idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID)
+                if (idIndex >= 0) {
+                    val mediaId = cursor.getLong(idIndex)
+                    logD("LocationManager", "Trying to read EXIF from MediaStore ID: $mediaId")
+
+                    val mediaUri = ContentUris.withAppendedId(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        mediaId
+                    )
+
+                    val location = readLocationFromMediaStoreUri(mediaUri)
+                    if (location != null) {
+                        logD("LocationManager", "Found location via display name match!")
+                        return location
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    @Suppress("DEPRECATION")
+    private fun findBySize(fileSize: Long): GeoLocation? {
+        logD("LocationManager", "Searching MediaStore by size: $fileSize bytes")
+
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.SIZE
+        )
+
+        val selection = "${MediaStore.Images.Media.SIZE} = ?"
+        val selectionArgs = arrayOf(fileSize.toString())
+
+        context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )?.use { cursor ->
+            logD("LocationManager", "Found ${cursor.count} images with matching size")
+
+            while (cursor.moveToNext()) {
+                val idIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID)
+                if (idIndex >= 0) {
+                    val mediaId = cursor.getLong(idIndex)
+                    logD("LocationManager", "Trying to read EXIF from MediaStore ID: $mediaId")
+
+                    // Construct the MediaStore URI and try to read EXIF with setRequireOriginal
+                    val mediaUri = ContentUris.withAppendedId(
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        mediaId
+                    )
+
+                    val location = readLocationFromMediaStoreUri(mediaUri)
+                    if (location != null) {
+                        logD("LocationManager", "Found location via size match + EXIF read!")
+                        return location
+                    }
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Read location from a MediaStore URI using setRequireOriginal to bypass redaction.
+     */
+    private fun readLocationFromMediaStoreUri(mediaUri: Uri): GeoLocation? {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
+
+        try {
+            val originalUri = MediaStore.setRequireOriginal(mediaUri)
+            logD("LocationManager", "Reading EXIF from MediaStore URI with setRequireOriginal")
+
+            context.contentResolver.openInputStream(originalUri)?.use { inputStream ->
+                val exif = ExifInterface(inputStream)
+                val result = extractGeoLocation(exif)
+                if (result != null) {
+                    logD("LocationManager", "Successfully read location from MediaStore file!")
+                    return result
+                }
+            }
+        } catch (e: Exception) {
+            logE("LocationManager", "Failed to read from MediaStore URI", e)
+        }
+
+        return null
+    }
+
     private fun getMediaIdFromUri(uri: Uri): Long? {
         // Try to extract media ID from various URI formats
         try {
+            val uriString = uri.toString()
+
+            // Skip picker URIs - their IDs are NOT MediaStore IDs
+            if (uriString.contains("/picker/") || uriString.contains("photopicker")) {
+                logD("LocationManager", "Skipping picker URI for media ID extraction")
+                return null
+            }
+
             // For content://media/external/images/media/123 format
             val lastSegment = uri.lastPathSegment
             if (lastSegment != null) {
@@ -212,40 +387,6 @@ class LocationManager(private val context: Context) {
             }
         } catch (_: Exception) {
             logD("LocationManager", "Could not extract media ID from URI")
-        }
-        return null
-    }
-
-    @Suppress("DEPRECATION")
-    private fun queryMediaStoreForLocation(mediaUri: Uri): GeoLocation? {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return null
-
-        val projection = arrayOf(
-            MediaStore.Images.Media.LATITUDE,
-            MediaStore.Images.Media.LONGITUDE
-        )
-
-        try {
-            context.contentResolver.query(mediaUri, projection, null, null, null)?.use { cursor ->
-                if (cursor.moveToFirst()) {
-                    val latIndex = cursor.getColumnIndex(MediaStore.Images.Media.LATITUDE)
-                    val lonIndex = cursor.getColumnIndex(MediaStore.Images.Media.LONGITUDE)
-
-                    if (latIndex >= 0 && lonIndex >= 0) {
-                        val lat = cursor.getDouble(latIndex)
-                        val lon = cursor.getDouble(lonIndex)
-
-                        logD("LocationManager", "MediaStore query: lat=$lat, lon=$lon")
-
-                        // Skip 0,0 coordinates (redacted or missing)
-                        if (lat != 0.0 || lon != 0.0) {
-                            return GeoLocation(latitude = lat, longitude = lon, altitude = null)
-                        }
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            logD("LocationManager", "MediaStore location query failed: ${e.message}")
         }
         return null
     }

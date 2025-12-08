@@ -6,6 +6,43 @@ plugins {
     id("dagger.hilt.android.plugin")
 }
 
+// Load configuration from shared config files
+val configFile = file("../../shared/config/app_config.json")
+val secretsFile = file("../../shared/config/secrets.json")
+
+@Suppress("UNCHECKED_CAST")
+val appConfig = if (configFile.exists()) {
+    groovy.json.JsonSlurper().parseText(configFile.readText()) as Map<String, Any>
+} else {
+    println("WARNING: app_config.json not found. Using default values.")
+    emptyMap()
+}
+
+@Suppress("UNCHECKED_CAST")
+val apiConfig = appConfig["api"] as? Map<String, Any> ?: emptyMap()
+@Suppress("UNCHECKED_CAST")
+val rssFeedConfig = appConfig["rssFeed"] as? Map<String, Any> ?: emptyMap()
+
+val baseUrlDebug = apiConfig["baseUrlDebug"] as? String ?: "https://ai.test.artsdatabanken.no/"
+val baseUrlRelease = apiConfig["baseUrlRelease"] as? String ?: "https://ai.artsdatabanken.no/"
+val rssFeedUrlDebug = rssFeedConfig["urlDebug"] as? String ?: "https://ai.test.artsdatabanken.no/rss"
+val rssFeedUrlRelease = rssFeedConfig["urlRelease"] as? String ?: "https://ai.artsdatabanken.no/rss"
+
+// Load bearer tokens from secrets file
+@Suppress("UNCHECKED_CAST")
+val secretsJson = if (secretsFile.exists()) {
+    groovy.json.JsonSlurper().parseText(secretsFile.readText()) as Map<String, Any>
+} else {
+    println("WARNING: secrets.json not found. Bearer tokens will be empty.")
+    emptyMap()
+}
+@Suppress("UNCHECKED_CAST")
+val apiSecrets = secretsJson["api"] as? Map<String, Any> ?: emptyMap()
+@Suppress("UNCHECKED_CAST")
+val bearerTokens = apiSecrets["bearerToken"] as? Map<String, String> ?: emptyMap()
+@Suppress("UNCHECKED_CAST")
+val bearerTokensTest = apiSecrets["bearerTokenTest"] as? Map<String, String> ?: emptyMap()
+
 android {
     namespace = "no.artsdatabanken.artsorakel"
     compileSdk = 36
@@ -15,31 +52,18 @@ android {
         minSdk = 24
         targetSdk = 36
         versionCode = (System.currentTimeMillis() / 1000).toInt()
-        versionName = "4.0.1"  // Centralized version number
+        versionName = "4.0.2"  // Centralized version number
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Default BuildConfig values for all variants
-        buildConfigField("String", "API_BASE_URL", "\"https://ai.test.artsdatabanken.no/\"")
-        buildConfigField("String", "RSS_FEED_URL", "\"https://ai.test.artsdatabanken.no/rss\"")
-        buildConfigField("boolean", "IS_RELEASE_BUILD", "false")  // Default to non-release
+        // Default BuildConfig values (will be overridden by build types)
+        buildConfigField("boolean", "IS_RELEASE_BUILD", "false")
         buildConfigField("boolean", "ENABLE_LOGGING", "false")
         buildConfigField("long", "NETWORK_TIMEOUT_SECONDS", "60L")
 
-        // Load bearer token from secrets file
-        val secretsFile = file("../../shared/config/secrets.json")
-        if (secretsFile.exists()) {
-            @Suppress("UNCHECKED_CAST")
-            val secretsJson = groovy.json.JsonSlurper().parseText(secretsFile.readText()) as Map<String, Any>
-            @Suppress("UNCHECKED_CAST")
-            val apiSecrets = secretsJson["api"] as Map<String, Any>
-            @Suppress("UNCHECKED_CAST")
-            val bearerTokens = apiSecrets["bearerToken"] as Map<String, String>
-            buildConfigField("String", "API_BEARER_TOKEN", "\"${bearerTokens["android"]}\"")
-        } else {
-            buildConfigField("String", "API_BEARER_TOKEN", "\"\"")
-            println("WARNING: secrets.json not found. Bearer token will be empty.")
-        }
+        // Bearer tokens for both environments
+        buildConfigField("String", "API_BEARER_TOKEN", "\"${bearerTokens["android"] ?: ""}\"")
+        buildConfigField("String", "API_BEARER_TOKEN_TEST", "\"${bearerTokensTest["android"] ?: ""}\"")
     }
 
     buildTypes {
@@ -48,14 +72,14 @@ android {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
 
-            // Debug builds should send "test" to API
+            // Debug builds use test endpoints
+            buildConfigField("String", "API_BASE_URL", "\"$baseUrlDebug\"")
+            buildConfigField("String", "RSS_FEED_URL", "\"$rssFeedUrlDebug\"")
             buildConfigField("boolean", "IS_RELEASE_BUILD", "false")
             buildConfigField("boolean", "ENABLE_LOGGING", "true")
-
-            // Shorter timeouts for development
             buildConfigField("long", "NETWORK_TIMEOUT_SECONDS", "30L")
         }
-        
+
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -63,8 +87,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            
-            // Release builds should send "Artsorakel x.x.x (android)" to API
+
+            // Release builds use production endpoints
+            buildConfigField("String", "API_BASE_URL", "\"$baseUrlRelease\"")
+            buildConfigField("String", "RSS_FEED_URL", "\"$rssFeedUrlRelease\"")
             buildConfigField("boolean", "IS_RELEASE_BUILD", "true")
             buildConfigField("boolean", "ENABLE_LOGGING", "false")
             signingConfig = signingConfigs.getByName("debug")

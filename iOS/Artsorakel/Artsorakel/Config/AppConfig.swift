@@ -14,9 +14,19 @@ struct AppConfig {
             guard let path = possiblePaths.compactMap({ $0 }).first,
                   let data = try? Data(contentsOf: URL(fileURLWithPath: path)),
                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let api = json["api"] as? [String: Any],
-                  let baseUrl = api["baseUrl"] as? String else {
-                fatalError("Failed to load baseUrl from app_config.json. Make sure to run sync_resources.py first.")
+                  let api = json["api"] as? [String: Any] else {
+                fatalError("Failed to load app_config.json. Make sure to run sync_resources.py first.")
+            }
+
+            // Select endpoint based on build configuration
+            #if DEBUG
+            let urlKey = "baseUrlDebug"
+            #else
+            let urlKey = "baseUrlRelease"
+            #endif
+
+            guard let baseUrl = api[urlKey] as? String else {
+                fatalError("Failed to load \(urlKey) from app_config.json.")
             }
             return baseUrl
         }()

@@ -15,7 +15,16 @@ object AppConfig {
         const val BASE_URL: String = BuildConfig.API_BASE_URL
         const val TIMEOUT_SECONDS: Long = BuildConfig.NETWORK_TIMEOUT_SECONDS
         const val ENABLE_LOGGING: Boolean = BuildConfig.ENABLE_LOGGING
-        const val BEARER_TOKEN: String = BuildConfig.API_BEARER_TOKEN
+
+        /**
+         * Bearer token selected based on the API endpoint.
+         * Uses test token if BASE_URL contains ".test.", otherwise uses production token.
+         */
+        val BEARER_TOKEN: String = if (BASE_URL.contains(".test.")) {
+            BuildConfig.API_BEARER_TOKEN_TEST
+        } else {
+            BuildConfig.API_BEARER_TOKEN
+        }
     }
     
     /**

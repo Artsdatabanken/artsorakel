@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import java.io.File
 import java.text.SimpleDateFormat
@@ -20,7 +22,7 @@ import kotlinx.coroutines.launch
 class ImageOperationsManager(
     private val context: Context,
     private val takePictureLauncher: ActivityResultLauncher<Uri>,
-    private val pickImageLauncher: ActivityResultLauncher<Array<String>>
+    private val pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
 ) {
 
     var tempImageUri: Uri? = null
@@ -46,8 +48,8 @@ class ImageOperationsManager(
     }
 
     fun launchImagePicker() {
-        // Use array of MIME types to allow various image formats
-        pickImageLauncher.launch(arrayOf("image/*"))
+        // Use PickVisualMedia for gallery-style picker with Google Photos support
+        pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
     fun clearTempUri() {

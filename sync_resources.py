@@ -100,10 +100,8 @@ def sync_config():
 
     version = config['version']
     version_code = config['versionCode']
-    api_url = config['api']['baseUrl']
-    rss_feed_url = config['rssFeed']['url']
 
-    # Update Android build.gradle.kts
+    # Update Android build.gradle.kts (only version, URLs are read directly from config)
     android_gradle = ANDROID_DIR / 'app' / 'build.gradle.kts'
     if android_gradle.exists():
         with open(android_gradle, 'r') as f:
@@ -111,23 +109,11 @@ def sync_config():
 
         # Update version info (versionCode is calculated dynamically from epoch in build.gradle.kts)
         content = re.sub(r'versionName = ".*?"', f'versionName = "{version}"', content)
-        content = re.sub(
-            r'buildConfigField\("String", "API_BASE_URL", "\\".*?\\""\)',
-            f'buildConfigField("String", "API_BASE_URL", "\\"{api_url}\\"")',
-            content
-        )
-        content = re.sub(
-            r'buildConfigField\("String", "RSS_FEED_URL", "\\"[^\\"]*\\""\)',
-            f'buildConfigField("String", "RSS_FEED_URL", "\\"{rss_feed_url}\\"")',
-            content
-        )
 
         with open(android_gradle, 'w') as f:
             f.write(content)
 
         print_success(f"Updated Android version to {version}")
-        print_success(f"Updated Android API URL to {api_url}")
-        print_success(f"Updated Android RSS Feed URL to {rss_feed_url}")
 
     # Update iOS version
     ios_plist = IOS_DIR / 'Artsorakel' / 'Info.plist'
