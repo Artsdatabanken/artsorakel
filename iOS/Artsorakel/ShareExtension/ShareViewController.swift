@@ -73,7 +73,7 @@ class ShareViewController: UIViewController {
             return
         }
 
-        // Save to shared container
+        // Save to shared container (normalization happens in main app to avoid memory limits)
         let success = saveToSharedContainer(image: finalImage, location: location)
 
         if success {
@@ -190,4 +190,5 @@ class ShareViewController: UIViewController {
             timestamp: Date()
         )
     }
+
 }

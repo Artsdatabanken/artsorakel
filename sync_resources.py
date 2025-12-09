@@ -140,6 +140,24 @@ def sync_config():
     else:
         print_info("iOS uses modern project configuration (no Info.plist) - version managed in Xcode")
 
+    # Update iOS ShareExtension version to match main app
+    share_ext_plist = IOS_DIR / 'Artsorakel' / 'ShareExtension' / 'Info.plist'
+    if share_ext_plist.exists():
+        try:
+            import plistlib
+            with open(share_ext_plist, 'rb') as f:
+                plist_data = plistlib.load(f)
+
+            plist_data['CFBundleShortVersionString'] = version
+            plist_data['CFBundleVersion'] = str(version_code)
+
+            with open(share_ext_plist, 'wb') as f:
+                plistlib.dump(plist_data, f)
+
+            print_success(f"Updated ShareExtension version to {version} ({version_code})")
+        except Exception as e:
+            print_warning(f"Could not update ShareExtension plist: {e}")
+
     # Copy config files to iOS Config directory
     ios_config_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Config'
     ios_config_dir.mkdir(parents=True, exist_ok=True)

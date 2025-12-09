@@ -2,6 +2,8 @@ import SwiftUI
 import UIKit
 import CoreLocation
 import Photos
+import PhotosUI
+import ImageIO
 
 struct ImagePickerManager: UIViewControllerRepresentable {
     @Binding var isPresented: Bool
@@ -9,21 +11,31 @@ struct ImagePickerManager: UIViewControllerRepresentable {
     let onImagePicked: (UIImage, CLLocation?) -> Void
     let onUnavailable: (() -> Void)?
 
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-
-        picker.sourceType = sourceType
-        picker.delegate = context.coordinator
-        return picker
+    func makeUIViewController(context: Context) -> UIViewController {
+        if sourceType == .camera {
+            // Use UIImagePickerController for camera
+            let picker = UIImagePickerController()
+            picker.sourceType = .camera
+            picker.delegate = context.coordinator
+            return picker
+        } else {
+            // Use PHPickerViewController for photo library to get proper asset access
+            var config = PHPickerConfiguration(photoLibrary: .shared())
+            config.filter = .images
+            config.selectionLimit = 1
+            let picker = PHPickerViewController(configuration: config)
+            picker.delegate = context.coordinator
+            return picker
+        }
     }
 
-    func updateUIViewController(_ uiViewController: UIImagePickerController, context: Context) {}
+    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
 
-    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate, CLLocationManagerDelegate {
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate, PHPickerViewControllerDelegate, CLLocationManagerDelegate {
         let parent: ImagePickerManager
         let locationManager = CLLocationManager()
         var currentLocation: CLLocation?
@@ -50,6 +62,8 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             }
         }
 
+        // MARK: - CLLocationManagerDelegate
+
         func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             currentLocation = locations.last
         }
@@ -60,6 +74,67 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             }
         }
 
+        // MARK: - PHPickerViewControllerDelegate (Photo Library)
+
+        func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
+            parent.isPresented = false
+
+            guard let result = results.first else { return }
+
+            // Get location from PHAsset using the asset identifier
+            // This requires photo library read access
+            let assetIdentifier = result.assetIdentifier
+
+            // Load the image first
+            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
+                guard let self = self, let image = object as? UIImage else { return }
+
+                // Normalize orientation
+                let normalizedImage = self.normalizeImageOrientation(image)
+
+                // Try to get location from PHAsset (requires read permission)
+                self.fetchLocationFromAsset(identifier: assetIdentifier) { location in
+                    DispatchQueue.main.async {
+                        self.parent.onImagePicked(normalizedImage, location)
+                    }
+                }
+            }
+        }
+
+        private func fetchLocationFromAsset(identifier: String?, completion: @escaping (CLLocation?) -> Void) {
+            guard let identifier = identifier else {
+                completion(nil)
+                return
+            }
+
+            // Check current authorization status
+            let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+
+            switch status {
+            case .authorized, .limited:
+                // We have access, fetch the asset
+                let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+                completion(fetchResult.firstObject?.location)
+
+            case .notDetermined:
+                // Request access
+                PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+                    if newStatus == .authorized || newStatus == .limited {
+                        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+                        completion(fetchResult.firstObject?.location)
+                    } else {
+                        completion(nil)
+                    }
+                }
+
+            default:
+                // Denied or restricted
+                completion(nil)
+            }
+        }
+
+        // MARK: - UIImagePickerControllerDelegate (Camera)
+
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
             parent.isPresented = false
             locationManager.stopUpdatingLocation()
@@ -68,25 +143,24 @@ struct ImagePickerManager: UIViewControllerRepresentable {
                 return
             }
 
-            // Extract location from image metadata if available (gallery)
-            var location: CLLocation?
-            if let imageURL = info[.imageURL] as? URL {
-                location = extractLocation(from: imageURL)
-            } else if let asset = info[.phAsset] as? PHAsset {
-                location = asset.location
-            } else if parent.sourceType == .camera {
-                // For camera, use current location
-                location = currentLocation
+            // For camera, use current location
+            let location = currentLocation
 
-                // Save camera image to Artsorakel album with location
-                saveCameraImageToAlbum(image: image, location: location)
-            }
+            // Save camera image to Artsorakel album with location
+            saveCameraImageToAlbum(image: image, location: location)
 
-            // Normalize image orientation - rotate the actual image data to .up orientation
+            // Normalize image orientation
             let normalizedImage = normalizeImageOrientation(image)
 
             parent.onImagePicked(normalizedImage, location)
         }
+
+        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.isPresented = false
+            locationManager.stopUpdatingLocation()
+        }
+
+        // MARK: - Image Helpers
 
         private func normalizeImageOrientation(_ image: UIImage) -> UIImage {
             // If already in up orientation, return as-is
@@ -103,35 +177,7 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             return normalizedImage ?? image
         }
 
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            parent.isPresented = false
-            locationManager.stopUpdatingLocation()
-        }
-
-        private func extractLocation(from url: URL) -> CLLocation? {
-            guard let imageSource = CGImageSourceCreateWithURL(url as CFURL, nil),
-                  let properties = CGImageSourceCopyPropertiesAtIndex(imageSource, 0, nil) as? [String: Any],
-                  let gpsInfo = properties[kCGImagePropertyGPSDictionary as String] as? [String: Any],
-                  let latitude = gpsInfo[kCGImagePropertyGPSLatitude as String] as? Double,
-                  let longitude = gpsInfo[kCGImagePropertyGPSLongitude as String] as? Double,
-                  let latRef = gpsInfo[kCGImagePropertyGPSLatitudeRef as String] as? String,
-                  let lonRef = gpsInfo[kCGImagePropertyGPSLongitudeRef as String] as? String else {
-                return nil
-            }
-
-            let lat = latRef == "S" ? -latitude : latitude
-            let lon = lonRef == "W" ? -longitude : longitude
-
-            let altitude = gpsInfo[kCGImagePropertyGPSAltitude as String] as? Double ?? 0
-
-            return CLLocation(
-                coordinate: CLLocationCoordinate2D(latitude: lat, longitude: lon),
-                altitude: altitude,
-                horizontalAccuracy: 0,
-                verticalAccuracy: 0,
-                timestamp: Date()
-            )
-        }
+        // MARK: - Photo Library Helpers
 
         private func saveCameraImageToAlbum(image: UIImage, location: CLLocation?) {
             PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in

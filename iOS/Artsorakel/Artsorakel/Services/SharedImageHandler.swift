@@ -88,6 +88,9 @@ class SharedImageHandler {
                 return nil
             }
 
+            // Normalize image orientation (fix EXIF rotation from shared images)
+            let normalizedImage = normalizeImageOrientation(image)
+
             var location: CLLocation? = nil
 
             if FileManager.default.fileExists(atPath: pendingMetadataURL.path) {
@@ -106,7 +109,7 @@ class SharedImageHandler {
                 }
             }
 
-            return (image, location)
+            return (normalizedImage, location)
         } catch {
             print("Error loading shared image: \(error)")
             return nil
@@ -149,5 +152,21 @@ class SharedImageHandler {
             verticalAccuracy: 0,
             timestamp: Date()
         )
+    }
+
+    /// Normalizes image orientation by rendering with correct rotation applied
+    private func normalizeImageOrientation(_ image: UIImage) -> UIImage {
+        // If already in up orientation, return as-is
+        if image.imageOrientation == .up {
+            return image
+        }
+
+        // Render the image in the correct orientation
+        UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return normalizedImage ?? image
     }
 }
