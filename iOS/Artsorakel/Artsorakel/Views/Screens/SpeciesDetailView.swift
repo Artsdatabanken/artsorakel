@@ -191,7 +191,7 @@ struct SpeciesDetailView: View {
 
                     let certaintyText = String(format: formatString, certaintyPercentage, certaintyParameter)
 
-                    Text(certaintyText.htmlToAttributedString() ?? certaintyText)
+                    Text(certaintyText.strippingHTMLTags())
                         .font(DesignSystem.Typography.body())
                         .foregroundColor(Color.textPrimary)
                         .padding(DesignSystem.Spacing.standard)
@@ -480,20 +480,3 @@ struct SpeciesDetailPlaceholderView: View {
     }
 }
 
-// Helper extension to convert HTML to AttributedString
-extension String {
-    func htmlToAttributedString() -> String? {
-        guard let data = data(using: .utf8) else { return nil }
-        do {
-            let attributed = try NSAttributedString(
-                data: data,
-                options: [.documentType: NSAttributedString.DocumentType.html,
-                         .characterEncoding: String.Encoding.utf8.rawValue],
-                documentAttributes: nil
-            )
-            return attributed.string
-        } catch {
-            return nil
-        }
-    }
-}

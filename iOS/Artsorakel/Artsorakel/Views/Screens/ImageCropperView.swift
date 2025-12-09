@@ -49,6 +49,9 @@ struct ImageCropperView: View {
                                 .onChanged { value in
                                     let newScale = max(lastScale * value, 1.0)
 
+                                    // Guard against division by zero
+                                    guard scale > 0 else { return }
+
                                     // Adjust offset to zoom towards current center
                                     // When we zoom, the offset needs to scale proportionally
                                     let scaleDelta = newScale / scale
@@ -62,6 +65,9 @@ struct ImageCropperView: View {
                                     let imageWidth = image.size.width
                                     let imageHeight = image.size.height
                                     let smallerDimension = min(imageWidth, imageHeight)
+
+                                    // Guard against division by zero
+                                    guard smallerDimension > 0 else { return }
                                     let displayScale = squareSize / smallerDimension
 
                                     let scaledWidth = imageWidth * displayScale * newScale
@@ -93,6 +99,9 @@ struct ImageCropperView: View {
                                     let imageWidth = image.size.width
                                     let imageHeight = image.size.height
                                     let smallerDimension = min(imageWidth, imageHeight)
+
+                                    // Guard against division by zero
+                                    guard smallerDimension > 0 else { return }
                                     let displayScale = squareSize / smallerDimension
 
                                     let scaledWidth = imageWidth * displayScale * scale
@@ -186,13 +195,33 @@ struct ImageCropperView: View {
         // Find the smaller dimension to determine base scale
         let smallerDimension = min(imageWidth, imageHeight)
 
+        // Guard against division by zero or invalid values that would cause crashes
+        // This can happen if cropSquareSize isn't set yet (race condition with onAppear)
+        // or if the image has invalid dimensions
+        guard smallerDimension > 0, cropSquareSize > 0, scale > 0 else {
+            isPresented = false
+            return
+        }
+
         // This is how many pixels fit in the crop square at scale 1.0
         let baseDisplayScale = cropSquareSize / smallerDimension
+
+        // Guard against baseDisplayScale being 0 or invalid
+        guard baseDisplayScale > 0, baseDisplayScale.isFinite else {
+            isPresented = false
+            return
+        }
 
         // Convert offset from screen points to image pixels
         // Offset is how far from center the image has been dragged
         let pixelOffsetX = -offset.width / baseDisplayScale / scale
         let pixelOffsetY = -offset.height / baseDisplayScale / scale
+
+        // Guard against NaN or infinity from the calculations
+        guard pixelOffsetX.isFinite, pixelOffsetY.isFinite else {
+            isPresented = false
+            return
+        }
 
         // The crop square in pixel coordinates
         // It's centered on the image, then offset by the drag amount
@@ -200,10 +229,17 @@ struct ImageCropperView: View {
         let cropX = (imageWidth - cropSizeInPixels) / 2 + pixelOffsetX
         let cropY = (imageHeight - cropSizeInPixels) / 2 + pixelOffsetY
 
+        // Guard against invalid crop calculations
+        guard cropSizeInPixels.isFinite, cropSizeInPixels > 0,
+              cropX.isFinite, cropY.isFinite else {
+            isPresented = false
+            return
+        }
+
         // Clamp to image bounds
         let clampedX = max(0, min(cropX, imageWidth - cropSizeInPixels))
         let clampedY = max(0, min(cropY, imageHeight - cropSizeInPixels))
-        let clampedSize = min(cropSizeInPixels, imageWidth - clampedX, imageHeight - clampedY)
+        let clampedSize = max(1, min(cropSizeInPixels, imageWidth - clampedX, imageHeight - clampedY))
 
         let cropRect = CGRect(
             x: clampedX,

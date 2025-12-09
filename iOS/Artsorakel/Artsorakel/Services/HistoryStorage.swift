@@ -194,10 +194,15 @@ class HistoryStorage: ObservableObject {
         let originalWidth = image.size.width
         let originalHeight = image.size.height
 
+        // Guard against division by zero with invalid image dimensions
+        guard originalWidth > 0, originalHeight > 0 else {
+            return image
+        }
+
         let scale = min(maxDimension / originalWidth, maxDimension / originalHeight)
 
-        // Don't upscale
-        if scale >= 1.0 {
+        // Don't upscale, and guard against invalid scale values
+        if scale >= 1.0 || !scale.isFinite {
             return image
         }
 
