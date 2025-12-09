@@ -123,7 +123,6 @@ class ShareViewController: UIViewController {
 
             return true
         } catch {
-            print("Error saving shared image: \(error)")
             return false
         }
     }

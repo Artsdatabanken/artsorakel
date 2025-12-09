@@ -122,12 +122,10 @@ struct AboutWebView: UIViewRepresentable {
         // Find all <img src="Logo_*.svg"> tags and replace with inline SVG
         let pattern = #"<img\s+src="(Logo_[^"]+\.svg)"([^>]*)>"#
         guard let regex = try? NSRegularExpression(pattern: pattern, options: []) else {
-            print("DEBUG: Failed to create regex")
             return htmlContent
         }
 
         let matches = regex.matches(in: htmlContent, options: [], range: NSRange(htmlContent.startIndex..., in: htmlContent))
-        print("DEBUG: Found \(matches.count) logo matches")
 
         // Process matches in reverse to avoid index issues
         for match in matches.reversed() {
@@ -141,27 +139,20 @@ struct AboutWebView: UIViewRepresentable {
             let svgFileName = String(htmlContent[svgFileRange])
             let imgAttributes = String(htmlContent[attributesRange])
 
-            print("DEBUG: Trying to load \(svgFileName)")
-
             // Load SVG content - try multiple possible locations
-            var url: URL?
             var svgContent: String?
 
             // Try Resources/Content subdirectory
             if let tryUrl = Bundle.main.url(forResource: svgFileName.replacingOccurrences(of: ".svg", with: ""), withExtension: "svg", subdirectory: "Resources/Content") {
-                url = tryUrl
                 svgContent = try? String(contentsOf: tryUrl)
             }
 
             // Try root of bundle
             if svgContent == nil, let tryUrl = Bundle.main.url(forResource: svgFileName.replacingOccurrences(of: ".svg", with: ""), withExtension: "svg") {
-                url = tryUrl
                 svgContent = try? String(contentsOf: tryUrl)
             }
 
             if let svgContent = svgContent {
-                print("DEBUG: Successfully loaded \(svgFileName) from \(url?.path ?? "unknown"), adding color \(textColorHex)")
-
                 // Extract width from img tag style attribute
                 let widthPattern = #"width:\s*(\d+)%"#
                 let widthRegex = try? NSRegularExpression(pattern: widthPattern, options: [])

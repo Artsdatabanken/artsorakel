@@ -40,7 +40,6 @@ class HistoryStorage: ObservableObject {
             let data = try encoder.encode(results)
             allResultsJson = String(data: data, encoding: .utf8) ?? "[]"
         } catch {
-            print("Failed to encode results: \(error)")
             allResultsJson = "[]"
         }
 
@@ -102,7 +101,6 @@ class HistoryStorage: ObservableObject {
         do {
             return try JSONDecoder().decode([PredictionResult].self, from: data)
         } catch {
-            print("Failed to decode results: \(error)")
             return []
         }
     }
@@ -137,7 +135,6 @@ class HistoryStorage: ObservableObject {
         do {
             history = try JSONDecoder().decode([IdentificationHistory].self, from: data)
         } catch {
-            print("Failed to load history: \(error)")
             history = []
         }
     }
@@ -147,7 +144,7 @@ class HistoryStorage: ObservableObject {
             let data = try JSONEncoder().encode(history)
             UserDefaults.standard.set(data, forKey: historyKey)
         } catch {
-            print("Failed to save history: \(error)")
+            // Silently fail - history save is not critical
         }
     }
 
@@ -186,7 +183,7 @@ class HistoryStorage: ObservableObject {
                 // Store only the filename, not the full path
                 filenames.append(filename)
             } catch {
-                print("Failed to save image: \(error)")
+                // Skip images that fail to save
             }
         }
 

@@ -73,7 +73,7 @@ struct WarningBoxView: View {
 
     var body: some View {
         let linkURL = warning.getLink(for: currentLanguage)
-        let isClickable = linkURL != nil && !linkURL!.isEmpty
+        let isClickable = linkURL.map { !$0.isEmpty } ?? false
 
         HStack(spacing: 0) {
             // Left colored border (6dp)

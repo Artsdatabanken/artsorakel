@@ -188,7 +188,8 @@ struct ImagePickerManager: UIViewControllerRepresentable {
 
                 PHPhotoLibrary.shared().performChanges({
                     let creationRequest = PHAssetCreationRequest.forAsset()
-                    creationRequest.addResource(with: .photo, data: image.jpegData(compressionQuality: 0.95)!, options: nil)
+                    guard let imageData = image.jpegData(compressionQuality: 0.95) else { return }
+                    creationRequest.addResource(with: .photo, data: imageData, options: nil)
 
                     if let location = location {
                         creationRequest.location = location
@@ -202,11 +203,7 @@ struct ImagePickerManager: UIViewControllerRepresentable {
                             albumChangeRequest?.addAssets([placeholder] as NSArray)
                         }
                     }
-                }, completionHandler: { success, error in
-                    if let error = error {
-                        print("Error saving image to photo library: \(error)")
-                    }
-                })
+                }, completionHandler: nil)
             }
         }
 
@@ -233,7 +230,7 @@ struct ImagePickerManager: UIViewControllerRepresentable {
                     return fetchResult.firstObject
                 }
             } catch {
-                print("Error creating album: \(error)")
+                // Album creation failed, continue without album
             }
 
             return nil

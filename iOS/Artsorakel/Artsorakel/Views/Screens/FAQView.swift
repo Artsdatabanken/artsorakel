@@ -106,7 +106,7 @@ struct FAQView: View {
                 faqItems = faqData.items
                 return
             } catch {
-                print("Error decoding FAQ JSON: \(error)")
+                // Fall through to try English
             }
         }
 
@@ -118,7 +118,7 @@ struct FAQView: View {
                 let faqData = try decoder.decode(FAQData.self, from: data)
                 faqItems = faqData.items
             } catch {
-                print("Error decoding fallback FAQ JSON: \(error)")
+                // FAQ will remain empty
             }
         }
     }

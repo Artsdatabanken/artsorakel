@@ -59,7 +59,6 @@ class SharedImageHandler {
 
             return true
         } catch {
-            print("Error saving shared image: \(error)")
             return false
         }
     }
@@ -111,7 +110,6 @@ class SharedImageHandler {
 
             return (normalizedImage, location)
         } catch {
-            print("Error loading shared image: \(error)")
             return nil
         }
     }
