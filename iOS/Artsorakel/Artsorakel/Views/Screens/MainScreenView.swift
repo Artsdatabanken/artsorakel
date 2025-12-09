@@ -60,6 +60,7 @@ struct MainScreenView: View {
     @EnvironmentObject var localizationManager: LocalizationManager
     @StateObject private var historyStorage = HistoryStorage.shared
     @StateObject private var locationHelper = LocationPermissionHelper()
+    @ObservedObject private var rssFeedService = RssFeedService.shared
     @State private var showCamera = false
     @State private var showGallery = false
     @State private var isMenuOpen = false
@@ -74,6 +75,7 @@ struct MainScreenView: View {
     @State private var recropContext: (imageData: CroppedImageData, index: Int)?
     @State private var isIdentifying = false
     @State private var identificationResults: [PredictionResult]?
+    @State private var identificationWarnings: Warnings?
     @State private var identificationTask: Task<Void, Never>?
     @State private var recropFromResults = false
     @State private var selectedResult: PredictionResult?
@@ -96,6 +98,10 @@ struct MainScreenView: View {
     @State private var speciesDetailZIndex: Double = 0
     @State private var expandedHistoryZIndex: Double = 0
 
+    // Error handling state
+    @State private var showErrorAlert = false
+    @State private var errorMessage = ""
+
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
@@ -108,12 +114,22 @@ struct MainScreenView: View {
                 ZStack {
                     // Base content - always present
                     VStack(spacing: 0) {
-                        Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
-                            .font(DesignSystem.Typography.titleLarge())
-                            .foregroundColor(Color.textPrimary)
-                            .padding(.horizontal, DesignSystem.Spacing.extraHuge)
-                            .padding(.vertical, DesignSystem.Spacing.standard)
-                            .multilineTextAlignment(.center)
+                        // Message box or title
+                        if let feedItem = rssFeedService.currentFeedItem {
+                            MessageBoxView(
+                                feedItem: feedItem,
+                                onDismiss: {
+                                    rssFeedService.dismissCurrentItem()
+                                }
+                            )
+                        } else {
+                            Text(localizationManager.localize("main_title", comment: "Main screen tagline"))
+                                .font(DesignSystem.Typography.titleLarge())
+                                .foregroundColor(Color.textPrimary)
+                                .padding(.horizontal, DesignSystem.Spacing.extraHuge)
+                                .padding(.vertical, DesignSystem.Spacing.standard)
+                                .multilineTextAlignment(.center)
+                        }
 
                         ZStack {
                             Color.backgroundSubtle
@@ -210,6 +226,7 @@ struct MainScreenView: View {
             if let results = identificationResults {
                 ResultsView(
                     results: results,
+                    warnings: isViewingHistoricalResults ? nil : identificationWarnings,
                     images: croppedImages,
                     isHistorical: isViewingHistoricalResults,
                     historicalDate: isViewingHistoricalResults ? currentIdentificationTimestamp : nil,
@@ -218,6 +235,7 @@ struct MainScreenView: View {
                         // to reveal the expanded history beneath
                         if isViewingHistoricalResults && showExpandedHistory {
                             identificationResults = nil
+                            identificationWarnings = nil
                             croppedImages = []
                             isViewingHistoricalResults = false
                             currentUploadId = nil
@@ -227,6 +245,7 @@ struct MainScreenView: View {
                         } else {
                             // Fresh results or not from history - go back to main screen
                             identificationResults = nil
+                            identificationWarnings = nil
                             croppedImages = []
                             isViewingHistoricalResults = false
                             currentUploadId = nil
@@ -238,6 +257,7 @@ struct MainScreenView: View {
                     onAddImage: {
                         // Dismiss results and show image picker based on last method used
                         identificationResults = nil
+                        identificationWarnings = nil
                         isViewingHistoricalResults = false
                         if lastInputMethodIsCamera {
                             openCamera()
@@ -320,6 +340,7 @@ struct MainScreenView: View {
                         // If recropping from results, dismiss results since image changed
                         if recropFromResults {
                             identificationResults = nil
+                            identificationWarnings = nil
                             recropFromResults = false
                         }
                     } else {
@@ -339,6 +360,7 @@ struct MainScreenView: View {
                         // If recropping from results, dismiss results since image was deleted
                         if recropFromResults {
                             identificationResults = nil
+                            identificationWarnings = nil
                             recropFromResults = false
                         }
                     }
@@ -406,6 +428,9 @@ struct MainScreenView: View {
         }
         .onAppear {
             checkForSharedImage()
+            Task {
+                await rssFeedService.loadRssFeed()
+            }
         }
         .onChange(of: scenePhase) { newPhase in
             if newPhase == .active {
@@ -414,6 +439,14 @@ struct MainScreenView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .sharedImageReceived)) { _ in
             checkForSharedImage()
+        }
+        .onChange(of: localizationManager.currentLanguage) { _ in
+            rssFeedService.onLanguageChanged()
+        }
+        .alert(localizationManager.localize("error_title", comment: "Error"), isPresented: $showErrorAlert) {
+            Button(localizationManager.localize("ok", comment: "OK"), role: .cancel) { }
+        } message: {
+            Text(errorMessage)
         }
     }
 
@@ -432,6 +465,7 @@ struct MainScreenView: View {
         showFAQ = false
         showExpandedHistory = false
         identificationResults = nil
+        identificationWarnings = nil
         selectedResult = nil
         isMenuOpen = false
         isViewingHistoricalResults = false
@@ -468,6 +502,7 @@ struct MainScreenView: View {
                 await MainActor.run {
                     isIdentifying = false
                     identificationResults = result.predictions
+                    identificationWarnings = result.warnings
                     currentUploadId = result.uploadId
                     currentUploadSecret = result.uploadSecret
                     currentIdentificationTimestamp = result.timestamp
@@ -480,11 +515,16 @@ struct MainScreenView: View {
                         uploadSecret: result.uploadSecret
                     )
                 }
+            } catch is CancellationError {
+                // Task was cancelled by user, no error to show
+                await MainActor.run {
+                    isIdentifying = false
+                }
             } catch {
                 await MainActor.run {
                     isIdentifying = false
-                    // TODO: Show error message
-                    print("Identification error: \(error)")
+                    errorMessage = localizationManager.localize("identification_error", comment: "Failed to identify species. Please check your internet connection and try again.")
+                    showErrorAlert = true
                 }
             }
         }

@@ -208,12 +208,12 @@ class HistoryStorage: ObservableObject {
         let newHeight = originalHeight * scale
         let newSize = CGSize(width: newWidth, height: newHeight)
 
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        image.draw(in: CGRect(origin: .zero, size: newSize))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        return newImage ?? image
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
     }
 
     private func deleteImages(for item: IdentificationHistory) {

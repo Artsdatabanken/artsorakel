@@ -1,6 +1,61 @@
 import Foundation
 import CoreLocation
 
+// MARK: - Warning Models
+
+enum WarningCategory: String, Codable {
+    case danger = "danger"
+    case warning = "warning"
+    case info = "info"
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self).lowercased()
+        self = WarningCategory(rawValue: value) ?? .info
+    }
+}
+
+struct WarningItem: Codable, Equatable {
+    let category: WarningCategory
+    let title: [String: String]?
+    let message: [String: String]
+    let link: [String: String]?
+
+    func getTitle(for language: String) -> String? {
+        title?[language]
+    }
+
+    func getMessage(for language: String) -> String? {
+        message[language] ?? message.values.first
+    }
+
+    func getLink(for language: String) -> String? {
+        link?[language]
+    }
+}
+
+struct Warnings: Codable, Equatable {
+    let general: [WarningItem]
+    let predictions: [String: [WarningItem]]
+
+    init(general: [WarningItem], predictions: [String: [WarningItem]]) {
+        self.general = general
+        self.predictions = predictions
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        general = try container.decodeIfPresent([WarningItem].self, forKey: .general) ?? []
+        predictions = try container.decodeIfPresent([String: [WarningItem]].self, forKey: .predictions) ?? [:]
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case general, predictions
+    }
+}
+
+// MARK: - Model Info
+
 struct ModelInfo: Codable, Equatable {
     let model: String?
     let country: String?
@@ -79,8 +134,21 @@ struct PredictionResult: Identifiable, Codable, Equatable {
 struct APIResponse: Codable {
     let predictions: [PredictionDTO]?
     let modelInfo: ModelInfoDTO?
+    let warnings: WarningsDTO?
     let uploadId: String?
     let uploadSecret: String?
+}
+
+struct WarningsDTO: Codable {
+    let general: [WarningItemDTO]?
+    let predictions: [String: [WarningItemDTO]]?
+}
+
+struct WarningItemDTO: Codable {
+    let category: String
+    let title: [String: String]?
+    let message: [String: String]
+    let link: [String: String]?
 }
 
 /// Response from the /save endpoint containing image reference data

@@ -158,6 +158,27 @@ def sync_config():
         except Exception as e:
             print_warning(f"Could not update ShareExtension plist: {e}")
 
+    # Update Xcode project MARKETING_VERSION to match (Xcode overrides Info.plist with this)
+    ios_project = IOS_DIR / 'Artsorakel' / 'Artsorakel.xcodeproj' / 'project.pbxproj'
+    if ios_project.exists():
+        try:
+            with open(ios_project, 'r') as f:
+                project_content = f.read()
+
+            # Replace all MARKETING_VERSION entries
+            project_content = re.sub(
+                r'MARKETING_VERSION = [^;]+;',
+                f'MARKETING_VERSION = {version};',
+                project_content
+            )
+
+            with open(ios_project, 'w') as f:
+                f.write(project_content)
+
+            print_success(f"Updated Xcode MARKETING_VERSION to {version}")
+        except Exception as e:
+            print_warning(f"Could not update Xcode project version: {e}")
+
     # Copy config files to iOS Config directory
     ios_config_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Config'
     ios_config_dir.mkdir(parents=True, exist_ok=True)

@@ -16,19 +16,27 @@ extension Notification.Name {
 struct ArtsorakelApp: App {
     @AppStorage("selectedTheme") private var selectedTheme: String = "system"
     @StateObject private var localizationManager = LocalizationManager()
+    @StateObject private var appConfig = AppConfig.shared
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .preferredColorScheme(colorScheme(for: selectedTheme))
-                .environmentObject(localizationManager)
-                .onOpenURL { url in
-                    handleIncomingURL(url)
-                }
-                .onAppear {
-                    // Check for pending shared images when app launches
-                    checkForPendingSharedImage()
-                }
+            if let error = appConfig.configurationError {
+                ConfigurationErrorView(error: error)
+                    .preferredColorScheme(colorScheme(for: selectedTheme))
+            } else {
+                ContentView()
+                    .preferredColorScheme(colorScheme(for: selectedTheme))
+                    .environmentObject(localizationManager)
+                    .onOpenURL { url in
+                        handleIncomingURL(url)
+                    }
+                    .onAppear {
+                        // Check for pending shared images when app launches
+                        checkForPendingSharedImage()
+                        // Reset RSS session on app start
+                        RssFeedService.shared.resetSessionOnAppStart()
+                    }
+            }
         }
     }
 
@@ -55,5 +63,39 @@ struct ArtsorakelApp: App {
             // Post notification that a shared image is available
             NotificationCenter.default.post(name: .sharedImageReceived, object: nil)
         }
+    }
+}
+
+/// Error view displayed when app configuration fails to load
+struct ConfigurationErrorView: View {
+    let error: AppConfigError
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.system(size: 64))
+                .foregroundColor(.orange)
+
+            Text("Configuration Error")
+                .font(.title)
+                .fontWeight(.bold)
+
+            Text(error.localizedDescription)
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 32)
+
+            Spacer()
+
+            Text("Error code: \(String(describing: error).components(separatedBy: ".").last ?? "unknown")")
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.bottom, 32)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground))
     }
 }

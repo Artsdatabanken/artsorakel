@@ -169,12 +169,12 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             }
 
             // Render the image in the correct orientation
-            UIGraphicsBeginImageContextWithOptions(image.size, false, image.scale)
-            image.draw(in: CGRect(origin: .zero, size: image.size))
-            let normalizedImage = UIGraphicsGetImageFromCurrentImageContext()
-            UIGraphicsEndImageContext()
-
-            return normalizedImage ?? image
+            let format = UIGraphicsImageRendererFormat()
+            format.scale = image.scale
+            let renderer = UIGraphicsImageRenderer(size: image.size, format: format)
+            return renderer.image { _ in
+                image.draw(in: CGRect(origin: .zero, size: image.size))
+            }
         }
 
         // MARK: - Photo Library Helpers

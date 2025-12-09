@@ -99,3 +99,6 @@ permission_manage,Manage,Administrar,Administrer,Hantera,Beheren,Administrer
 permission_image_not_accessible,Could not access the image,No se pudo acceder a la imagen,Kunne ikke åpne bildet,Kunde inte öppna bilden,Kon de afbeelding niet openen,Kunne ikkje opna biletet
 permission_photos,Photos (+ location),Fotos (+ ubicación),Bilder (+ posisjon),Foton (+ position),Foto's (+ locatie),Bilete (+ posisjon)
 warning_partial_access_no_location,Need full access to read location,Necesita acceso completo para leer ubicación,Trenger full tilgang for å lese posisjon,Behöver full åtkomst för att läsa position,Volledige toegang nodig om locatie te lezen,Treng full tilgang for å lesa posisjon
+error_title,Error,Error,Feil,Fel,Fout,Feil
+ok,OK,OK,OK,OK,OK,OK
+identification_error,Failed to identify species. Please check your internet connection and try again.,No se pudo identificar la especie. Por favor verifica tu conexión a internet e intenta de nuevo.,Kunne ikke identifisere arten. Sjekk internettforbindelsen din og prøv igjen.,Kunde inte identifiera arten. Kontrollera din internetanslutning och försök igen.,Kon de soort niet identificeren. Controleer je internetverbinding en probeer het opnieuw.,Kunne ikkje identifisera arten. Sjekk internettilkoplinga di og prøv igjen.

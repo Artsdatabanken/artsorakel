@@ -28,13 +28,17 @@ struct LoadingView: View {
 
                             SVGWebView(svgName: "ic_close", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
                                 .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
-       
+
                         }
                         .frame(height: 42)
                         .padding(.horizontal, 20)
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .background(Color.surfaceSubtle)
+                    .background(Color.surfacePrimary)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 21)
+                            .stroke(Color.borderAccent, lineWidth: 2)
+                    )
                     .cornerRadius(21)
                     .fixedSize()
                 }

@@ -1,6 +1,7 @@
 import SwiftUI
 import AVFoundation
 import CoreLocation
+import Photos
 
 struct SettingsView: View {
     @Binding var isPresented: Bool
@@ -16,6 +17,7 @@ struct SettingsView: View {
     // Permission states
     @State private var cameraPermission: PermissionStatus = .notDetermined
     @State private var locationPermission: PermissionStatus = .notDetermined
+    @State private var photosPermission: PermissionStatus = .notDetermined
 
     var body: some View {
         ZStack {
@@ -230,6 +232,13 @@ struct SettingsView: View {
                             buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
                             action: openAppSettings
                         )
+
+                        PermissionRowView(
+                            title: localizationManager.localize("permission_photos", comment: "Photos (+ location)"),
+                            status: photosPermissionStatusText(photosPermission),
+                            buttonText: localizationManager.localize("permission_manage", comment: "Manage"),
+                            action: openAppSettings
+                        )
                     }
                     .padding(DesignSystem.Spacing.large)
                     .padding(.bottom, DesignSystem.Spacing.huge)
@@ -275,12 +284,38 @@ struct SettingsView: View {
         @unknown default:
             locationPermission = .notDetermined
         }
+
+        // Check photos permission
+        let photosStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch photosStatus {
+        case .authorized:
+            photosPermission = .granted
+        case .limited:
+            photosPermission = .limited
+        case .denied, .restricted:
+            photosPermission = .denied
+        case .notDetermined:
+            photosPermission = .notDetermined
+        @unknown default:
+            photosPermission = .notDetermined
+        }
     }
 
     private func permissionStatusText(_ status: PermissionStatus) -> String {
         switch status {
         case .granted:
             return localizationManager.localize("permission_granted", comment: "Granted")
+        case .limited, .denied, .notDetermined:
+            return localizationManager.localize("permission_not_granted", comment: "Not granted")
+        }
+    }
+
+    private func photosPermissionStatusText(_ status: PermissionStatus) -> String {
+        switch status {
+        case .granted:
+            return localizationManager.localize("permission_granted", comment: "Granted")
+        case .limited:
+            return localizationManager.localize("warning_partial_access_no_location", comment: "Need full access to read location")
         case .denied, .notDetermined:
             return localizationManager.localize("permission_not_granted", comment: "Not granted")
         }
@@ -295,6 +330,7 @@ struct SettingsView: View {
 
 enum PermissionStatus {
     case granted
+    case limited
     case denied
     case notDetermined
 }

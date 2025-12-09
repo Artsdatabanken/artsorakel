@@ -4,6 +4,7 @@ struct ResultsView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var localizationManager: LocalizationManager
     let results: [PredictionResult]
+    let warnings: Warnings?
     let images: [CroppedImageData]
     var isHistorical: Bool = false
     var historicalDate: Date? = nil
@@ -27,6 +28,8 @@ struct ResultsView: View {
             }
 
             imagesSection
+
+            warningsSection
 
             resultsListView
 
@@ -145,6 +148,44 @@ struct ResultsView: View {
         }
         .padding(.vertical, DesignSystem.Spacing.standard)
         .background(Color.surfaceSecondary)
+    }
+
+    @ViewBuilder
+    private var warningsSection: some View {
+        if let warnings = warnings {
+            let currentLanguage = localizationManager.currentLanguage == "system"
+                ? Locale.current.languageCode ?? "en"
+                : localizationManager.currentLanguage
+
+            VStack(spacing: 0) {
+                // General warnings
+                ForEach(Array(warnings.general.enumerated()), id: \.offset) { _, warning in
+                    WarningBoxView(
+                        warning: warning,
+                        speciesName: nil,
+                        currentLanguage: currentLanguage
+                    )
+                }
+
+                // Prediction-specific warnings
+                ForEach(Array(warnings.predictions.keys.sorted()), id: \.self) { indexString in
+                    if let index = Int(indexString),
+                       let warningList = warnings.predictions[indexString] {
+                        let speciesName = results.indices.contains(index)
+                            ? (results[index].getVernacularName(for: currentLanguage) ?? results[index].scientificName)
+                            : nil
+
+                        ForEach(Array(warningList.enumerated()), id: \.offset) { _, warning in
+                            WarningBoxView(
+                                warning: warning,
+                                speciesName: speciesName,
+                                currentLanguage: currentLanguage
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private var resetButton: some View {

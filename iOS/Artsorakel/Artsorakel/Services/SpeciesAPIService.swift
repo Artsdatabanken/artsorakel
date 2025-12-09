@@ -6,6 +6,7 @@ import SwiftUI
 /// Result of species identification including upload credentials
 struct IdentificationResult {
     let predictions: [PredictionResult]
+    let warnings: Warnings?
     let uploadId: String?
     let uploadSecret: String?
     let timestamp: Date
@@ -97,9 +98,11 @@ class SpeciesAPIService {
 
         // Map to domain models
         let predictions = mapAPIResponseToPredictionResults(apiResponse)
+        let warnings = mapWarnings(apiResponse.warnings)
 
         return IdentificationResult(
             predictions: predictions,
+            warnings: warnings,
             uploadId: apiResponse.uploadId,
             uploadSecret: apiResponse.uploadSecret,
             timestamp: Date()
@@ -169,12 +172,12 @@ class SpeciesAPIService {
         let newHeight = originalHeight * scale
         let newSize = CGSize(width: newWidth, height: newHeight)
 
-        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-        image.draw(in: CGRect(origin: .zero, size: newSize))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        return newImage ?? image
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1.0
+        let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+        return renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: newSize))
+        }
     }
 
     func cancelIdentification() {
@@ -182,32 +185,58 @@ class SpeciesAPIService {
     }
 
     private func stripEXIFData(from image: UIImage, compressionQuality: CGFloat) -> Data? {
-        // Create a new image context to re-render the image without metadata
-        guard let cgImage = image.cgImage else { return nil }
+        // Re-render the image without metadata using UIGraphicsImageRenderer
+        let size = image.size
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
 
-        // Create a new bitmap context
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
-        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.premultipliedLast.rawValue)
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        let strippedImage = renderer.image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
 
-        guard let context = CGContext(
-            data: nil,
-            width: cgImage.width,
-            height: cgImage.height,
-            bitsPerComponent: 8,
-            bytesPerRow: 0,
-            space: colorSpace,
-            bitmapInfo: bitmapInfo.rawValue
-        ) else { return nil }
+        return strippedImage.jpegData(compressionQuality: compressionQuality)
+    }
 
-        // Draw the image in the context (this strips metadata)
-        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: cgImage.width, height: cgImage.height))
+    private func mapWarnings(_ warningsDTO: WarningsDTO?) -> Warnings? {
+        guard let dto = warningsDTO else { return nil }
 
-        // Get the new CGImage without metadata
-        guard let newCGImage = context.makeImage() else { return nil }
+        let generalWarnings = dto.general?.compactMap { itemDTO -> WarningItem? in
+            guard let category = WarningCategory(rawValue: itemDTO.category.lowercased()) else {
+                return WarningItem(
+                    category: .info,
+                    title: itemDTO.title,
+                    message: itemDTO.message,
+                    link: itemDTO.link
+                )
+            }
+            return WarningItem(
+                category: category,
+                title: itemDTO.title,
+                message: itemDTO.message,
+                link: itemDTO.link
+            )
+        } ?? []
 
-        // Convert to UIImage and then to JPEG data (without EXIF)
-        let newImage = UIImage(cgImage: newCGImage, scale: image.scale, orientation: .up)
-        return newImage.jpegData(compressionQuality: compressionQuality)
+        var predictionWarnings: [String: [WarningItem]] = [:]
+        dto.predictions?.forEach { key, items in
+            predictionWarnings[key] = items.compactMap { itemDTO in
+                let category = WarningCategory(rawValue: itemDTO.category.lowercased()) ?? .info
+                return WarningItem(
+                    category: category,
+                    title: itemDTO.title,
+                    message: itemDTO.message,
+                    link: itemDTO.link
+                )
+            }
+        }
+
+        // Return nil if there are no warnings
+        if generalWarnings.isEmpty && predictionWarnings.isEmpty {
+            return nil
+        }
+
+        return Warnings(general: generalWarnings, predictions: predictionWarnings)
     }
 
     private func mapAPIResponseToPredictionResults(_ apiResponse: APIResponse) -> [PredictionResult] {
