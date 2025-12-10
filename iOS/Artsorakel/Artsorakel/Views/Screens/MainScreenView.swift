@@ -599,9 +599,12 @@ struct AvatarView: View {
 
     var body: some View {
         GeometryReader { geometry in
-                SVGWebView(svgName: avatarName, width: geometry.size.width, height: geometry.size.height)
-                    .frame(width: geometry.size.width, height: geometry.size.height)
-           
+            let maxWidth: CGFloat = 400
+            let width = min(geometry.size.width, maxWidth)
+
+            SVGWebView(svgName: avatarName, width: width, height: geometry.size.height)
+                .frame(width: width, height: geometry.size.height)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
 }

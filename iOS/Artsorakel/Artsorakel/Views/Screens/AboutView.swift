@@ -129,15 +129,13 @@ struct AboutWebView: UIViewRepresentable {
 
         // Process matches in reverse to avoid index issues
         for match in matches.reversed() {
-            guard match.numberOfRanges >= 3,
+            guard match.numberOfRanges >= 2,
                   let svgFileRange = Range(match.range(at: 1), in: htmlContent),
-                  let attributesRange = Range(match.range(at: 2), in: htmlContent),
                   let fullMatchRange = Range(match.range(at: 0), in: htmlContent) else {
                 continue
             }
 
             let svgFileName = String(htmlContent[svgFileRange])
-            let imgAttributes = String(htmlContent[attributesRange])
 
             // Load SVG content - try multiple possible locations
             var svgContent: String?
@@ -153,24 +151,13 @@ struct AboutWebView: UIViewRepresentable {
             }
 
             if let svgContent = svgContent {
-                // Extract width from img tag style attribute
-                let widthPattern = #"width:\s*(\d+)%"#
-                let widthRegex = try? NSRegularExpression(pattern: widthPattern, options: [])
-                let widthMatch = widthRegex?.firstMatch(in: imgAttributes, options: [], range: NSRange(imgAttributes.startIndex..., in: imgAttributes))
-                let width: String
-                if let widthMatch = widthMatch, let widthRange = Range(widthMatch.range(at: 1), in: imgAttributes) {
-                    width = String(imgAttributes[widthRange])
-                } else {
-                    width = "80"
-                }
-
                 // Remove XML declaration and add color style to SVG tag
                 let cleanedSvg = svgContent
                     .replacingOccurrences(of: #"<\?xml[^>]+\?>"#, with: "", options: .regularExpression)
                     .replacingOccurrences(of: "<svg", with: "<svg style=\"color: \(textColorHex); fill: \(textColorHex);\" ")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
 
-                let inlinedSvg = "<div style=\"width: \(width)%; margin-top: 20px; margin-left: auto; margin-right: auto;\">\(cleanedSvg)</div>"
+                let inlinedSvg = "<div class=\"logo-wrapper\">\(cleanedSvg)</div>"
 
                 result = result.replacingCharacters(in: fullMatchRange, with: inlinedSvg)
             }
@@ -245,7 +232,9 @@ struct AboutWebView: UIViewRepresentable {
                 margin: 20px auto 0 auto;
                 width: 100%;
                 height: auto;
-                max-width: 200px;
+                max-width: 300px;
+                max-height: 100px;
+                object-fit: contain;
             }
 
             svg {
@@ -253,6 +242,19 @@ struct AboutWebView: UIViewRepresentable {
                 fill: \(colorToHex(textColor));
                 max-width: 100%;
                 height: auto;
+            }
+
+            .logo-wrapper {
+                display: block;
+                max-width: 300px;
+                max-height: 100px;
+                margin: 20px auto 0 auto;
+            }
+
+            .logo-wrapper svg {
+                width: 100%;
+                height: auto;
+                max-height: 100px;
             }
         </style>
         """
