@@ -2,6 +2,8 @@
 
 Thank you for your interest in contributing to Artsorakel! This document provides guidelines for contributing to the project.
 
+All participants are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Getting Started
 
 1. Fork the repository
@@ -13,7 +15,7 @@ Thank you for your interest in contributing to Artsorakel! This document provide
 
 ### Before Making Changes
 
-1. Check existing [issues](../../issues) to see if your idea or bug has been discussed
+1. Check existing [issues](https://github.com/artsdatabanken/orakel/issues) to see if your idea or bug has been discussed
 2. For significant changes, open an issue first to discuss the approach
 3. Run the sync script to ensure resources are up to date:
    ```bash

@@ -109,7 +109,7 @@ artsorakel/
 
 ## How It Works
 
-The app sends photos to [NBIC's AI middleware](https://www.github.com/artsdatabanken/ai), which augments and returns species predictions based on a model trained and hosted by [Naturalis Biodiversity Center](https://www.naturalis.nl) with images from citizen scientists at [Artsobservasjoner.no](https://artsobservasjoner.no) and similar sources. The model can only identify wild species that have been reported with images - it does not recognize humans, domestic animals, or garden plants. Based on the location of the provided picture (if shared by the user), or the country of their IP address, the Norwegian, Swedish or European modal is selected.
+The app sends photos to [NBIC's AI middleware](https://github.com/artsdatabanken/ai), which augments and returns species predictions based on a model trained and hosted by [Naturalis Biodiversity Center](https://www.naturalis.nl), based on images contributed by citizen scientists on [Artsobservasjoner.no](https://artsobservasjoner.no) and similar platforms. The model can only identify wild species that have been reported with images - it does not recognize humans, domestic animals, or garden plants. Based on the approximate location of the provided picture (if shared by the user), or the country of their IP address, the Norwegian, Swedish or European modal is selected.
 
 Images and user information are not stored, nor made available to NBIC or third parties.
 
