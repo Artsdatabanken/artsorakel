@@ -1,3 +1,5 @@
+<img src="shared/images/artsorakel_owl_optimized.svg" width="80" height="80" align="left" alt="Artsorakel app icon">
+
 # Artsorakel
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
