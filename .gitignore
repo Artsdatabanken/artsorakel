@@ -74,8 +74,10 @@ iOS/Artsorakel/Artsorakel\ */
 # Temporary/test files
 *Screenshot*.png
 *.7z
-1024x1024ia.png
 CLAUDE.md
 
 # Claude Code local settings
-.claude/
+**/.claude/
+
+# Cline settings
+**/.clinerules
