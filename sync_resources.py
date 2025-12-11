@@ -599,13 +599,62 @@ def sync_vectors():
     return True
 
 
+def download_fonts():
+    """Download fonts from Fontsource CDN if missing or older than a week"""
+    print_section("📥 Checking/downloading fonts...")
+
+    fonts_dir = SHARED_DIR / 'fonts'
+    fonts_dir.mkdir(parents=True, exist_ok=True)
+
+    # Font mappings: local filename -> (weight, style)
+    font_mappings = {
+        'chivo_regular.ttf': ('400', 'normal'),
+        'chivo_italic.ttf': ('400', 'italic'),
+        'chivo_bold.ttf': ('700', 'normal'),
+        'chivo_bolditalic.ttf': ('700', 'italic'),
+    }
+
+    base_url = 'https://cdn.jsdelivr.net/fontsource/fonts/chivo@latest'
+    one_week_seconds = 7 * 24 * 60 * 60
+    import time
+
+    for local_name, (weight, style) in font_mappings.items():
+        local_path = fonts_dir / local_name
+        needs_download = False
+
+        if not local_path.exists():
+            needs_download = True
+            reason = "missing"
+        else:
+            file_age = time.time() - local_path.stat().st_mtime
+            if file_age > one_week_seconds:
+                needs_download = True
+                reason = "older than a week"
+
+        if not needs_download:
+            continue
+
+        url = f"{base_url}/latin-{weight}-{style}.ttf"
+        print_info(f"Downloading {local_name} ({reason})...")
+
+        try:
+            import urllib.request
+            urllib.request.urlretrieve(url, local_path)
+            print_success(f"Downloaded {local_name}")
+        except Exception as e:
+            print_error(f"Failed to download {local_name}: {e}")
+            print_error(f"   URL: {url}")
+            sys.exit(1)
+
+
 def sync_fonts():
     """Sync fonts to both platforms"""
     print_section("🔤 Syncing fonts...")
 
+    # First ensure fonts are downloaded
+    download_fonts()
+
     fonts_dir = SHARED_DIR / 'fonts'
-    if not fonts_dir.exists():
-        return
 
     # Copy to Android
     android_fonts = ANDROID_DIR / 'app' / 'src' / 'main' / 'res' / 'font'
