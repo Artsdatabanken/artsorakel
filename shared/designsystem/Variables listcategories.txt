@@ -2,17 +2,26 @@
   /* =======================
      Category colors
   ======================= */
-  --invasive-nk: #94a461;
-  --invasive-lo: #5c9d94;
-  --invasive-ph: #296472;
-  --invasive-hi: #2d4072;
-  --invasive-se: #4f0f52;
-  
-  --redlist-cr: #981919;
-  --redlist-en: #d90f28;
-  --redlist-vu: #ea4f34;
-  --redlist-nt: #ee6c26;
-  --redlist-dd: #f6a61f;
-  --redlist-lc: #61beb3;
+  --invasive-nk: #D2CF84;
+  --invasive-lo: #7CB1AC;
+  --invasive-ph: #286371;
+  --invasive-hi: #17467C;
+  --invasive-se: #4E1A53;
+
+  --redlist-cr: #D61900;
+  --redlist-en: #F34F39;
+  --redlist-vu: #EB8107;
+  --redlist-nt: #E6C000;
+  --redlist-dd: #6C6C6C;
+  --redlist-lc: #61A360;
+
+  /* =======================
+     Probability gauge colors
+  ======================= */
+  --gauge-1: #AA0000;
+  --gauge-2: #C36B16;
+  --gauge-3: #DCD62B;
+  --gauge-4: #94C33E;
+  --gauge-5: #4CAF50;
 
 }

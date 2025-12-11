@@ -356,7 +356,7 @@ struct PermissionRowView: View {
             Spacer()
 
             Button(action: action) {
-                Text(buttonText)
+                (Text(buttonText).underline() + Text(" ") + Text(Image("ic_external_link")).baselineOffset(-4))
                     .font(DesignSystem.Typography.body())
                     .foregroundColor(Color.textAccent)
             }

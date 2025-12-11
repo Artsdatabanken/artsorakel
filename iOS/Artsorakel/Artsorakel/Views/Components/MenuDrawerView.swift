@@ -5,6 +5,9 @@ struct MenuDrawerView: View {
     @Binding var showSettings: Bool
     @Binding var showAbout: Bool
     @Binding var showFAQ: Bool
+    var onSettingsTap: (() -> Void)?
+    var onAboutTap: (() -> Void)?
+    var onFAQTap: (() -> Void)?
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var localizationManager: LocalizationManager
     @AppStorage("selectedTheme") private var selectedTheme: String = "system"
@@ -53,6 +56,7 @@ struct MenuDrawerView: View {
                             withAnimation {
                                 isOpen = false
                                 showSettings = true
+                                onSettingsTap?()
                             }
                         }
 
@@ -63,6 +67,7 @@ struct MenuDrawerView: View {
                             withAnimation {
                                 isOpen = false
                                 showAbout = true
+                                onAboutTap?()
                             }
                         }
 
@@ -73,6 +78,7 @@ struct MenuDrawerView: View {
                             withAnimation {
                                 isOpen = false
                                 showFAQ = true
+                                onFAQTap?()
                             }
                         }
 

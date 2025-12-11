@@ -311,11 +311,11 @@ struct CertaintyCircles: View {
     private let thresholds: [Double] = [0.35, 0.65, 0.85, 0.95]
 
     private let colors: [Color] = [
-        Color(red: 170/255, green: 0/255, blue: 0/255),
-        Color(red: 195/255, green: 107/255, blue: 22/255),
-        Color(red: 220/255, green: 214/255, blue: 43/255),
-        Color(red: 148/255, green: 195/255, blue: 62/255),
-        Color(red: 76/255, green: 175/255, blue: 80/255)
+        Color("Color_gauge1"),
+        Color("Color_gauge2"),
+        Color("Color_gauge3"),
+        Color("Color_gauge4"),
+        Color("Color_gauge5")
     ]
 
     private let circleDiameter: CGFloat = 14

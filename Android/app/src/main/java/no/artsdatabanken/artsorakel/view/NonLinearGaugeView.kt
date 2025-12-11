@@ -8,6 +8,8 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
+import androidx.core.content.ContextCompat
+import no.artsdatabanken.artsorakel.R
 
 class NonLinearGaugeView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -27,13 +29,15 @@ class NonLinearGaugeView @JvmOverloads constructor(
 
 
     // --- Color interpolation ---
-    private val colors = listOf(
-        Color.rgb(170, 0, 0),       // Red
-        Color.rgb(195, 107, 22),
-        Color.rgb(220, 214, 43),    // Yellow
-        Color.rgb(148, 195, 62),
-        Color.rgb(76, 175, 80)      // Green
-    )
+    private val colors by lazy {
+        listOf(
+            ContextCompat.getColor(context, R.color.gauge_1),
+            ContextCompat.getColor(context, R.color.gauge_2),
+            ContextCompat.getColor(context, R.color.gauge_3),
+            ContextCompat.getColor(context, R.color.gauge_4),
+            ContextCompat.getColor(context, R.color.gauge_5)
+        )
+    }
 
 
 	// --- Fill thresholds (percent) ---

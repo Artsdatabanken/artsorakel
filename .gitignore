@@ -102,4 +102,20 @@ iOS/Artsorakel/Assets.xcassets/*.colorset/*
 iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon.png
 iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon~dark.png
 iOS/Artsorakel/Artsorakel/Assets.xcassets/AppIcon.appiconset/AppIcon~tinted.png
-iOS/Artsorakel/Artsorakel/Assets.xcassets/ic_external_link.imageset/
+# Auto-generated iOS image assets from PDF vectors
+iOS/Artsorakel/Artsorakel/Assets.xcassets/*.imageset/
+
+# Auto-generated dark mode drawables from sync script
+Android/app/src/main/res/drawable-night/*.xml
+
+# Auto-generated iOS color extensions from sync script
+iOS/Artsorakel/Artsorakel/Views/Extensions/ColorExtensions.swift
+
+# Synced fonts (copied from shared/fonts/)
+Android/app/src/main/res/font/*.ttf
+
+# Temporary/test images in root
+1024x1024ia.png
+
+# Claude Code local settings
+.claude/

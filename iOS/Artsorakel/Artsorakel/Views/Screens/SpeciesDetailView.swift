@@ -76,17 +76,18 @@ struct SpeciesDetailView: View {
                             VStack {
                                 Spacer()
                                 if images.count > 1 {
-                                    HStack(spacing: 6) {
+                                    HStack(spacing: 4) {
                                         ForEach(0..<images.count, id: \.self) { index in
                                             Circle()
-                                                .fill(index == currentImageIndex ? Color.surfaceAccent : Color.textPrimary.opacity(1.0/3.0))
-                                                .frame(width: index == currentImageIndex ? 14 : 10.5, height: index == currentImageIndex ? 14 : 10.5)
+                                                .fill(index == currentImageIndex ? Color.textInvert : Color.neutralBorderDefault)
+                                                .frame(width: index == currentImageIndex ? 8 : 6, height: index == currentImageIndex ? 8 : 6)
                                         }
                                     }
-                                    .padding(8)
-                                    .background(Color.surfacePrimary.opacity(0.9))
-                                    .cornerRadius(16)
-                                    .padding(.bottom, 16)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 6)
+                                    .background(Color.surfaceInvert.opacity(0.9))
+                                    .cornerRadius(12)
+                                    .padding(.bottom, 12)
                                 }
                             }
                         )
@@ -214,7 +215,7 @@ struct SpeciesDetailView: View {
                         Button(action: {
                             UIApplication.shared.open(url)
                         }) {
-                            (Text(readMoreText) + Text(" ") + Text(Image("ic_external_link")))
+                            (Text(readMoreText) + Text(" ") + Text(Image("ic_external_link")).baselineOffset(-4))
                                 .font(DesignSystem.Typography.subheadline())
                                 .foregroundColor(Color.textAccent)
                                 .multilineTextAlignment(.leading)
@@ -283,7 +284,7 @@ struct SpeciesDetailView: View {
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                 } else {
-                                    (Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no")) + Text(" ") + Text(Image("ic_external_link")))
+                                    (Text(localizationManager.localize("report", comment: "Report on artsobservasjoner.no")) + Text(" ") + Text(Image("ic_external_link")).baselineOffset(-4))
                                         .font(DesignSystem.Typography.subheadline())
                                         .foregroundColor(Color.textAccent)
                                         .multilineTextAlignment(.leading)
@@ -420,12 +421,12 @@ struct SpeciesDetailView: View {
     private func redListColor(for category: String?) -> Color? {
         guard let category = category else { return nil }
         switch category.uppercased() {
-        case "CR": return Color(red: 152/255, green: 25/255, blue: 25/255)
-        case "EN": return Color(red: 217/255, green: 15/255, blue: 40/255)
-        case "VU": return Color(red: 234/255, green: 79/255, blue: 52/255)
-        case "NT": return Color(red: 238/255, green: 108/255, blue: 38/255)
-        case "DD": return Color(red: 246/255, green: 166/255, blue: 31/255)
-        case "LC": return Color(red: 97/255, green: 190/255, blue: 179/255)
+        case "CR": return Color("Color_redlistCr")
+        case "EN": return Color("Color_redlistEn")
+        case "VU": return Color("Color_redlistVu")
+        case "NT": return Color("Color_redlistNt")
+        case "DD": return Color("Color_redlistDd")
+        case "LC": return Color("Color_redlistLc")
         default: return nil
         }
     }
@@ -433,11 +434,11 @@ struct SpeciesDetailView: View {
     private func invasiveColor(for category: String?) -> Color? {
         guard let category = category else { return nil }
         switch category.uppercased() {
-        case "SE": return Color(red: 79/255, green: 15/255, blue: 82/255)
-        case "HI": return Color(red: 45/255, green: 64/255, blue: 114/255)
-        case "PH": return Color(red: 41/255, green: 100/255, blue: 114/255)
-        case "LO": return Color(red: 92/255, green: 157/255, blue: 148/255)
-        case "NK": return Color(red: 148/255, green: 164/255, blue: 97/255)
+        case "SE": return Color("Color_invasiveSe")
+        case "HI": return Color("Color_invasiveHi")
+        case "PH": return Color("Color_invasivePh")
+        case "LO": return Color("Color_invasiveLo")
+        case "NK": return Color("Color_invasiveNk")
         default: return nil
         }
     }

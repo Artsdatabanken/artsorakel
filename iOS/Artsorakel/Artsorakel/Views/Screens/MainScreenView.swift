@@ -312,8 +312,25 @@ struct MainScreenView: View {
                 .zIndex(expandedHistoryZIndex)
             }
 
-            MenuDrawerView(isOpen: $isMenuOpen, showSettings: $showSettings, showAbout: $showAbout, showFAQ: $showFAQ)
-                .zIndex(100) // Menu drawer always on top
+            MenuDrawerView(
+                isOpen: $isMenuOpen,
+                showSettings: $showSettings,
+                showAbout: $showAbout,
+                showFAQ: $showFAQ,
+                onSettingsTap: {
+                    settingsZIndex = nextZIndex
+                    nextZIndex += 1
+                },
+                onAboutTap: {
+                    aboutZIndex = nextZIndex
+                    nextZIndex += 1
+                },
+                onFAQTap: {
+                    faqZIndex = nextZIndex
+                    nextZIndex += 1
+                }
+            )
+            .zIndex(100)
         }
         .fullScreenCover(item: $imageToCrop) { identifiableImage in
             let capturedRecropContext = recropContext
@@ -368,6 +385,7 @@ struct MainScreenView: View {
                     recropContext = nil
                 }
             )
+            .environmentObject(localizationManager)
         }
         .sheet(isPresented: $showGallery) {
             ImagePickerManager(
@@ -378,6 +396,7 @@ struct MainScreenView: View {
                 },
                 onUnavailable: nil
             )
+            .environmentObject(localizationManager)
         }
         .sheet(isPresented: $showCamera) {
             ImagePickerManager(
@@ -386,8 +405,12 @@ struct MainScreenView: View {
                 onImagePicked: { image, location in
                     imageToCrop = IdentifiableImage(image: image, location: location)
                 },
-                onUnavailable: nil
+                onUnavailable: {
+                    errorMessage = localizationManager.localize("camera_not_available", comment: "Camera is not available on this device")
+                    showErrorAlert = true
+                }
             )
+            .environmentObject(localizationManager)
         }
         // Assign zIndex when overlays open so the most recent one is on top
         .onChange(of: showSettings) { newValue in
@@ -613,39 +636,60 @@ struct CameraButtonsView: View {
     let onCameraTap: () -> Void
     let onGalleryTap: () -> Void
 
-    var body: some View {
-        // Camera button centered, gallery button positioned to its left
-        Button(action: onCameraTap) {
-            ZStack {
-                Circle()
-                    .fill(Color.surfaceAccent)
-                    .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
-                    .applyShadow(DesignSystem.Shadow.medium)
+    private var isCameraAvailable: Bool {
+        UIImagePickerController.isSourceTypeAvailable(.camera)
+    }
 
-                SVGWebView(svgName: "ic_camera", width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large, tintColor: .surfacePrimary)
-                    .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
+    var body: some View {
+        if isCameraAvailable {
+            // Camera button centered, gallery button positioned to its left
+            Button(action: onCameraTap) {
+                ZStack {
+                    Circle()
+                        .fill(Color.surfaceAccent)
+                        .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
+                        .applyShadow(DesignSystem.Shadow.medium)
+
+                    SVGWebView(svgName: "ic_camera", width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large, tintColor: .surfacePrimary)
+                        .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
+                }
+                .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
             }
-            .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
-        }
-        .overlay(alignment: .leading) {
+            .overlay(alignment: .leading) {
+                Button(action: onGalleryTap) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.surfacePrimary)
+                            .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+
+                        Circle()
+                            .stroke(Color.borderAccent, lineWidth: 2)
+                            .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+
+                        SVGWebView(svgName: "ic_gallery", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                            .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
+                    }
+                    .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+                }
+                .offset(x: -(DesignSystem.ButtonSize.medium + DesignSystem.Spacing.standard), y: DesignSystem.Spacing.xxxLarge / 2)
+            }
+            .padding(.vertical, DesignSystem.Spacing.standard)
+        } else {
+            // No camera available (e.g., Mac) - show gallery button as main button
             Button(action: onGalleryTap) {
                 ZStack {
                     Circle()
-                        .fill(Color.surfacePrimary)
-                        .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+                        .fill(Color.surfaceAccent)
+                        .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
+                        .applyShadow(DesignSystem.Shadow.medium)
 
-                    Circle()
-                        .stroke(Color.borderAccent, lineWidth: 2)
-                        .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
-
-                    SVGWebView(svgName: "ic_gallery", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
-                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
+                    SVGWebView(svgName: "ic_gallery", width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large, tintColor: .surfacePrimary)
+                        .frame(width: DesignSystem.IconSize.large, height: DesignSystem.IconSize.large)
                 }
-                .frame(width: DesignSystem.ButtonSize.medium, height: DesignSystem.ButtonSize.medium)
+                .frame(width: DesignSystem.ButtonSize.large, height: DesignSystem.ButtonSize.large)
             }
-            .offset(x: -(DesignSystem.ButtonSize.medium + DesignSystem.Spacing.standard), y: DesignSystem.Spacing.xxxLarge / 2)
+            .padding(.vertical, DesignSystem.Spacing.standard)
         }
-        .padding(.vertical, DesignSystem.Spacing.standard)
     }
 }
 

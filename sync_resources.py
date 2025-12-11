@@ -136,7 +136,8 @@ def sync_config():
             print_success(f"Updated iOS version to {version} ({version_code})")
             print_success("Set ITSAppUsesNonExemptEncryption to false")
         except Exception as e:
-            print_warning(f"Could not update iOS plist: {e}")
+            print_error(f"CRITICAL: Could not update iOS plist: {e}")
+            sys.exit(1)
     else:
         print_info("iOS uses modern project configuration (no Info.plist) - version managed in Xcode")
 
@@ -156,7 +157,8 @@ def sync_config():
 
             print_success(f"Updated ShareExtension version to {version} ({version_code})")
         except Exception as e:
-            print_warning(f"Could not update ShareExtension plist: {e}")
+            print_error(f"CRITICAL: Could not update ShareExtension plist: {e}")
+            sys.exit(1)
 
     # Update Xcode project MARKETING_VERSION to match (Xcode overrides Info.plist with this)
     ios_project = IOS_DIR / 'Artsorakel' / 'Artsorakel.xcodeproj' / 'project.pbxproj'
@@ -177,7 +179,8 @@ def sync_config():
 
             print_success(f"Updated Xcode MARKETING_VERSION to {version}")
         except Exception as e:
-            print_warning(f"Could not update Xcode project version: {e}")
+            print_error(f"CRITICAL: Could not update Xcode project version: {e}")
+            sys.exit(1)
 
     # Copy config files to iOS Config directory
     ios_config_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Config'
@@ -548,7 +551,9 @@ def sync_vectors():
                     else:
                         conversion_failed = True
                 else:
-                    print_warning(f"No dark variant found for {base_name}")
+                    print_error(f"CRITICAL: No dark variant found for {base_name}")
+                    print_error("   Every light SVG must have a matching dark variant")
+                    sys.exit(1)
             else:
                 conversion_failed = True
 
@@ -558,8 +563,7 @@ def sync_vectors():
         print_error("   See error messages above for specific files")
         sys.exit(1)
 
-    if not converted_any:
-        print_warning("No light/dark SVG pairs found to convert in shared/images/")
+    # Note: It's OK if there are no light/dark SVG pairs - they're optional
 
     # Process other vector files
     vectors_dir = SHARED_DIR / 'vectors'
@@ -585,9 +589,12 @@ def sync_vectors():
                 if out.exists():
                     print_success(f"Generated {out.name}")
                 else:
-                    print_error(f"Failed to convert {svg.name}")
+                    print_error(f"CRITICAL: Failed to convert {svg.name}")
+                    sys.exit(1)
             else:
-                print_warning("vd-tool not found. Install with: npm install -g vd-tool")
+                print_error("CRITICAL: vd-tool not found")
+                print_error("   Install with: npm install -g vd-tool")
+                sys.exit(1)
 
     return True
 
@@ -651,8 +658,9 @@ def sync_design_system():
 
     design_dir = SHARED_DIR / 'designsystem'
     if not design_dir.exists():
-        print_warning("Design system directory not found")
-        return
+        print_error("CRITICAL: Design system directory not found")
+        print_error(f"   Expected at: {design_dir}")
+        sys.exit(1)
 
     # Process Variables primitives.txt to generate colors.xml
     vars_file = design_dir / 'Variables primitives.txt'
@@ -671,19 +679,67 @@ def sync_design_system():
 
         # Read Variables listcategories.txt if it exists
         listcat_file = design_dir / 'Variables listcategories.txt'
+        listcat_colors = {}
         if listcat_file.exists():
             listcat_content = listcat_file.read_text()
 
-            # Extract invasive and redlist category colors
-            listcat_pattern = r'--((?:invasive|redlist)-[a-z]+)\s*:\s*(#[A-F0-9]{6})'
+            # Extract invasive, redlist, and gauge colors
+            listcat_pattern = r'--((?:invasive|redlist|gauge)-[a-z0-9]+)\s*:\s*(#[A-F0-9]{6})'
             listcat_matches = re.findall(listcat_pattern, listcat_content, re.IGNORECASE)
 
             for name, value in listcat_matches:
                 # Convert CSS var name to Android resource name
                 android_name = name.replace('-', '_')
                 color_map[android_name] = value.upper()
+                listcat_colors[android_name] = value.upper()
 
             print_success(f"Found {len(listcat_matches)} list category colors")
+
+            # Generate iOS color assets for list category colors
+            assets_dir = IOS_DIR / 'Artsorakel' / 'Artsorakel' / 'Assets.xcassets'
+            assets_dir.mkdir(parents=True, exist_ok=True)
+
+            for color_name, hex_value in listcat_colors.items():
+                # Convert to iOS asset name (e.g., invasive_se -> Color_invasiveSe)
+                parts = color_name.split('_')
+                camel_case = parts[0] + ''.join(word.capitalize() for word in parts[1:])
+                ios_name = f'Color_{camel_case}'
+
+                colorset_dir = assets_dir / f'{ios_name}.colorset'
+                colorset_dir.mkdir(parents=True, exist_ok=True)
+
+                # Convert hex to RGB
+                hex_color = hex_value.lstrip('#')
+                r = int(hex_color[0:2], 16) / 255.0
+                g = int(hex_color[2:4], 16) / 255.0
+                b = int(hex_color[4:6], 16) / 255.0
+
+                # Same color for light and dark mode
+                contents = {
+                    "colors": [
+                        {
+                            "color": {
+                                "color-space": "srgb",
+                                "components": {
+                                    "alpha": "1.000",
+                                    "blue": f"{b:.3f}",
+                                    "green": f"{g:.3f}",
+                                    "red": f"{r:.3f}"
+                                }
+                            },
+                            "idiom": "universal"
+                        }
+                    ],
+                    "info": {
+                        "author": "xcode",
+                        "version": 1
+                    }
+                }
+
+                contents_file = colorset_dir / 'Contents.json'
+                contents_file.write_text(json.dumps(contents, indent=2))
+
+            print_success(f"Generated {len(listcat_colors)} iOS color assets for list categories")
 
         # Read existing colors.xml from designsystem
         existing_colors = {}
@@ -907,7 +963,8 @@ def sync_design_system():
             dark_tree.write(dark_themes_file, encoding='utf-8', xml_declaration=True)
             print_success("Generated dark theme with semantic tokens")
         else:
-            print_warning(f"themes_shared.xml not found in {design_dir}")
+            print_error(f"CRITICAL: themes_shared.xml not found in {design_dir}")
+            sys.exit(1)
 
     # Generate iOS color assets from design system
     if semantic_file.exists() and vars_file.exists():
@@ -1098,7 +1155,9 @@ def sync_app_icons():
     if launcher_fg.exists() and launcher_bg.exists():
         print_success("Android launcher icons already generated from logo SVG")
     else:
-        print_warning("Android launcher icons not found - check sync_vectors function")
+        print_error("CRITICAL: Android launcher icons not found")
+        print_error("   sync_vectors should have generated these - check for errors above")
+        sys.exit(1)
 
     # Generate iOS app icons
     print("  🔄 Generating iOS app icons...")
@@ -1118,42 +1177,65 @@ def sync_app_icons():
     has_convert = shutil.which('convert') is not None
     has_rsvg = shutil.which('rsvg-convert') is not None
 
-    if has_convert:
-        print("  🎨 Using ImageMagick to generate iOS app icons...")
+    if has_convert and has_rsvg:
+        print("  🎨 Using rsvg-convert + ImageMagick to generate iOS app icons...")
 
         try:
             # For iOS, we need the icon larger than Android because iOS doesn't have safe-zone cropping
             # The Android SVG has the icon sized for a ~66dp safe zone in 108dp canvas (61%)
             # For iOS, we want the icon to fill ~85% of the canvas
-            # So we scale up by 85/61 ≈ 1.4x, meaning we render at 1024*1.4 = 1434 and crop center
+            # So we render at larger size then crop center to zoom in on the icon
+            # Use rsvg-convert for SVG rendering (better Bezier curve handling), then ImageMagick for crop
 
-            # Generate light appearance icon - scale up and crop to get larger icon
+            import tempfile
+
+            # Generate light appearance icon
             if light_svg.exists():
+                with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                    tmp_path = tmp.name
+                # Render SVG at 1434x1434 with rsvg-convert
                 subprocess.run([
-                    'convert', '-background', '#495e2e', '-density', '300',
-                    str(light_svg), '-resize', '1434x1434',
-                    '-gravity', 'center', '-extent', '1024x1024',
+                    'rsvg-convert', '-w', '1434', '-h', '1434',
+                    str(light_svg), '-o', tmp_path
+                ], check=True, capture_output=True)
+                # Crop center 1024x1024 with ImageMagick
+                subprocess.run([
+                    'convert', tmp_path, '-gravity', 'center', '-extent', '1024x1024',
                     str(ios_icon_dir / 'AppIcon.png')
                 ], check=True, capture_output=True)
+                os.unlink(tmp_path)
                 print_success("Generated AppIcon.png (light appearance)")
 
-            # Generate dark appearance icon
+            # Generate dark appearance icon (same as light for now)
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                tmp_path = tmp.name
             subprocess.run([
-                'convert', '-background', '#495e2e', '-density', '300',
-                str(source_svg), '-resize', '1434x1434',
-                '-gravity', 'center', '-extent', '1024x1024',
+                'rsvg-convert', '-w', '1434', '-h', '1434',
+                str(source_svg), '-o', tmp_path
+            ], check=True, capture_output=True)
+            subprocess.run([
+                'convert', tmp_path, '-gravity', 'center', '-extent', '1024x1024',
                 str(ios_icon_dir / 'AppIcon~dark.png')
             ], check=True, capture_output=True)
+            os.unlink(tmp_path)
             print_success("Generated AppIcon~dark.png (dark appearance)")
 
             # Generate tinted appearance icon
+            # For iOS tinted mode: lighter areas receive tint color, darker areas are more transparent
+            # The owl is white (#fff) and background is green (#495e2e)
+            # After grayscale: white stays light (will be tinted), green becomes dark (less visible)
+            with tempfile.NamedTemporaryFile(suffix='.png', delete=False) as tmp:
+                tmp_path = tmp.name
             subprocess.run([
-                'convert', '-density', '300', str(source_svg),
-                '-colorspace', 'Gray', '-negate',
-                '-background', '#495e2e', '-resize', '1434x1434',
+                'rsvg-convert', '-w', '1434', '-h', '1434',
+                str(source_svg), '-o', tmp_path
+            ], check=True, capture_output=True)
+            subprocess.run([
+                'convert', tmp_path, '-colorspace', 'Gray',
                 '-gravity', 'center', '-extent', '1024x1024',
                 str(ios_icon_dir / 'AppIcon~tinted.png')
             ], check=True, capture_output=True)
+            os.unlink(tmp_path)
             print_success("Generated AppIcon~tinted.png (tinted appearance)")
         except subprocess.CalledProcessError as e:
             print_error("CRITICAL: ImageMagick conversion failed for iOS icons")
@@ -1205,71 +1287,15 @@ def sync_app_icons():
         print_success("Updated Contents.json with icon filenames")
         print(f"  {Colors.GREEN}✅ iOS app icons generated successfully{Colors.NC}")
 
-    elif has_rsvg:
-        print("  🎨 Using rsvg-convert to generate iOS app icons...")
-        print_warning("rsvg-convert doesn't support the scaling needed for iOS icons")
-        print_warning("Install ImageMagick for proper iOS icon generation: brew install imagemagick")
-
-        try:
-            # Generate light appearance - rsvg-convert can't do the zoom+crop we need
-            # so the icon will be smaller than ideal
-            if light_svg.exists():
-                subprocess.run([
-                    'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#495e2e',
-                    str(light_svg), '-o', str(ios_icon_dir / 'AppIcon.png')
-                ], check=True, capture_output=True)
-                print_success("Generated AppIcon.png (light appearance) - may be smaller than ideal")
-
-            # Generate dark appearance
-            subprocess.run([
-                'rsvg-convert', '-w', '1024', '-h', '1024', '--background-color=#495e2e',
-                str(source_svg), '-o', str(ios_icon_dir / 'AppIcon~dark.png')
-            ], check=True, capture_output=True)
-            print_success("Generated AppIcon~dark.png (dark appearance)")
-
-            print_warning("Tinted icon generation requires ImageMagick")
-        except subprocess.CalledProcessError as e:
-            print_error("CRITICAL: rsvg-convert conversion failed for iOS icons")
-            print_error(f"   Error: {e.stderr.decode() if e.stderr else 'Unknown error'}")
-            print_error(f"   Command: {' '.join(e.cmd)}")
-            sys.exit(1)
-
-        # Write Contents.json with two icons
-        contents_json = ios_icon_dir / 'Contents.json'
-        contents_json.write_text('''{
-  "images" : [
-    {
-      "filename" : "AppIcon.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
-    },
-    {
-      "appearances" : [
-        {
-          "appearance" : "luminosity",
-          "value" : "dark"
-        }
-      ],
-      "filename" : "AppIcon~dark.png",
-      "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
-    }
-  ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
-  }
-}
-''')
-        print_success("Updated Contents.json with icon filenames")
-        print(f"  {Colors.GREEN}✅ iOS app icons generated (without tinted variant){Colors.NC}")
-
     else:
-        print_error("CRITICAL: No SVG to PNG converter found")
-        print_error("   Cannot generate iOS icons without ImageMagick or rsvg-convert")
-        print_error("   Install with: brew install imagemagick (macOS) or apt-get install imagemagick (Linux)")
+        print_error("CRITICAL: Both librsvg and ImageMagick are required for iOS app icons")
+        print_error("   librsvg provides high-quality SVG rendering (smooth curves)")
+        print_error("   ImageMagick provides image cropping/scaling")
+        print_error("")
+        if not has_rsvg:
+            print_error("   Missing: librsvg - install with: brew install librsvg")
+        if not has_convert:
+            print_error("   Missing: ImageMagick - install with: brew install imagemagick")
         sys.exit(1)
 
 

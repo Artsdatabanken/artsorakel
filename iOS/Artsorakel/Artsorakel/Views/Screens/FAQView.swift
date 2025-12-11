@@ -88,6 +88,9 @@ struct FAQView: View {
         .onAppear {
             loadFAQItems()
         }
+        .onChange(of: localizationManager.currentLanguage) { _ in
+            loadFAQItems()
+        }
     }
 
     private func loadFAQItems() {
@@ -134,20 +137,17 @@ struct FAQItemView: View {
             // Question header (always visible)
             Button(action: onTap) {
                 HStack(spacing: DesignSystem.Spacing.medium) {
-                    Image(systemName: "chevron.down")
-                        .font(.system(size: DesignSystem.IconSize.small))
-                        .foregroundColor(Color.textAccent)
-                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    SVGWebView(svgName: isExpanded ? "ic_unfold_less" : "ic_unfold_more", width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard, tintColor: .textAccent)
+                        .frame(width: DesignSystem.IconSize.standard, height: DesignSystem.IconSize.standard)
 
                     Text(item.question)
-                        .font(DesignSystem.Typography.body())
-                        .foregroundColor(Color.textPrimary)
+                        .font(DesignSystem.Typography.bodyBold())
+                        .foregroundColor(Color.textAccent)
                         .multilineTextAlignment(.leading)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .padding(DesignSystem.Spacing.standard)
                 .background(Color.surfacePrimary)
-                .cornerRadius(DesignSystem.CornerRadius.medium)
             }
             .buttonStyle(PlainButtonStyle())
 
@@ -155,13 +155,11 @@ struct FAQItemView: View {
             if isExpanded {
                 Text(item.answer)
                     .font(DesignSystem.Typography.body())
-                    .foregroundColor(Color.textPrimary.opacity(DesignSystem.Opacity.subtle))
+                    .foregroundColor(Color.textPrimary)
                     .multilineTextAlignment(.leading)
                     .padding(DesignSystem.Spacing.standard)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.surfacePrimary.opacity(0.5))
-                    .cornerRadius(DesignSystem.CornerRadius.medium)
-                    .padding(.top, DesignSystem.Spacing.xxSmall)
+                    .background(Color.surfacePrimary)
                     .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
             }
         }

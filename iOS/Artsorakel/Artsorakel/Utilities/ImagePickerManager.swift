@@ -13,11 +13,21 @@ struct ImagePickerManager: UIViewControllerRepresentable {
 
     func makeUIViewController(context: Context) -> UIViewController {
         if sourceType == .camera {
-            // Use UIImagePickerController for camera
-            let picker = UIImagePickerController()
-            picker.sourceType = .camera
-            picker.delegate = context.coordinator
-            return picker
+            // Check if camera is available (not available on Mac)
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                let picker = UIImagePickerController()
+                picker.sourceType = .camera
+                picker.delegate = context.coordinator
+                return picker
+            } else {
+                // Camera not available, dismiss and notify
+                DispatchQueue.main.async {
+                    self.isPresented = false
+                    self.onUnavailable?()
+                }
+                // Return empty controller that will be dismissed
+                return UIViewController()
+            }
         } else {
             // Use PHPickerViewController for photo library to get proper asset access
             var config = PHPickerConfiguration(photoLibrary: .shared())
@@ -86,16 +96,25 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             let assetIdentifier = result.assetIdentifier
 
             // Load the image first
-            result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
-                guard let self = self, let image = object as? UIImage else { return }
+            if result.itemProvider.canLoadObject(ofClass: UIImage.self) {
+                result.itemProvider.loadObject(ofClass: UIImage.self) { [weak self] object, error in
+                    guard let self = self else { return }
 
-                // Normalize orientation
-                let normalizedImage = self.normalizeImageOrientation(image)
+                    if let error = error {
+                        print("Error loading image: \(error.localizedDescription)")
+                        return
+                    }
 
-                // Try to get location from PHAsset (requires read permission)
-                self.fetchLocationFromAsset(identifier: assetIdentifier) { location in
-                    DispatchQueue.main.async {
-                        self.parent.onImagePicked(normalizedImage, location)
+                    guard let image = object as? UIImage else { return }
+
+                    // Normalize orientation
+                    let normalizedImage = self.normalizeImageOrientation(image)
+
+                    // Try to get location from PHAsset (requires read permission)
+                    self.fetchLocationFromAsset(identifier: assetIdentifier) { location in
+                        DispatchQueue.main.async {
+                            self.parent.onImagePicked(normalizedImage, location)
+                        }
                     }
                 }
             }
@@ -113,17 +132,29 @@ struct ImagePickerManager: UIViewControllerRepresentable {
             switch status {
             case .authorized, .limited:
                 // We have access, fetch the asset
-                let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
-                completion(fetchResult.firstObject?.location)
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+                    let location = fetchResult.firstObject?.location
+                    DispatchQueue.main.async {
+                        completion(location)
+                    }
+                }
 
             case .notDetermined:
                 // Request access
                 PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
                     if newStatus == .authorized || newStatus == .limited {
-                        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
-                        completion(fetchResult.firstObject?.location)
+                        DispatchQueue.global(qos: .userInitiated).async {
+                            let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: [identifier], options: nil)
+                            let location = fetchResult.firstObject?.location
+                            DispatchQueue.main.async {
+                                completion(location)
+                            }
+                        }
                     } else {
-                        completion(nil)
+                        DispatchQueue.main.async {
+                            completion(nil)
+                        }
                     }
                 }
 
