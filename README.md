@@ -1,5 +1,10 @@
 # Artsorakel
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Platform - Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android&logoColor=white)](Android/)
+[![Platform - iOS](https://img.shields.io/badge/Platform-iOS-000000?logo=apple&logoColor=white)](iOS/)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
+
 Artsorakel is a species identification app that uses artificial intelligence to identify wild species from photos. Developed by NBIC, the [Norwegian Biodiversity Information Centren](https://artsdatabanken.no) (Artsdatabanken).
 
 The app is available for both Android and iOS.
