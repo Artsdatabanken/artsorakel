@@ -1,6 +1,6 @@
 # Artsorakel
 
-Artsorakel is a species identification app that uses artificial intelligence to identify wild species from photos. Developed by [Artsdatabanken](https://artsdatabanken.no) (Norwegian Biodiversity Information Centre) in collaboration with [Naturalis Biodiversity Center](https://www.naturalis.nl/).
+Artsorakel is a species identification app that uses artificial intelligence to identify wild species from photos. Developed by NBIC, the [Norwegian Biodiversity Information Centren](https://artsdatabanken.no) (Artsdatabanken).
 
 The app is available for both Android and iOS.
 
@@ -8,7 +8,7 @@ The app is available for both Android and iOS.
 
 - Identify species from photos using AI
 - Works offline for viewing history
-- Supports multiple languages (Norwegian Bokmål, Nynorsk, English, Dutch, Spanish, Swedish)
+- Supports multiple languages
 - No account required
 - Free to use
 
@@ -66,7 +66,7 @@ For iOS development:
    ```
 
    This will:
-   - Download Chivo fonts from Fontsource (if missing or older than a week)
+   - Download fonts from Fontsource
    - Generate localized strings for both platforms
    - Convert SVG icons to Android VectorDrawables
    - Generate iOS color assets and app icons
@@ -101,18 +101,21 @@ artsorakel/
 │   ├── vectors/             # SVG icons
 │   └── strings.csv          # Localization strings
 ├── sync_resources.py        # Resource sync script
-└── LICENSE                  # MIT License
+├── LICENSE                  # MIT License
+├── README.md                # This file
+├── CONTRIBUTING.md          # Contribution guidelines
+└── CODE_OF_CONDUCT.md       # Community code of conduct
 ```
 
 ## How It Works
 
-The app sends photos to Artsdatabanken's AI service, which returns species predictions based on a model trained with images from [Artsobservasjoner.no](https://artsobservasjoner.no). The model can only identify wild species that have been reported with images - it does not recognize humans, domestic animals, or garden plants.
+The app sends photos to [NBIC's AI middleware](https://www.github.com/artsdatabanken/ai), which augments and returns species predictions based on a model trained and hosted by [Naturalis Biodiversity Center](https://www.naturalis.nl) with images from citizen scientists at [Artsobservasjoner.no](https://artsobservasjoner.no) and similar sources. The model can only identify wild species that have been reported with images - it does not recognize humans, domestic animals, or garden plants. Based on the location of the provided picture (if shared by the user), or the country of their IP address, the Norwegian, Swedish or European modal is selected.
 
-Images and user information are not stored or made available to Artsdatabanken or third parties.
+Images and user information are not stored, nor made available to NBIC or third parties.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit issues and pull requests.
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting issues or pull requests. All participants are expected to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## Support
 
@@ -121,9 +124,3 @@ Questions and feedback can be sent to [support@artsobservasjoner.no](mailto:supp
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- [Artsdatabanken](https://artsdatabanken.no) - Norwegian Biodiversity Information Centre
-- [Naturalis Biodiversity Center](https://www.naturalis.nl/) - AI model development
-- [Fontsource](https://fontsource.org/) - Chivo font distribution

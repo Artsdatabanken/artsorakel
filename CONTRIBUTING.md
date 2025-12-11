@@ -60,7 +60,7 @@ After modifying shared resources, run `python3 sync_resources.py` to update plat
 - Provide a clear description of the changes
 - Include screenshots for UI changes
 - Ensure the sync script runs without errors
-- Test on at least one platform before submitting
+- Test on all affected platforms before submitting
 
 ## Reporting Issues
 
