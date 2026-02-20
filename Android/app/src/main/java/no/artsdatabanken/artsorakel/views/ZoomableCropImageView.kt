@@ -25,6 +25,8 @@ class ZoomableCropImageView @JvmOverloads constructor(
     private var minScale = 0.5f
     private var maxScale = 10f
     private var currentScale = 1f
+    private var originalSampleSize = 1
+    private var hasOriginalDimensions = false
     
     private val scaleGestureDetector: ScaleGestureDetector
     private val gestureDetector: GestureDetector
@@ -187,25 +189,37 @@ class ZoomableCropImageView @JvmOverloads constructor(
         viewWidth = w
         viewHeight = h
         cropSize = minOf(w, h).toFloat()
-        calculateMinScale()
+        calculateScaleLimits()
     }
-    
+
     override fun setImageBitmap(bm: android.graphics.Bitmap?) {
         super.setImageBitmap(bm)
         bm?.let {
             imageWidth = it.width
             imageHeight = it.height
-            calculateMinScale()
+            calculateScaleLimits()
         }
     }
-    
-    private fun calculateMinScale() {
+
+    fun setOriginalDimensions(originalWidth: Int, originalHeight: Int, sampleSize: Int) {
+        originalSampleSize = sampleSize
+        hasOriginalDimensions = true
+        calculateScaleLimits()
+    }
+
+    private fun calculateScaleLimits() {
         if (imageWidth == 0 || imageHeight == 0 || cropSize == 0f) return
 
         val scaleToFitWidth = cropSize / imageWidth
         val scaleToFitHeight = cropSize / imageHeight
 
         minScale = maxOf(scaleToFitWidth, scaleToFitHeight)
+
+        if (hasOriginalDimensions) {
+            val apiTargetSize = 500f
+            val computedMaxScale = cropSize * originalSampleSize / apiTargetSize
+            maxScale = maxOf(computedMaxScale, minScale * 2f)
+        }
 
         if (currentScale < minScale) {
             currentScale = minScale
@@ -215,6 +229,14 @@ class ZoomableCropImageView @JvmOverloads constructor(
                 constrainMatrix()
                 setImageMatrix(imageMatrix)
             }
+        }
+
+        if (currentScale > maxScale) {
+            val scaleFactor = maxScale / getCurrentScale()
+            imageMatrix.postScale(scaleFactor, scaleFactor, viewWidth / 2f, viewHeight / 2f)
+            currentScale = maxScale
+            constrainMatrix()
+            setImageMatrix(imageMatrix)
         }
     }
     
