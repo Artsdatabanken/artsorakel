@@ -1,11 +1,10 @@
 package no.artsdatabanken.artsorakel.utils
 
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import java.io.File
 import java.text.SimpleDateFormat
@@ -22,7 +21,7 @@ import kotlinx.coroutines.launch
 class ImageOperationsManager(
     private val context: Context,
     private val takePictureLauncher: ActivityResultLauncher<Uri>,
-    private val pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
+    private val pickImageLauncher: ActivityResultLauncher<Intent>
 ) {
 
     var tempImageUri: Uri? = null
@@ -48,8 +47,13 @@ class ImageOperationsManager(
     }
 
     fun launchImagePicker() {
-        // Use PickVisualMedia for gallery-style picker with Google Photos support
-        pickImageLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        // Use ACTION_OPEN_DOCUMENT for broad source access (Google Photos, Google Drive, local)
+        // Documents provider preserves EXIF location data unlike PickVisualMedia
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+            addCategory(Intent.CATEGORY_OPENABLE)
+            type = "image/*"
+        }
+        pickImageLauncher.launch(intent)
     }
 
     fun clearTempUri() {
