@@ -15,12 +15,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import no.artsdatabanken.artsorakel.BuildConfig
 import no.artsdatabanken.artsorakel.core.Constants
 import no.artsdatabanken.artsorakel.databinding.ActivityImageCropperBinding
 import no.artsdatabanken.artsorakel.extensions.setupStatusBar
+import no.artsdatabanken.artsorakel.views.ZoomableCropImageView
 import java.io.File
 import java.io.FileOutputStream
 import kotlin.math.ceil
@@ -35,7 +38,7 @@ import kotlin.math.min
  * Loads a downsampled bitmap for the interactive display (max ~2048px) to avoid OOM,
  * then uses BitmapRegionDecoder to crop from the original file at full resolution.
  */
-class ImageCropperActivity : AppCompatActivity() {
+class ImageCropperActivity : AppCompatActivity(), ZoomableCropImageView.OnInteractionListener {
 
     private lateinit var binding: ActivityImageCropperBinding
     private var imageUri: Uri? = null
@@ -55,6 +58,8 @@ class ImageCropperActivity : AppCompatActivity() {
     // Actual decoded dimensions (after inSampleSize, before EXIF rotation)
     private var downsampledWidth = 0
     private var downsampledHeight = 0
+
+    private var tileLoadJob: Job? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -120,6 +125,7 @@ class ImageCropperActivity : AppCompatActivity() {
                     originalImageUri = sourceUri
                     binding.imageViewMain.setImageBitmap(bitmap)
                     binding.imageViewMain.setOriginalDimensions(rawWidth, rawHeight, sampleSize)
+                    binding.imageViewMain.interactionListener = this@ImageCropperActivity
 
                     binding.imageViewMain.post {
                         val viewWidth = binding.imageViewMain.width.toFloat()
@@ -142,6 +148,7 @@ class ImageCropperActivity : AppCompatActivity() {
                                 (viewHeight - scaledHeight) / 2f
                             )
                             binding.imageViewMain.setInitialMatrix(matrix)
+                            loadHiResTile()
                         }
                     }
                 } else if (bitmap == null && !isFinishing && !isDestroyed) {
@@ -154,6 +161,96 @@ class ImageCropperActivity : AppCompatActivity() {
                 setResult(RESULT_CANCELED)
                 finish()
             }
+        }
+    }
+
+    override fun onInteractionStarted() {
+        tileLoadJob?.cancel()
+        binding.imageViewMain.setHiResTile(null)
+    }
+
+    override fun onInteractionEnded() {
+        tileLoadJob?.cancel()
+        tileLoadJob = lifecycleScope.launch {
+            delay(150)
+            loadHiResTile()
+        }
+    }
+
+    private suspend fun loadHiResTile() {
+        val uri = imageUri ?: return
+        if (sampleSize <= 1) return
+
+        try {
+            val tile = withContext(Dispatchers.IO) {
+                // 1. Get crop rect in view coordinates
+                val viewCropRect = binding.cropOverlay.getCropRect()
+
+                // 2. Inverse-map through imageMatrix -> display-bitmap coordinates
+                val currentMatrix = binding.imageViewMain.getCurrentMatrix()
+                val inverseMatrix = Matrix()
+                currentMatrix.invert(inverseMatrix)
+                val displayRect = RectF()
+                inverseMatrix.mapRect(displayRect, viewCropRect)
+
+                // 3. Map display-bitmap coords -> raw-original coords
+                val rawRect = mapDisplayToRawRect(displayRect)
+
+                // 4. Clamp to raw image bounds
+                val decoderRect = Rect(
+                    max(0, floor(rawRect.left.toDouble()).toInt()),
+                    max(0, floor(rawRect.top.toDouble()).toInt()),
+                    min(rawWidth, ceil(rawRect.right.toDouble()).toInt()),
+                    min(rawHeight, ceil(rawRect.bottom.toDouble()).toInt())
+                )
+
+                if (decoderRect.width() <= 0 || decoderRect.height() <= 0) {
+                    return@withContext null
+                }
+
+                // 5. Calculate inSampleSize so decoded region ~ cropSize pixels on screen
+                val cropSize = minOf(
+                    binding.imageViewMain.width,
+                    binding.imageViewMain.height
+                )
+                val regionMax = max(decoderRect.width(), decoderRect.height())
+                var tileSampleSize = 1
+                while (regionMax / (tileSampleSize * 2) >= cropSize) {
+                    tileSampleSize *= 2
+                }
+
+                val regionOpts = BitmapFactory.Options().apply {
+                    inSampleSize = tileSampleSize
+                }
+
+                // 6. Decode the region
+                val regionBitmap = contentResolver.openInputStream(uri)?.use { stream ->
+                    @Suppress("DEPRECATION")
+                    val decoder = BitmapRegionDecoder.newInstance(stream, false)
+                    decoder?.decodeRegion(decoderRect, regionOpts)
+                } ?: return@withContext null
+
+                // 7. Apply EXIF rotation
+                if (exifOrientation != ExifInterface.ORIENTATION_NORMAL) {
+                    val rotated = rotateBitmap(regionBitmap, exifOrientation)
+                    if (rotated !== regionBitmap) regionBitmap.recycle()
+                    rotated
+                } else {
+                    regionBitmap
+                }
+            }
+
+            if (tile != null && !isFinishing && !isDestroyed) {
+                binding.imageViewMain.setHiResTile(tile)
+            } else {
+                tile?.recycle()
+            }
+        } catch (_: OutOfMemoryError) {
+            // Base image remains visible
+        } catch (_: kotlinx.coroutines.CancellationException) {
+            throw kotlinx.coroutines.CancellationException()
+        } catch (_: Exception) {
+            // Base image remains visible
         }
     }
 
@@ -434,6 +531,8 @@ class ImageCropperActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        tileLoadJob?.cancel()
+        binding.imageViewMain.cleanup()
         super.onDestroy()
         displayBitmap?.recycle()
     }
