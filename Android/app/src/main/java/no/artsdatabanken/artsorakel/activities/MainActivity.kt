@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -76,7 +75,7 @@ class MainActivity : AppCompatActivity() {
 
     // Activity result launchers
     private lateinit var takePictureLauncher: ActivityResultLauncher<Uri>
-    private lateinit var pickImageLauncher: ActivityResultLauncher<PickVisualMediaRequest>
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private lateinit var imageCropperLauncher: ActivityResultLauncher<Intent>
     private lateinit var requestPermissionLauncher: ActivityResultLauncher<String>
 
@@ -282,9 +281,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             
-            // Gallery button on main screen
-            // Note: OpenDocument (SAF) doesn't require storage permissions - the system
-            // file picker grants access to whatever file the user selects
+            // Gallery button - uses ACTION_OPEN_DOCUMENT (no storage permissions needed)
             fabCameraGallery.setOnClickListener {
                 viewModel.setLastInputMethod(false)
                 imageOperationsManager.launchImagePicker()
@@ -321,10 +318,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Use PickVisualMedia for gallery-style picker with Google Photos support
-        // Location extraction uses MediaStore fallback when EXIF is stripped
-        pickImageLauncher = registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
-            uri?.let { handlePickedImage(it) }
+        // Use ACTION_OPEN_DOCUMENT for broad source access (Google Photos, Google Drive, local)
+        // Documents provider preserves EXIF location data, no MediaStore fallback needed
+        pickImageLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri -> handlePickedImage(uri) }
+            }
         }
 
         takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -520,13 +519,11 @@ class MainActivity : AppCompatActivity() {
                 // Launch camera or gallery based on last used method
                 if (viewModel.getLastInputMethod()) {
                     permissionManager.checkCameraPermissionAndExecute {
-                        // Also request location permission for geotagging
                         permissionManager.checkLocationPermissionAndExecute {
                             imageOperationsManager.launchCamera()
                         }
                     }
                 } else {
-                    // OpenDocument (SAF) doesn't require storage permissions
                     imageOperationsManager.launchImagePicker()
                 }
             }
@@ -785,61 +782,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     /**
-     * Handles an image picked from the gallery picker.
-     * Uses the same MediaStore fallback logic as shared images to extract location
-     * even when EXIF data is stripped by the picker.
+     * Handles an image picked via ACTION_OPEN_DOCUMENT.
+     * The documents provider preserves EXIF location data, so we can read it directly.
      */
     private fun handlePickedImage(uri: Uri) {
-        val useLocation = settingsManager.isUseLocationForIdEnabled()
-
-        if (!useLocation) {
-            startImageCropper(uri, null)
-            return
+        val location = if (settingsManager.isUseLocationForIdEnabled()) {
+            imageOperationsManager.extractLocationFromImage(uri)
+        } else {
+            null
         }
-
-        // First try to read location directly from EXIF
-        val location = imageOperationsManager.extractLocationFromImage(uri)
-
-        if (location != null) {
-            // Got location from EXIF, proceed
-            startImageCropper(uri, location)
-            return
-        }
-
-        // Location was null or redacted. Check if we can try MediaStore fallback.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val hasFullAccess = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_MEDIA_LOCATION) == PackageManager.PERMISSION_GRANTED
-            } else {
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-            }
-
-            if (!hasFullAccess) {
-                // No full access - ask for permissions to try MediaStore fallback
-                permissionManager.checkStoragePermissionAndExecute {
-                    permissionManager.checkMediaLocationPermissionAndExecute {
-                        // Check if user chose "limited access" instead of "allow all"
-                        val gotFullAccess = ContextCompat.checkSelfPermission(
-                            this, Manifest.permission.READ_MEDIA_IMAGES
-                        ) == PackageManager.PERMISSION_GRANTED
-
-                        if (!gotFullAccess && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                            // User chose limited access - revoke it so they get asked again next time
-                            revokeSelfPermissionOnKill(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
-                            Toast.makeText(this, getString(R.string.warning_partial_access_no_location), Toast.LENGTH_LONG).show()
-                        }
-
-                        // Retry extraction (may work if full access was granted)
-                        val retryLocation = imageOperationsManager.extractLocationFromImage(uri)
-                        startImageCropper(uri, retryLocation)
-                    }
-                }
-                return
-            }
-        }
-
-        // Either we have permissions or we're on older Android - just proceed
         startImageCropper(uri, location)
     }
 
