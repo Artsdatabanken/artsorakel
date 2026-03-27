@@ -1,7 +1,11 @@
 package no.artsdatabanken.artsorakel.views
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -19,16 +23,25 @@ class ZoomableCropImageView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AppCompatImageView(context, attrs, defStyleAttr) {
 
+    interface OnInteractionListener {
+        fun onInteractionStarted()
+        fun onInteractionEnded()
+    }
+
+    var interactionListener: OnInteractionListener? = null
+
     private val imageMatrix = Matrix()
     private val matrixValues = FloatArray(9)
-    
+
     private var minScale = 0.5f
     private var maxScale = 10f
     private var currentScale = 1f
-    
+    private var originalSampleSize = 1
+    private var hasOriginalDimensions = false
+
     private val scaleGestureDetector: ScaleGestureDetector
     private val gestureDetector: GestureDetector
-    
+
     private var lastTouchX = 0f
     private var lastTouchY = 0f
     private var activePointerId = MotionEvent.INVALID_POINTER_ID
@@ -38,7 +51,10 @@ class ZoomableCropImageView @JvmOverloads constructor(
     private var viewWidth = 0
     private var viewHeight = 0
     private var cropSize = 0f
-    
+
+    private var hiResTile: Bitmap? = null
+    private val tilePaint = Paint(Paint.FILTER_BITMAP_FLAG)
+
     init {
         scaleType = ScaleType.MATRIX
 
@@ -70,18 +86,20 @@ class ZoomableCropImageView @JvmOverloads constructor(
             }
         })
     }
-    
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         scaleGestureDetector.onTouchEvent(event)
         gestureDetector.onTouchEvent(event)
-        
+
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                setHiResTile(null)
+                interactionListener?.onInteractionStarted()
                 lastTouchX = event.x
                 lastTouchY = event.y
                 activePointerId = event.getPointerId(0)
             }
-            
+
             MotionEvent.ACTION_MOVE -> {
                 if (!scaleGestureDetector.isInProgress) {
                     val pointerIndex = event.findPointerIndex(activePointerId)
@@ -111,15 +129,16 @@ class ZoomableCropImageView @JvmOverloads constructor(
                     }
                 }
             }
-            
+
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 activePointerId = MotionEvent.INVALID_POINTER_ID
+                interactionListener?.onInteractionEnded()
             }
-            
+
             MotionEvent.ACTION_POINTER_UP -> {
                 val pointerIndex = event.actionIndex
                 val pointerId = event.getPointerId(pointerIndex)
-                
+
                 if (pointerId == activePointerId) {
                     val newPointerIndex = if (pointerIndex == 0) 1 else 0
                     lastTouchX = event.getX(newPointerIndex)
@@ -128,32 +147,55 @@ class ZoomableCropImageView @JvmOverloads constructor(
                 }
             }
         }
-        
+
         return true
     }
-    
+
     private fun animateToScale(targetScale: Float, focusX: Float, focusY: Float) {
+        setHiResTile(null)
+        interactionListener?.onInteractionStarted()
         val scaleFactor = targetScale / currentScale
         imageMatrix.postScale(scaleFactor, scaleFactor, focusX, focusY)
         currentScale = targetScale
         constrainMatrix()
         setImageMatrix(imageMatrix)
+        interactionListener?.onInteractionEnded()
     }
-    
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+        val tile = hiResTile ?: return
+        if (tile.isRecycled) return
+
+        val cropLeft = (viewWidth - cropSize) / 2f
+        val cropTop = (viewHeight - cropSize) / 2f
+        val destRect = RectF(cropLeft, cropTop, cropLeft + cropSize, cropTop + cropSize)
+        canvas.drawBitmap(tile, null, destRect, tilePaint)
+    }
+
+    fun setHiResTile(tile: Bitmap?) {
+        val old = hiResTile
+        hiResTile = tile
+        if (old != null && !old.isRecycled && old !== tile) {
+            old.recycle()
+        }
+        invalidate()
+    }
+
     private fun constrainMatrix() {
         if (imageWidth == 0 || imageHeight == 0 || viewWidth == 0 || viewHeight == 0) return
-        
+
         imageMatrix.getValues(matrixValues)
         val transX = matrixValues[Matrix.MTRANS_X]
         val transY = matrixValues[Matrix.MTRANS_Y]
         val scale = matrixValues[Matrix.MSCALE_X]
-        
+
         val scaledImageWidth = imageWidth * scale
         val scaledImageHeight = imageHeight * scale
 
         val cropLeft = (viewWidth - cropSize) / 2f
         val cropTop = (viewHeight - cropSize) / 2f
-        
+
         var deltaX = 0f
         var deltaY = 0f
 
@@ -162,7 +204,7 @@ class ZoomableCropImageView @JvmOverloads constructor(
         } else {
             val maxTransX = cropLeft
             val minTransX = cropLeft + cropSize - scaledImageWidth
-            
+
             if (transX > maxTransX) deltaX = maxTransX - transX
             else if (transX < minTransX) deltaX = minTransX - transX
         }
@@ -172,40 +214,52 @@ class ZoomableCropImageView @JvmOverloads constructor(
         } else {
             val maxTransY = cropTop
             val minTransY = cropTop + cropSize - scaledImageHeight
-            
+
             if (transY > maxTransY) deltaY = maxTransY - transY
             else if (transY < minTransY) deltaY = minTransY - transY
         }
-        
+
         if (deltaX != 0f || deltaY != 0f) {
             imageMatrix.postTranslate(deltaX, deltaY)
         }
     }
-    
+
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         viewWidth = w
         viewHeight = h
         cropSize = minOf(w, h).toFloat()
-        calculateMinScale()
+        calculateScaleLimits()
     }
-    
+
     override fun setImageBitmap(bm: android.graphics.Bitmap?) {
         super.setImageBitmap(bm)
         bm?.let {
             imageWidth = it.width
             imageHeight = it.height
-            calculateMinScale()
+            calculateScaleLimits()
         }
     }
-    
-    private fun calculateMinScale() {
+
+    fun setOriginalDimensions(originalWidth: Int, originalHeight: Int, sampleSize: Int) {
+        originalSampleSize = sampleSize
+        hasOriginalDimensions = true
+        calculateScaleLimits()
+    }
+
+    private fun calculateScaleLimits() {
         if (imageWidth == 0 || imageHeight == 0 || cropSize == 0f) return
 
         val scaleToFitWidth = cropSize / imageWidth
         val scaleToFitHeight = cropSize / imageHeight
 
         minScale = maxOf(scaleToFitWidth, scaleToFitHeight)
+
+        if (hasOriginalDimensions) {
+            val apiTargetSize = 500f
+            val computedMaxScale = cropSize * originalSampleSize / apiTargetSize
+            maxScale = maxOf(computedMaxScale, minScale * 2f)
+        }
 
         if (currentScale < minScale) {
             currentScale = minScale
@@ -216,17 +270,25 @@ class ZoomableCropImageView @JvmOverloads constructor(
                 setImageMatrix(imageMatrix)
             }
         }
+
+        if (currentScale > maxScale) {
+            val scaleFactor = maxScale / getCurrentScale()
+            imageMatrix.postScale(scaleFactor, scaleFactor, viewWidth / 2f, viewHeight / 2f)
+            currentScale = maxScale
+            constrainMatrix()
+            setImageMatrix(imageMatrix)
+        }
     }
-    
+
     private fun getConstrainedTranslationX(dx: Float): Float {
         imageMatrix.getValues(matrixValues)
         val transX = matrixValues[Matrix.MTRANS_X]
         val scale = matrixValues[Matrix.MSCALE_X]
         val scaledImageWidth = imageWidth * scale
-        
+
         val newTransX = transX + dx
         val cropLeft = (viewWidth - cropSize) / 2f
-        
+
         return when {
             scaledImageWidth <= cropSize -> {
                 val targetX = cropLeft + (cropSize - scaledImageWidth) / 2f
@@ -235,7 +297,7 @@ class ZoomableCropImageView @JvmOverloads constructor(
             else -> {
                 val maxTransX = cropLeft
                 val minTransX = cropLeft + cropSize - scaledImageWidth
-                
+
                 when {
                     newTransX > maxTransX -> maxTransX - transX
                     newTransX < minTransX -> minTransX - transX
@@ -244,16 +306,16 @@ class ZoomableCropImageView @JvmOverloads constructor(
             }
         }
     }
-    
+
     private fun getConstrainedTranslationY(dy: Float): Float {
         imageMatrix.getValues(matrixValues)
         val transY = matrixValues[Matrix.MTRANS_Y]
         val scale = matrixValues[Matrix.MSCALE_Y]
         val scaledImageHeight = imageHeight * scale
-        
+
         val newTransY = transY + dy
         val cropTop = (viewHeight - cropSize) / 2f
-        
+
         return when {
             scaledImageHeight <= cropSize -> {
                 val targetY = cropTop + (cropSize - scaledImageHeight) / 2f
@@ -262,7 +324,7 @@ class ZoomableCropImageView @JvmOverloads constructor(
             else -> {
                 val maxTransY = cropTop
                 val minTransY = cropTop + cropSize - scaledImageHeight
-                
+
                 when {
                     newTransY > maxTransY -> maxTransY - transY
                     newTransY < minTransY -> minTransY - transY
@@ -271,20 +333,24 @@ class ZoomableCropImageView @JvmOverloads constructor(
             }
         }
     }
-    
+
     fun setInitialMatrix(matrix: Matrix) {
         imageMatrix.set(matrix)
         setImageMatrix(imageMatrix)
         imageMatrix.getValues(matrixValues)
         currentScale = matrixValues[Matrix.MSCALE_X]
     }
-    
+
     fun getCurrentMatrix(): Matrix {
         return Matrix(imageMatrix)
     }
-    
+
     fun getCurrentScale(): Float {
         imageMatrix.getValues(matrixValues)
         return matrixValues[Matrix.MSCALE_X]
+    }
+
+    fun cleanup() {
+        setHiResTile(null)
     }
 }
