@@ -57,6 +57,7 @@
             android:exported="true"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.Artsorakel">
             <!-- Default launcher intent filter -->
             <intent-filter>
@@ -74,6 +75,7 @@
 
         <activity
             android:name=".activities.ImageCropperActivity"
+            android:screenOrientation="fullSensor"
             android:theme="@style/Theme.Artsorakel.NoActionBar" />
 
 

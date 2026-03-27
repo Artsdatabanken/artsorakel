@@ -105,6 +105,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        adjustButtonBarForRotation()
         setupWindowInsets()
         setupResultLaunchers()
         
@@ -229,6 +230,45 @@ class MainActivity : AppCompatActivity() {
 
     // --- Setup Methods ---
 
+    private fun adjustButtonBarForRotation() {
+        if (resources.configuration.orientation != android.content.res.Configuration.ORIENTATION_LANDSCAPE) return
+
+        val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            display?.rotation
+        } else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.rotation
+        } ?: return
+
+        // ROTATION_270 = clockwise rotation, bar should be on the left
+        if (rotation == android.view.Surface.ROTATION_270) {
+            val constraintSet = androidx.constraintlayout.widget.ConstraintSet()
+            constraintSet.clone(binding.rootConstraint)
+
+            val barId = binding.BottomButtonBar.id
+            val dividerId = binding.headerDivider.id
+            val parentId = androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
+
+            // Move bar from right to left
+            constraintSet.clear(barId, androidx.constraintlayout.widget.ConstraintSet.END)
+            constraintSet.connect(barId, androidx.constraintlayout.widget.ConstraintSet.START, parentId, androidx.constraintlayout.widget.ConstraintSet.START)
+
+            // Reconnect content views: start at bar's right edge, end at parent
+            val contentViews = listOf(
+                binding.fragmentContainer.id,
+                binding.progressBarResults.id,
+                binding.timeoutContainer.id
+            )
+            for (viewId in contentViews) {
+                constraintSet.clear(viewId, androidx.constraintlayout.widget.ConstraintSet.START)
+                constraintSet.connect(viewId, androidx.constraintlayout.widget.ConstraintSet.START, barId, androidx.constraintlayout.widget.ConstraintSet.END)
+                constraintSet.connect(viewId, androidx.constraintlayout.widget.ConstraintSet.END, parentId, androidx.constraintlayout.widget.ConstraintSet.END)
+            }
+
+            constraintSet.applyTo(binding.rootConstraint)
+        }
+    }
+
     private fun setupWindowInsets() {
         // Initialize original values only once to prevent accumulation during theme changes
         if (headerOriginalHeight == 0) {
@@ -244,27 +284,44 @@ class MainActivity : AppCompatActivity() {
         // Simple window insets handling - adjust heights and padding for system bars
         ViewCompat.setOnApplyWindowInsetsListener(binding.rootConstraint) { view, windowInsets ->
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            
-            // Expand container heights to include system bar space using stored original heights
+            val isLandscape = resources.configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+
+            // Expand header height to include status bar space
             val headerLayoutParams = binding.headerRow.layoutParams
             headerLayoutParams.height = headerOriginalHeight + insets.top
             binding.headerRow.layoutParams = headerLayoutParams
-            
-            // Update bottom bar if visible - preserve original padding and add insets
-            val bottomBarLayoutParams = binding.BottomButtonBar.layoutParams
-            bottomBarLayoutParams.height = bottomBarOriginalHeight + insets.bottom
-            binding.BottomButtonBar.layoutParams = bottomBarLayoutParams
-            binding.BottomButtonBar.updatePadding(bottom = bottomBarOriginalPaddingBottom + insets.bottom)
-            
-            // Apply padding to position content correctly within expanded containers
             binding.headerRow.updatePadding(top = insets.top)
-            
-            // Apply side padding for display cutouts if any
-            view.updatePadding(
-                left = insets.left,
-                right = insets.right
-            )
-            
+
+            if (isLandscape) {
+                // In landscape the button bar is on the side — no bottom inset needed
+                // but apply side padding on the root for the non-bar side
+                view.updatePadding(left = 0, right = 0)
+                // The bar absorbs the side inset on its side
+                val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    display?.rotation
+                } else {
+                    @Suppress("DEPRECATION")
+                    windowManager.defaultDisplay.rotation
+                }
+                if (rotation == android.view.Surface.ROTATION_270) {
+                    // Bar on left
+                    binding.BottomButtonBar.updatePadding(left = insets.left)
+                    view.updatePadding(right = insets.right)
+                } else {
+                    // Bar on right
+                    binding.BottomButtonBar.updatePadding(right = insets.right)
+                    view.updatePadding(left = insets.left)
+                }
+            } else {
+                // Portrait: bar at bottom
+                val bottomBarLayoutParams = binding.BottomButtonBar.layoutParams
+                bottomBarLayoutParams.height = bottomBarOriginalHeight + insets.bottom
+                binding.BottomButtonBar.layoutParams = bottomBarLayoutParams
+                binding.BottomButtonBar.updatePadding(bottom = bottomBarOriginalPaddingBottom + insets.bottom)
+
+                view.updatePadding(left = insets.left, right = insets.right)
+            }
+
             windowInsets
         }
     }

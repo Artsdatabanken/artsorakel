@@ -148,7 +148,7 @@ class ImageCropperActivity : AppCompatActivity(), ZoomableCropImageView.OnIntera
                                 (viewHeight - scaledHeight) / 2f
                             )
                             binding.imageViewMain.setInitialMatrix(matrix)
-                            loadHiResTile()
+                            lifecycleScope.launch { loadHiResTile() }
                         }
                     }
                 } else if (bitmap == null && !isFinishing && !isDestroyed) {

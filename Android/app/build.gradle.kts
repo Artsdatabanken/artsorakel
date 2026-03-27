@@ -1,9 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
-    kotlin("kapt")
-    id("dagger.hilt.android.plugin")
+    alias(libs.plugins.hilt.android)
 }
 
 // Load configuration from shared config files
@@ -116,21 +114,7 @@ android {
     }
 }
 
-kotlin {
-    compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-    }
-    jvmToolchain(21)
-}
-
-// Kapt configurations 
-kapt {
-    correctErrorTypes = true
-    useBuildCache = true
-    includeCompileClasspath = false
-}
-
-// KSP configuration for Room
+// KSP configuration for Room and Hilt
 ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
     arg("room.incremental", "true")
@@ -174,7 +158,7 @@ dependencies {
 
     // Dependency Injection (Hilt)
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     // Room database - using KSP for better performance
     implementation(libs.androidx.room.runtime)
@@ -195,7 +179,7 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.compiler)
+    kspAndroidTest(libs.hilt.compiler)
     
     // Add missing dependencies for instrumented tests
     androidTestImplementation(libs.kotlinx.coroutines.test.v173)
