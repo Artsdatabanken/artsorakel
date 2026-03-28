@@ -59,11 +59,12 @@ class DisclaimerDialogFragment : DialogFragment() {
         val themeColors = getThemeColors()
         contentWebView.setBackgroundColor(themeColors.backgroundColor)
         
-        // Create dialog but don't show it yet
-        val dialog = MaterialAlertDialogBuilder(requireContext())
-            .setView(dialogView)
-            .setCancelable(false) // User must acknowledge the disclaimer
-            .create()
+        // Create dialog with plain Dialog for full layout control
+        val dialog = Dialog(requireContext()).apply {
+            setContentView(dialogView)
+            setCancelable(false)
+            setCanceledOnTouchOutside(false)
+        }
         
         // Initially hide the dialog window
         dialog.window?.decorView?.visibility = View.INVISIBLE
@@ -267,16 +268,38 @@ class DisclaimerDialogFragment : DialogFragment() {
     
     override fun onStart() {
         super.onStart()
-        // Set dialog size with proper constraints
         val displayMetrics = resources.displayMetrics
+        val screenWidth = displayMetrics.widthPixels
         val screenHeight = displayMetrics.heightPixels
-        val maxHeight = (screenHeight * 0.9).toInt() // Use 90% of screen height max
-        
-        dialog?.window?.setLayout(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            minOf(ViewGroup.LayoutParams.WRAP_CONTENT, maxHeight)
-        )
-        dialog?.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val isPortrait = screenHeight > screenWidth
+        val maxLargest = (maxOf(screenWidth, screenHeight) * 0.75).toInt()
+
+        dialog?.window?.apply {
+            setLayout(
+                if (isPortrait) ViewGroup.LayoutParams.MATCH_PARENT else maxLargest,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setBackgroundDrawableResource(android.R.color.transparent)
+            setGravity(android.view.Gravity.CENTER)
+        }
+
+        // Cap the ScrollView so the dialog doesn't grow beyond 75% of the largest dimension
+        // The title + button + margins take fixed space; the scroll gets the rest
+        val scrollView = dialog?.findViewById<android.widget.ScrollView>(R.id.scrollViewContent)
+        val density = resources.displayMetrics.density
+        val fixedParts = (220 * density).toInt() // title, button, margins, card margin
+        val maxScrollHeight = (maxLargest - fixedParts).coerceAtLeast((100 * density).toInt())
+        scrollView?.post {
+            val contentHeight = scrollView.getChildAt(0)?.height ?: 0
+            if (contentHeight > maxScrollHeight) {
+                (scrollView.layoutParams as? android.widget.LinearLayout.LayoutParams)?.let { lp ->
+                    lp.height = maxScrollHeight
+                    lp.weight = 0f
+                    scrollView.layoutParams = lp
+                }
+            }
+        }
     }
     
     /**
